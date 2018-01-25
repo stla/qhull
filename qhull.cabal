@@ -93,19 +93,20 @@ executable test_voronoi
                      , qhull
                      , pretty-show
                      , containers
+                     , ilist
 
--- executable test_convexhull
---   if flag(exe)
---     buildable:         True
---   else
---     buildable:         False
---   hs-source-dirs:      src-exe/ConvexHull
---   main-is:             Main.hs
---   default-language:    Haskell2010
---   build-depends:       base >= 4.7 && < 5
---                      , qhull
---                      , pretty-show
---                      , containers
+executable test_convexhull
+  if flag(exe)
+    buildable:         True
+  else
+    buildable:         False
+  hs-source-dirs:      src-exe/ConvexHull
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , qhull
+                     , pretty-show
+                     , containers
 
 source-repository head
   type:     git

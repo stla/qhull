@@ -51,10 +51,9 @@ facetVertices = IS.fromAscList . IM.keys . _points . _subsimplex
 -- | the tile facets a vertex belongs to
 vertexNeighborFacets :: Tesselation -> Index -> [TileFacet]
 vertexNeighborFacets tess i =
-  IM.elems (IM.restrictKeys tilefacets ids)
+  IM.elems (IM.restrictKeys (_tilefacets tess) ids)
   where
     ids = _neighfacetsIds (_sites tess IM.! i)
-    tilefacets = _tilefacets tess
 
 -- | whether a tile facet is sandwiched between two tiles
 sandwichedFacet :: TileFacet -> Bool

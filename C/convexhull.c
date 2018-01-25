@@ -50,10 +50,10 @@ RidgeT copyRidge(RidgeT ridge, unsigned dim){
   out.ridgeOf2  = ridge.ridgeOf2;
   out.nvertices = ridge.nvertices;
   out.vertices  = malloc(out.nvertices * sizeof(VertexT));
-  for(unsigned v=0; v<out.nvertices; v++){
+  for(unsigned v=0; v < out.nvertices; v++){
     out.vertices[v].id    = ridge.vertices[v].id;
     out.vertices[v].point = malloc(dim * sizeof(double));
-    for(unsigned i=0; i<dim; i++){
+    for(unsigned i=0; i < dim; i++){
       out.vertices[v].point[i] = ridge.vertices[v].point[i];
     }
   }
@@ -63,13 +63,13 @@ RidgeT copyRidge(RidgeT ridge, unsigned dim){
 /* append to a vector of VertexT */
 void appendv(VertexT x, VertexT** array, unsigned length, unsigned* flag){
   *flag = 1;
-  for(unsigned i=0; i<length; i++){
+  for(unsigned i=0; i < length; i++){
     if(x.id == (*(*array + i)).id){
       *flag = 0;
       break;
     }
   }
-  if(*flag==1){
+  if(*flag == 1){
     *array = realloc(*array, (length+1)*sizeof(VertexT));
     *(*array + length) = x;
   }
@@ -78,7 +78,7 @@ void appendv(VertexT x, VertexT** array, unsigned length, unsigned* flag){
 /* union of two vectors of VertexT */
 void unionv(VertexT** vs1, VertexT* vs2, unsigned l1, unsigned l2, unsigned* l){
   *l = l1;
-  for(unsigned v=0; v<l2; v++){
+  for(unsigned v=0; v < l2; v++){
     unsigned pushed;
     appendv(vs2[v], vs1, *l, &pushed);
     if(pushed){
@@ -103,35 +103,6 @@ RidgeT* mergeRidges(RidgeT* ridges, unsigned nridges, unsigned* newlength){
         unionv(&(ridges[i].vertices), ridges[j].vertices,
                  ridges[i].nvertices, ridges[j].nvertices, &l);
         ridges[i].nvertices = l;
-        // for(unsigned v=0; v<ridges[j].nvertices; v++){
-        //   // unsigned pushed;
-        //   // appendv(ridges[j].vertices[v], &(ridges[i].vertices), ridges[i].nvertices, &pushed);
-        //   // if(pushed){
-        //   //   ridges[i].nvertices++;
-        //   // }
-        //   unsigned flag = 1;
-        //   for(unsigned r=0; r<ridges[i].nvertices; r++){
-        //     if(ridges[j].vertices[v].id == ridges[i].vertices[r].id){
-        //       flag = 0;
-        //       break;
-        //     }
-        //   }
-        //   if(flag==1){
-        //     ridges[i].vertices = realloc(ridges[i].vertices, (ridges[i].nvertices+1)*sizeof(VertexT));
-        //     ridges[i].vertices[ridges[i].nvertices].id = ridges[j].vertices[v].id;
-        //     ridges[i].vertices[ridges[i].nvertices].point = ridges[j].vertices[v].point;
-        //     // ridges[i].vertices[ridges[i].nvertices].point = malloc(4*sizeof(double));//ridges[j].vertices[v].point;
-        //     // //ridges[i].vertices[ridges[i].nvertices].point = ridges[j].vertices[v].point;
-        //     // ridges[i].vertices[ridges[i].nvertices].point[0] = 0;//ridges[j].vertices[v].point[0];
-        //     // ridges[i].vertices[ridges[i].nvertices].point[1] = 1;//ridges[j].vertices[v].point[1];
-        //     // ridges[i].vertices[ridges[i].nvertices].point[2] = 2;//ridges[j].vertices[v].point[2];
-        //     // ridges[i].vertices[ridges[i].nvertices].point[3] = 3;//ridges[j].vertices[v].point[3];
-        //     ridges[i].nvertices++;
-        //   }
-        // }
-        // printf("nvertices: %u\n", ridges[i].nvertices);
-        // printf("%u\n", ridges[i].vertices[ridges[i].nvertices-1].id);
-        // printf("%f\n", ridges[i].vertices[ridges[i].nvertices-1].point[0]);
         (*newlength)--;
         for(k = j; k < nridges; k++){
           ridges[k] = ridges[k+1];
@@ -142,33 +113,8 @@ RidgeT* mergeRidges(RidgeT* ridges, unsigned nridges, unsigned* newlength){
       }
     }
   }
-  // for(i=0; i<nridges; i++){
-  //   unsigned flag = 0;
-  //   for(j=i+1; j<nridges; j++){
-  //     if(ridges[i].ridgeOf1==ridges[j].ridgeOf1 &&
-  //        ridges[i].ridgeOf2==ridges[j].ridgeOf2)
-  //     {
-  //       flag = 1;
-  //       break;
-  //     }
-  //   }
-  //    /* if none of the values in index[0..j] of array is not same as array[i],
-  //       then copy the current value to corresponding new position in array */
-  //   if(flag){
-  //     printf("to merge\n");
-  //     unsigned l;
-  //     ridges[*newlength].vertices =
-  //       unionv(ridges[i].vertices, ridges[j].vertices,
-  //              ridges[i].nvertices, ridges[j].nvertices, &l);
-  //     ridges[*newlength].nvertices = l;
-  //     printf("nvertices: %d\n", l);
-  //     ridges[*newlength].ridgeOf1 = ridges[i].ridgeOf1;
-  //     ridges[*newlength].ridgeOf2 = ridges[i].ridgeOf2;
-  //     (*newlength)++;
-  //   }
-  // }
   RidgeT* out = malloc(*newlength * sizeof(RidgeT));
-  for(unsigned r=0; r<*newlength; r++){
+  for(unsigned r=0; r < *newlength; r++){
     out[r] = ridges[r];
   }
   return out;
@@ -188,9 +134,9 @@ RidgeT* allRidges(FaceT *faces, unsigned nfaces, unsigned dim, unsigned* length)
   for(unsigned f=1; f < nfaces; f++){
     for(unsigned j=0; j < faces[f].nridges; j++){
       unsigned count = 0;
-      for(unsigned i=0; i<n; i++){
+      for(unsigned i=0; i < n; i++){
         unsigned flag = 0;
-        for(unsigned v=0; v<faces[f].ridges[j].nvertices; v++){
+        for(unsigned v=0; v < faces[f].ridges[j].nvertices; v++){
           if(faces[f].ridges[j].vertices[v].id != out[i].vertices[v].id){
             flag = 1;
             break;
@@ -269,16 +215,13 @@ double ridgeMaxDistance(RidgeT ridge, unsigned v, unsigned dim){
 /* neighbor vertices of a vertex from all ridges*/
 unsigned* neighVertices(unsigned id, RidgeT* allridges, unsigned nridges,
                         unsigned dim, unsigned* lengthout)
-{ // does not work for dim 2: ridges are singletons ! => les neighs avec les faces - fonction à part
-  // wrong in dim4 : two points in a ridge are not necessarily connected
-  //    ok with merged ridges
-  // other way: qhull/html/qh-code.htm
+{
   unsigned* neighs = malloc(0);
   *lengthout = 0;
-  for(unsigned e=0; e<nridges; e++){
-    for(unsigned v=0; v<allridges[e].nvertices; v++){
+  for(unsigned e=0; e < nridges; e++){
+    for(unsigned v=0; v < allridges[e].nvertices; v++){
       if(id == allridges[e].vertices[v].id){
-        for(unsigned w=0; w<allridges[e].nvertices; w++){
+        for(unsigned w=0; w < allridges[e].nvertices; w++){
           if(w != v && (dim == 3 || // dim3 pas besoin de tester la distance: il n'y a que deux vertices connectés
              squaredDistance(allridges[e].vertices[w].point,
                              allridges[e].vertices[v].point, dim) <=
@@ -294,15 +237,6 @@ unsigned* neighVertices(unsigned id, RidgeT* allridges, unsigned nridges,
         break;
       }
     }
-    // if(id == allridges[e].v1.id){
-    //   neighs = realloc(neighs, (*length+1)*sizeof(unsigned));
-    //   neighs[*length] = allridges[e].v2.id;
-    //   (*length)++;
-    // }else if(id == allridges[e].v2.id){
-    //   neighs = realloc(neighs, (*length+1)*sizeof(unsigned));
-    //   neighs[*length] = allridges[e].v1.id;
-    //   (*length)++;
-    // }
   }
   return neighs;
 }
@@ -313,7 +247,7 @@ unsigned* neighRidges(unsigned id, RidgeT* allridges, unsigned nridges,
 {
   unsigned* neighs = malloc(0);
   *length = 0;
-  for(unsigned e=0; e<nridges; e++){
+  for(unsigned e=0; e < nridges; e++){
     unsigned flag=0;
     for(unsigned v=0; v < allridges[e].nvertices; v++){
       if(id == allridges[e].vertices[v].id){
@@ -348,10 +282,6 @@ unsigned** faceEdges(FaceT face, unsigned** alledges, unsigned nalledges,
                       unsigned* lengthout)
 {
   *lengthout = 0;
-  // unsigned faceverticesids[face.nvertices];
-  // for(unsigned v=0; v < face.nvertices; v++){
-  //   faceverticesids[v] = face.vertices[v].id;
-  // }
   unsigned* faceverticesids = map_vertexid(face.vertices, face.nvertices);
   unsigned flags[nalledges];
   for(unsigned e=0; e < nalledges; e++){
@@ -417,7 +347,6 @@ unsigned** allEdges(FullVertexT* vertices, unsigned nvertices,
 
 // ATTENTION avec Qt le center dans facet->center est le centre de l'union des triangles,
 //  (ainsi que normal et offset mais ça ok)
-// dim 4: les "triangles" ont 4 vertices
 
 // un ridge est simplicial ; pour l'hypercube il y a 2 ridges entre 2 faces,
 // ils forment le carré à l'intersection
@@ -433,8 +362,8 @@ ConvexHullT* convexHull(
 	unsigned* exitcode
 )
 {
-	char flags[250]; /* option flags for qhull, see qh_opt.htm */
-  sprintf(flags, "qhull s FF %s", triangulate ? "Qt" : "");
+	char opts[250]; /* option flags for qhull, see qh_opt.htm */
+  sprintf(opts, "qhull s FF %s", triangulate ? "Qt" : "");
 	qhT qh_qh;       /* Qhull's data structure */
   qhT *qh= &qh_qh;
   QHULL_LIB_CHECK
@@ -448,8 +377,8 @@ ConvexHullT* convexHull(
     outfile = NULL;
   }
   qh_zero(qh, errfile);
-	exitcode[0] = qh_new_qhull(qh, dim, n, points, ismalloc, flags, outfile,
-		                         errfile);
+	exitcode[0] = qh_new_qhull(qh, dim, n, points, ismalloc, opts, outfile,
+                             errfile);
   //fclose(tmpstdout);
   printf("exitcode: %u\n", exitcode[0]);
 
@@ -585,20 +514,6 @@ ConvexHullT* convexHull(
       vertexT *vertex;
       unsigned i_vertex=0;
       FORALLvertices{
-        // // test qh_vertexridges
-        // setT* vertexRidges = qh_vertexridges(qh, vertex);
-        // unsigned nvertexRidges = qh_setsize(qh, vertexRidges);
-        // printf("vertex: %d\n", qh_pointid(qh, vertex->point));
-        // for(unsigned r=0; r<nvertexRidges; r++){
-        //   printf("nvertices in the vertex ridge: %d\n",
-        //           qh_setsize(qh, ((ridgeT*)vertexRidges->e[r].p)->vertices));
-        //   for(unsigned v=0; v<qh_setsize(qh, ((ridgeT*)vertexRidges->e[r].p)->vertices); v++){
-        //     printf("vid: %d - ",
-        //           qh_pointid(qh, ((vertexT*)((ridgeT*)vertexRidges->e[r].p)->vertices->e[v].p)->point));
-        //   }
-        //   printf("\n");
-        // }
-
         /* vertex id and coordinates */
         vertices[i_vertex].id    = (unsigned) qh_pointid(qh, vertex->point);
         vertices[i_vertex].point = getpoint(points, dim, vertices[i_vertex].id);
@@ -696,7 +611,7 @@ ConvexHullT* convexHull(
     out->edges     = alledges;
     out->nedges    = nalledges;
 
-  } // end if exitocde
+  } // end if exitcode
 
   /* Do cleanup regardless of whether there is an error */
   int curlong, totlong;

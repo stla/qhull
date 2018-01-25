@@ -10,6 +10,8 @@ import           Delaunay
 type Point = [Double]
 type Vector = [Double]
 data Edge = Edge (Point, Point) | IEdge (Point, Vector)
+     deriving Show
+type Cell = [Edge]
 
 
 factor2 :: (Double,Double,Double,Double) -> (Double,Double) -> (Double,Double) -> Double
@@ -54,28 +56,12 @@ voronoi cellGetter tess =
   let sites = IM.elems $ IM.map _point (_sites tess) in
     zip sites (map (cellGetter tess) [0 .. length sites -1])
 
-voronoi' :: Tesselation -> [([Double], [Edge])]
+voronoi' :: Tesselation -> [([Double], Cell)]
 voronoi' = voronoi (voronoiCell id id)
 
--- getVertexRidges' :: Delaunay -> Index -> [(CentredPolytope, [Int], Double)]
--- getVertexRidges' tess i =
---   foldr (unionBy equalRidges) [] $
---     M.elems $ M.restrictKeys (vertexNeighborsRidges tess)
---                              (S.fromList $ _vrneighbors tess !! i)
---
-
--- getVertexRidges :: Delaunay -> Index -> [Ridge]
--- getVertexRidges tess i =
---     M.elems $ M.restrictKeys (ridgesMap tess)
---                              (_neighRidges $ _vertices tess IM.! i)
-
--- uniqueWith :: (a -> a -> Bool) -> [a] -> [a] -- nubBy dans Data.List !
--- uniqueWith f = foldr (unionBy f . (: [])) []
---
--- getVertexRidges' :: Delaunay -> Index -> Map IntSet Ridge
--- getVertexRidges' tess i =
---     M.restrictKeys (ridgesMap tess)
---                    (_neighRidges $ _vertices tess IM.! i)
---
--- uniqueWith' :: (a -> a -> Bool) -> Map IntSet a -> [a]
--- uniqueWith' f list = M.foldr (unionBy f) [] (M.map (: []) list)
+-- | whether a Voronoi cell is bounded
+boundedCell :: Cell -> Bool
+boundedCell = all isEdge
+  where
+    isEdge (Edge _) = True
+    isEdge _        = False

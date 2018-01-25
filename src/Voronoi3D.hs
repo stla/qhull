@@ -7,7 +7,9 @@ module Voronoi3D
  , voronoiCell3
  , voronoi3
  , cell3Vertices
- , voronoi3vertices)
+ , voronoi3vertices
+ , boundedCell3
+ , restrictVoronoi3)
   where
 import           Control.Arrow      (second)
 import           Data.List
@@ -25,6 +27,7 @@ type Cell3 = [Edge3]
 type Voronoi3 = [([Double], Cell3)]
 type Box3 = (Double, Double, Double, Double, Double, Double)
 
+-- | pretty print a 3D Voronoi diagram
 prettyShowVoronoi3 :: Voronoi3 -> Maybe Int -> IO ()
 prettyShowVoronoi3 v m = do
   let string = intercalate "\n---\n" (map (prettyShowCell3 m) v)
@@ -64,12 +67,26 @@ equalFacets tfacet1 tfacet2 =
     (p1, f1) = tileFacetAsPair tfacet1
     (p2, f2) = tileFacetAsPair tfacet2
 
+-- | Voronoi cell of a vertex given by its index
 voronoiCell3 :: Tesselation -> Index -> Cell3
 voronoiCell3 = voronoiCell (nubBy equalFacets) edgeToEdge3
 
+-- | 3D Voronoi diagram
 voronoi3 :: Tesselation -> Voronoi3
 voronoi3 = voronoi voronoiCell3
 
+-- | whether a 3D Voronoi cell is bounded
+boundedCell3 :: Cell3 -> Bool
+boundedCell3 = all isEdge
+  where
+    isEdge (Edge3 _) = True
+    isEdge _         = False
+
+-- | restrict a 3D Voronoi diagram to its bounded cells
+restrictVoronoi3 :: Voronoi3 -> Voronoi3
+restrictVoronoi3 = filter (\(_, cell) -> boundedCell3 cell)
+
+-- | vertices of a bounded 3D cell
 cell3Vertices :: Cell3 -> [[Double]]
 cell3Vertices cell = nub $ concatMap extractVertices cell
   where
@@ -77,6 +94,7 @@ cell3Vertices cell = nub $ concatMap extractVertices cell
     extractVertices (Edge3 ((x1,x2,x3),(y1,y2,y3))) = [[x1,x2,x3],[y1,y2,y3]]
     extractVertices _                               = []
 
+-- | vertices of a 3D Voronoi diagram
 voronoi3vertices :: Voronoi3 -> [[Double]]
 voronoi3vertices = concatMap (\(_,cell) -> cell3Vertices cell)
 
@@ -102,5 +120,6 @@ truncEdge3 (xmin, xmax, ymin, ymax, zmin, zmax) edge =
                     | otherwise = min (min (factor u1 u2 0) (factor 0 u2 u3))
                                       (factor u1 0 u3)
 
+-- | clip 3D Voronoi diagram in a bounding box
 clipVoronoi3 :: Box3 -> Voronoi3 -> Voronoi3
 clipVoronoi3 box = map (second (map (truncEdge3 box)))

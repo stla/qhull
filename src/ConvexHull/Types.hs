@@ -4,8 +4,6 @@ import           Data.Hashable
 import           Data.HashMap.Strict (HashMap)
 import           Data.IntMap.Strict  (IntMap)
 import           Data.IntSet         (IntSet)
--- import           Data.Map.Strict     (Map)
--- import           Data.Set            (Set)
 
 type Index = Int
 type IndexMap = IntMap
@@ -23,7 +21,7 @@ type EdgeMap = HashMap IndexPair ([Double],[Double])
 
 data Vertex = Vertex {
     _point         :: [Double]
-  , _neighfaces    :: IntSet
+  , _neighfacets   :: IntSet
   , _neighvertices :: IndexSet
   , _neighridges   :: IndexSet
 } deriving Show
@@ -33,7 +31,7 @@ data Ridge = Ridge {
   , _ridgeOf   :: IntSet
 } deriving Show
 
-data Facet = Facet { -- ça devrait être facet : (n-1)-face
+data Facet = Facet {
     _fvertices :: IndexMap [Double]
   , _ridges    :: IntMap Ridge
   , _centroid  :: [Double]

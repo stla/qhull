@@ -15,10 +15,6 @@ unsigned facetOK_(facetT* facet, unsigned degenerate){
   return !facet->upperdelaunay && (degenerate || !facet->degenerate);
 } // && simplicial, && !facet->redundant - pas de simplicial avec Qt
 
-// // to use the qsort function - sort sites according to their ids
-// int cmpsites (const void * a, const void * b) {
-//    return ( (*((SiteT*)a)).id - (*((SiteT*)b)).id );
-// }
 
 
 TesselationT* tesselation(
@@ -29,8 +25,8 @@ TesselationT* tesselation(
 	unsigned* exitcode
 )
 {
-	char flags[250]; /* option flags for qhull, see qh_opt.htm */
-  sprintf(flags, "qhull d Qt Fn Qbb", "");
+	char opts[250]; /* option flags for qhull, see qh_opt.htm */
+  sprintf(opts, "qhull d Qt Fn Qbb");
 	qhT qh_qh; /* Qhull's data structure */
   qhT *qh= &qh_qh;
   QHULL_LIB_CHECK
@@ -39,16 +35,15 @@ TesselationT* tesselation(
 	FILE *errfile   = NULL;
   FILE* outfile   = NULL;
   qh_zero(qh, errfile);
-	exitcode[0] = qh_new_qhull(qh, dim, n, sites, ismalloc, flags, outfile,
-		                         errfile);
+	*exitcode = qh_new_qhull(qh, dim, n, sites, ismalloc, opts, outfile, errfile);
   //fclose(tmpstdout);
-  printf("exitcode: %u\n", exitcode[0]);
+  printf("exitcode: %u\n", *exitcode);
 
   TesselationT* out = malloc(sizeof(TesselationT)); /* output */
 
-	if (!exitcode[0]) { /* 0 if no error from qhull */
+	if (!(*exitcode)) { /* 0 if no error from qhull */
 
-    /* Count the number of facets so we know how much space to allocate */
+    /* Count the number of facets we keep */
 		unsigned nfacets = 0; /* to store the number of facets */
     {
       facetT *facet;  /* set by FORALLfacets */
@@ -64,12 +59,11 @@ TesselationT* tesselation(
 
     /* Initialize the tiles */
     TileT* allfacets = malloc(nfacets * sizeof(TileT));
-  	{ /* facets ids, orientations, centers, normals, offsets, sites ids, neighbors, families  */
+  	{ /* facets ids, orientations, centers, normals, offsets, sites ids, neighbors, families */
       facetT* facet;
       unsigned i_facet = 0; /* facet counter */
       FORALLfacets {
-        // ceci fait planter: fais getarea après le test tricoplanar
-//        allfacets[i_facet].simplex.volume = qh_facetarea(qh, facet);
+
         allfacets[i_facet].id             = facet->id;
         allfacets[i_facet].orientation    = facet->toporient ? 1 : -1;
         allfacets[i_facet].simplex.center =
@@ -86,7 +80,6 @@ TesselationT* tesselation(
         }else{
           allfacets[i_facet].simplex.radius = NAN;
         }
-
 
         { /* vertices ids of the facet */
           allfacets[i_facet].simplex.sitesids =
@@ -107,7 +100,6 @@ TesselationT* tesselation(
           allfacets[i_facet].nneighbors = 0;
           unsigned i_neighbor = 0;
     			FOREACHneighbor_(facet) {
-            //flag[i_neighbor] = facetOK_(neighbor, degenerate);
             if(flag[i_neighbor] = facetOK_(neighbor, degenerate)){
               allfacets[i_facet].nneighbors++;
             }
@@ -122,7 +114,6 @@ TesselationT* tesselation(
               allfacets[i_facet].neighbors[countok] = neighbor->id;
               countok++;
             }
-            /**/
             i_neighbor++;
           }
         }
@@ -141,6 +132,7 @@ TesselationT* tesselation(
 
 		/* neighbor facets and neighbor vertices per vertex */
     /* --- we will use the following combinations, also used later */
+    /* --- combinations[m] contains all k between 0 and dim but m  */
     unsigned combinations[dim+1][dim];
     for(unsigned m=0; m < dim+1; m++){
       unsigned kk=0;
@@ -151,16 +143,17 @@ TesselationT* tesselation(
         }
       }
     }
-    /* --- initialize all sites */
+    /* --- initialize the sites */
     SiteT* allsites = malloc(n * sizeof(SiteT));
     /* --- array to flag neighbors - 0/1 if not neighbour/neighbour */
     unsigned** verticesFacetsNeighbours = malloc(n * sizeof(unsigned*));
-//		unsigned verticesFacetsNeighbours[n][nfacets]; stackoverflow !
+		  /* unsigned verticesFacetsNeighbours[n][nfacets] => stackoverflow */
     for(unsigned v=0; v < n; v++){
-      allsites[v].id          = v;
-      allsites[v].nneighsites = 0;
-      allsites[v].neighsites  = malloc(0);
-      allsites[v].nneightiles = 0;
+      allsites[v].id           = v;
+      allsites[v].nneighsites  = 0;
+      allsites[v].neighsites   = malloc(0);
+      allsites[v].nneighridges = 0;
+      allsites[v].nneightiles  = 0;
       verticesFacetsNeighbours[v] = uzeros(nfacets);
     }
 
@@ -193,9 +186,6 @@ TesselationT* tesselation(
     for(unsigned r=0; r < n_ridges_dup; r++){
       allridges_dup[r].simplex.sitesids = malloc(dim * sizeof(unsigned));
       allridges_dup[r].flag = 0;
-    }
-    for(unsigned v=0; v < n; v++){
-      allsites[v].nneighridges = 0;
     }
     qh_getarea(qh, qh->facet_list); /* make facets volumes, available in facet->f.area */
     unsigned n_ridges = 0; /* count distinct ridges */
@@ -237,7 +227,7 @@ TesselationT* tesselation(
               }
             }
           }
-          if(done == 0){ /* do ridge */
+          if(done == 0){ /* => do ridge */
             allridges_dup[i_ridge_dup].flag = 1;
             allridges_dup[i_ridge_dup].id   = n_ridges;
             allfacets[i_facet].ridgesids[m] = n_ridges;
@@ -354,7 +344,7 @@ TesselationT* tesselation(
                (!facet->degenerate || dim==2))
             {
               pointT* otherpoint = /* the remaining vertex of the facet (the one not in the ridge) */
-                getpoint(sites, allfacets[facet->id].simplex.sitesids[m], dim);
+                getpoint(sites, dim, allfacets[facet->id].simplex.sitesids[m]);
               double thepoint[dim]; /* the point center+normal */
               for(unsigned i=0; i < dim; i++){
                 thepoint[i] = allridges_dup[i_ridge_dup].simplex.center[i] +
@@ -386,7 +376,7 @@ TesselationT* tesselation(
       } // end FORALLfacets
     }
 
-    /* make unique ridges */
+    /* extract unique ridges */
     SubTileT* allridges = malloc(n_ridges * sizeof(SubTileT));
     unsigned inc_ridge = 0;
 		for(unsigned l=0; l < n_ridges_dup; l++){
@@ -428,7 +418,7 @@ TesselationT* tesselation(
 			}
 		}
 
-
+    /* make the output */
 	  out->sites      = allsites;
     out->tiles      = allfacets;
 	  out->ntiles     = nfacets;

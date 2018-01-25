@@ -137,7 +137,7 @@ cVerticesToVertexMap dim cvertices = do
   return $ IM.fromList (zip ids
                             (map (\(pt, fneighs, vneighs, eneighs) ->
                                   Vertex { _point = pt
-                                         , _neighfaces =
+                                         , _neighfacets =
                                               IS.fromAscList fneighs
                                          , _neighvertices =
                                               IS.fromAscList vneighs

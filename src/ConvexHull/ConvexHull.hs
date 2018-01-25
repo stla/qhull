@@ -6,7 +6,7 @@ import           ConvexHull.Types
 import qualified Data.HashMap.Strict    as H
 import qualified Data.IntMap.Strict     as IM
 import           Data.List
-import           Data.List.Unique      (allUnique)
+import           Data.List.Unique       (allUnique)
 import           Data.Maybe
 import           Foreign.C.String
 import           Foreign.C.Types

@@ -2,10 +2,11 @@ module Main
   where
 import           ConvexHull
 import           ConvexHull.Examples
+import           ConvexHull.R
 import           Data.List
 import qualified Data.Set            as S
-import           Text.Show.Pretty
 import           System.IO
+import           Text.Show.Pretty
 
 approx :: RealFrac a => Int -> a -> a
 approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
@@ -14,7 +15,8 @@ main :: IO ()
 main = do
 
   points <- randomInCube 1000
-  convexHull3DrglCode (map (map (approx 4)) points) "rgl/convexhull04.R"
+  code <- convexHull3DrglCode (map (map (approx 4)) points) True (Just "rgl/convexhull04.R")
+  putStrLn "done"
 
 
   -- let square3D = [[-1,-1, 0]
