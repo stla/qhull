@@ -76,7 +76,7 @@ facetVertices = IM.elems . _fvertices
 
 -- | get facets ids an edge belongs to
 edgeOf :: ConvexHull -> (Index, Index) -> [Int]
-edgeOf hull v1v2 = IM.keys (IM.filter (elem v1v2) facesEdges)
+edgeOf hull (v1,v2) = IM.keys (IM.filter (elem (Pair v1 v2)) facesEdges)
   where
     facesEdges = IM.map (H.keys . _edges) (_facets hull)
     -- v1v2' = if v1<v2 then Pair v1 v2 else Pair v2 v1 -- useless

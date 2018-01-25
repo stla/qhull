@@ -9,7 +9,8 @@ module Voronoi3D
  , cell3Vertices
  , voronoi3vertices
  , boundedCell3
- , restrictVoronoi3)
+ , restrictVoronoi3
+ , restrictVoronoi3box)
   where
 import           Control.Arrow      (second)
 import           Data.List
@@ -82,16 +83,34 @@ boundedCell3 = all isEdge
     isEdge (Edge3 _) = True
     isEdge _         = False
 
+-- | whether a 3D Voronoi cell is inside a given box
+cell3inBox :: (Double,Double) -> (Double,Double) -> (Double,Double) -> Cell3 -> Bool
+cell3inBox (xmin,xmax) (ymin, ymax) (zmin,zmax) cell =
+  boundedCell3 cell && all edgeInBox cell
+  where
+    tripletInBox (x,y,z) =
+      x > xmin && y > ymin && z > zmin && x < xmax && y < ymax && z < zmax
+    edgeInBox (Edge3 (p1,p2)) = tripletInBox p1 && tripletInBox p2
+    edgeInBox _ = False
+
+filterVoronoi3 :: (Cell3 -> Bool) -> Voronoi3 -> Voronoi3
+filterVoronoi3 cellTester = filter (\(_, cell) -> cellTester cell)
+
 -- | restrict a 3D Voronoi diagram to its bounded cells
 restrictVoronoi3 :: Voronoi3 -> Voronoi3
-restrictVoronoi3 = filter (\(_, cell) -> boundedCell3 cell)
+restrictVoronoi3 = filterVoronoi3 boundedCell3
+
+-- | restrict a 3D Voronoi diagram to the cells contained in a box
+restrictVoronoi3box :: (Double,Double) -> (Double,Double) -> (Double,Double)
+                    -> Voronoi3 -> Voronoi3
+restrictVoronoi3box xlim ylim zlim = filterVoronoi3 (cell3inBox xlim ylim zlim)
 
 -- | vertices of a bounded 3D cell
 cell3Vertices :: Cell3 -> [[Double]]
 cell3Vertices cell = nub $ concatMap extractVertices cell
   where
     extractVertices :: Edge3 -> [[Double]]
-    extractVertices (Edge3 ((x1,x2,x3),(y1,y2,y3))) = [[x1,x2,x3],[y1,y2,y3]]
+    extractVertices (Edge3 ((x1,y1,z1),(x2,y2,z2))) = [[x1,y1,z1],[x2,y2,z2]]
     extractVertices _                               = []
 
 -- | vertices of a 3D Voronoi diagram

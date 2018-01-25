@@ -1,10 +1,12 @@
 module Voronoi.R
   where
-import           Data.List       (intercalate, transpose)
-import           Data.List.Index (imap)
+import           ConvexHull
+import qualified Data.IntMap.Strict as IM
+import           Data.List          (intercalate, transpose)
+import           Data.List.Index    (imap, iconcatMap)
 import           Data.Maybe
 import           Delaunay.R
-import           Delaunay.Types  (Tesselation)
+import           Delaunay.Types     (Tesselation)
 import           Voronoi2D
 import           Voronoi3D
 
@@ -64,3 +66,25 @@ voronoi3ForRgl v d =
           IEdge3 (x,y) ->
             "segments3d(rbind(c" ++ show x ++ ", c" ++ show (sumTriplet x y) ++ "), col=c(\"red\",\"red\"))"
         sumTriplet (a,b,c) (a',b',c') = (a+a',b+b',c+c')
+
+-- | plot with facets
+voronoi3ForRgl' :: Voronoi3 -> Maybe Tesselation -> IO String
+voronoi3ForRgl' v d = do
+  let code1 = voronoi3ForRgl v d
+      boundedCells = map (cell3Vertices . snd) (restrictVoronoi3 v)
+  hulls <- mapM (\cell -> convexHull cell True False Nothing) boundedCells
+  let triangles = map (map facetVertices . IM.elems . _facets) hulls
+      code_colors = "colors <- rainbow(" ++ show (length triangles +1) ++ ")\n"
+      code2 = iconcatMap (\i x -> concatMap (rglTriangle i) x ++ "\n") triangles
+  return $ code_colors ++ code1 ++ code2
+  where
+    asTriplet p = (p!!0, p!!1, p!!2)
+    rglTriangle :: Int -> [[Double]] -> String
+    rglTriangle i threepoints =
+      "triangles3d(rbind(c" ++ show p1 ++ ", c" ++ show p2 ++
+      ", c" ++ show p3 ++ "), color=colors[" ++ show (i+1) ++ "]" ++
+      ", alpha=0.75)\n"
+      where
+        p1 = asTriplet $ threepoints!!0
+        p2 = asTriplet $ threepoints!!1
+        p3 = asTriplet $ threepoints!!2

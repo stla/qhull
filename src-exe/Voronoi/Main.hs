@@ -28,10 +28,28 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  x <- randomInCircle 50
-  tess <- delaunay (x ++ [[0,0]]) False
-  let v = voronoi2 tess
-  writeFile "Rplots/voronoi_circle01.R" (voronoi2ForR v Nothing)
+  -- let cube = [[i,j,k] | i <- [-1,2], j <- [-1,2], k <- [-1,2]]
+  -- x <- randomInCube 30
+  -- tess <- delaunay (cube ++ x) False
+  -- let v = voronoi3 tess
+  -- prettyShowVoronoi3 v (Just 3)
+  -- pPrint (map (_circumcenter . _simplex) (IM.elems (_tiles tess)))
+  -- code <- voronoi3ForRgl' v Nothing
+  -- writeFile "rgl/voronoi_randomInCube00.R" code
+
+  let cube = [[i,j,k] | i <- [0,1], j <- [0,1], k <- [0,1]]
+  x <- randomInCube 30
+  tess <- delaunay (cube ++ x) False
+  let v = voronoi3 tess
+      v' = restrictVoronoi3box (-5,5) (-5,5) (-5,5) v
+  prettyShowVoronoi3 v' (Just 3)
+  code <- voronoi3ForRgl' v' Nothing
+  writeFile "rgl/voronoi_randomInCube01.R" code
+
+  -- x <- randomInCircle 50
+  -- tess <- delaunay (x ++ [[0,0]]) False
+  -- let v = voronoi2 tess
+  -- writeFile "Rplots/voronoi_circle01.R" (voronoi2ForR v Nothing)
 
   -- tess <- delaunay squareLattice False
   -- let v = voronoi2 tess

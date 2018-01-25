@@ -37,12 +37,15 @@ edgesFromTileFacet tess tilefacet
   | length tileindices == 1
     = Just $ IEdge (c1, _normal simplex)
   | c1 == c2 = Nothing
+  | isJust (_family tile1) && (_family tile1 == _family tile2) = Nothing
   | otherwise = Just $ Edge (c1, c2)
   where
     (simplex, tileindices) = tileFacetAsPair tilefacet
     tiles = _tiles tess
-    c1 = _circumcenter $ _simplex (tiles IM.! head tileindices)
-    c2 = _circumcenter $ _simplex (tiles IM.! last tileindices)
+    tile1 = tiles IM.! head tileindices
+    tile2 = tiles IM.! last tileindices
+    c1 = _circumcenter $ _simplex tile1
+    c2 = _circumcenter $ _simplex tile2
 
 voronoiCell :: ([TileFacet] -> [TileFacet]) -> (Edge -> a) -> Tesselation
             -> Index -> [a]
