@@ -1,7 +1,7 @@
 {-# LINE 1 "convexhull.hsc" #-}
 {-# LANGUAGE ForeignFunctionInterface #-}
 module ConvexHull.CConvexHull
-  ( peekConvexHull
+  ( cConvexHullToConvexHull
   , c_convexhull )
   where
 import           Control.Monad       ((<$!>), (=<<))
@@ -11,11 +11,9 @@ import           Data.IntMap.Strict  (IntMap, fromAscList)
 import qualified Data.IntMap.Strict  as IM
 import qualified Data.IntSet         as IS
 import           Data.List
--- import           Data.List.Index     (imapM)
--- import qualified Data.Set            as S
 import           Data.Tuple.Extra    (both)
 import           Foreign
-import Foreign.C.String
+import           Foreign.C.String
 import           Foreign.C.Types
 
 data CVertex = CVertex {
@@ -401,9 +399,8 @@ foreign import ccall unsafe "convexHull" c_convexhull
   -> Ptr CUInt -- exitcode
   -> IO (Ptr CConvexHull)
 
-peekConvexHull :: Ptr CConvexHull -> IO ConvexHull
-peekConvexHull ptr = do
-  cconvexhull <- peek ptr
+cConvexHullToConvexHull :: CConvexHull -> IO ConvexHull
+cConvexHullToConvexHull cconvexhull = do
   let dim       = fromIntegral (__dim cconvexhull)
       nvertices = fromIntegral (__nvertices cconvexhull)
       nfaces    = fromIntegral (__nfaces cconvexhull)

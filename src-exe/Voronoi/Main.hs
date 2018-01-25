@@ -28,18 +28,23 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
+  x <- randomInCircle 50
+  tess <- delaunay (x ++ [[0,0]]) False
+  let v = voronoi2 tess
+  writeFile "Rplots/voronoi_circle01.R" (voronoi2ForR v Nothing)
+
   -- tess <- delaunay squareLattice False
   -- let v = voronoi2 tess
   -- putStrLn $ voronoi2ForR v (Just tess)
 
-  let x = rhombicDodecahedron ++ [[0,0,0]]
-  tess <- delaunay x False
-  let v = voronoi3 tess
-      code1 = voronoi3ForRgl v Nothing
-      (_, cell) = last v
-  code2 <- convexHull3DrglCode (cell3Vertices cell) False Nothing
-  writeFile "rgl/voronoi_centricRhombicDodecahedron.R" (code1 ++ code2)
-  pPrint v
+  -- let x = rhombicDodecahedron ++ [[0,0,0]]
+  -- tess <- delaunay x False
+  -- let v = voronoi3 tess
+  --     code1 = voronoi3ForRgl v Nothing
+  --     (_, cell) = last v
+  -- code2 <- convexHull3DrglCode (cell3Vertices cell) False Nothing
+  -- writeFile "rgl/voronoi_centricRhombicDodecahedron.R" (code1 ++ code2)
+  -- pPrint v
 
   -- tess <- delaunay centricCuboctahedron False
   -- let v = voronoi3 tess

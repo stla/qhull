@@ -95,11 +95,9 @@ cell2Vertices' cell = flattenSCCs (stronglyConnComp x)
     x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
     connectedVertices :: [Double] -> [Double] -> Bool
     connectedVertices [x1,x2] [y1,y2] =
-      (Edge2 ((x1,x2),(y1,y2)) `elem` cell) || (Edge2 ((y1,y2),(x1,x2)) `elem` cell)
+      (Edge2 ((x1,x2),(y1,y2)) `elem` cell) ||
+      (Edge2 ((y1,y2),(x1,x2)) `elem` cell)
     connectedVertices _ _ = False
-
-
-
 
 truncEdge2 :: Box2 -> Edge2 -> Edge2
 truncEdge2 box edge =

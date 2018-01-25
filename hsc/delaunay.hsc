@@ -34,13 +34,13 @@ instance Storable CSite where
       nneighridges'    <- #{peek SiteT, nneighridges} ptr
       neightiles'      <- #{peek SiteT, neightiles} ptr
       nneightiles'     <- #{peek SiteT, nneightiles} ptr
-      return CSite { __id = id'
-                   , __neighsites = neighsites'
-                   , __nneighsites = nneighsites'
+      return CSite { __id             = id'
+                   , __neighsites     = neighsites'
+                   , __nneighsites    = nneighsites'
                    , __neighridgesids = neighridgesids'
-                   , __nneighridges = nneighridges'
-                   , __neightiles = neightiles'
-                   , __nneightiles = nneightiles'
+                   , __nneighridges   = nneighridges'
+                   , __neightiles     = neightiles'
+                   , __nneightiles    = nneightiles'
                   }
     poke ptr (CSite r1 r2 r3 r4 r5 r6 r7)
       = do
@@ -148,8 +148,7 @@ instance Storable CSubTile where
       return CSubTile { __id'        = id'
                       , __subsimplex = simplex'
                       , __ridgeOf1   = ridgeOf1'
-                      , __ridgeOf2   = ridgeOf2'
-                    }
+                      , __ridgeOf2   = ridgeOf2' }
     poke ptr (CSubTile r1 r2 r3 r4)
       = do
           #{poke SubTileT, id} ptr r1
@@ -166,10 +165,8 @@ cSubTiletoTileFacet points csubtile = do
       id'        = fromIntegral $ __id' csubtile
       subsimplex = __subsimplex csubtile
   simplex <- cSimplexToSimplex points dim subsimplex
-  return (id', TileFacet {
-                          _subsimplex = simplex
-                        , _facetOf    = IS.fromAscList ridgeOf
-               })
+  return (id', TileFacet { _subsimplex = simplex
+                         , _facetOf    = IS.fromAscList ridgeOf })
 
 data CTile = CTile {
     __id'' :: CUInt

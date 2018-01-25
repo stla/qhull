@@ -12,7 +12,6 @@ int cmpfullvertices (const void * a, const void * b) {
    return ( (*((FullVertexT*)a)).id - (*((FullVertexT*)b)).id );
 }
 
-
 /* test equality of two _sorted_ arrays */
 unsigned equalarraysu(unsigned* array1, unsigned* array2, unsigned length){
   unsigned i;
@@ -70,7 +69,7 @@ void appendv(VertexT x, VertexT** array, unsigned length, unsigned* flag){
     }
   }
   if(*flag == 1){
-    *array = realloc(*array, (length+1)*sizeof(VertexT));
+    *array = realloc(*array, (length+1) * sizeof(VertexT));
     *(*array + length) = x;
   }
 }
@@ -184,7 +183,6 @@ void assignRidgesIds(FaceT** faces, unsigned nfaces, RidgeT* allridges,
   }
 }
 
-
 // double* ridgeCentroid(RidgeT ridge, unsigned dim){
 //   double* out = malloc(dim * sizeof(double));
 //   for(unsigned i=0; i<dim; i++){
@@ -212,7 +210,7 @@ double ridgeMaxDistance(RidgeT ridge, unsigned v, unsigned dim){
   return dists[1];
 }
 
-/* neighbor vertices of a vertex from all ridges*/
+/* neighbor vertices of a vertex from all ridges */
 unsigned* neighVertices(unsigned id, RidgeT* allridges, unsigned nridges,
                         unsigned dim, unsigned* lengthout)
 {
@@ -248,7 +246,7 @@ unsigned* neighRidges(unsigned id, RidgeT* allridges, unsigned nridges,
   unsigned* neighs = malloc(0);
   *length = 0;
   for(unsigned e=0; e < nridges; e++){
-    unsigned flag=0;
+    unsigned flag = 0;
     for(unsigned v=0; v < allridges[e].nvertices; v++){
       if(id == allridges[e].vertices[v].id){
         flag = 1;
@@ -269,7 +267,7 @@ unsigned areElementsOf(unsigned x1, unsigned x2, unsigned* array,
                        unsigned length)
 {
   unsigned count = 0;
-  for(unsigned i=0; (i < length) && (count < 2) ; i++){
+  for(unsigned i=0; (i < length) && (count < 2); i++){
     if(x1 == array[i] || x2 == array[i]){
       count++;
     }
@@ -468,12 +466,10 @@ ConvexHullT* convexHull(
                 qh_pointid(qh, ((vertexT*)ridge->vertices->e[v].p)->point);
             }
             qsortu(ids, ridgeSize);
-            ridges[i_ridge].vertices =
-              malloc(ridgeSize * sizeof(VertexT));
+            ridges[i_ridge].vertices = malloc(ridgeSize * sizeof(VertexT));
             for(unsigned v=0; v < ridgeSize; v++){
               ridges[i_ridge].vertices[v].id = ids[v];
-              ridges[i_ridge].vertices[v].point =
-                getpoint(points, dim, ids[v]);
+              ridges[i_ridge].vertices[v].point = getpoint(points, dim, ids[v]);
             }
             unsigned ridgeofs[2];
             ridgeofs[0] = ridge->bottom->id;

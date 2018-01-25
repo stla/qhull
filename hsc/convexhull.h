@@ -25,7 +25,7 @@ typedef struct Ridge {
 typedef struct Face {
   VertexT*   vertices;
   unsigned   nvertices;
-  RidgeT*    ridges; 
+  RidgeT*    ridges;
   unsigned   nridges;
   double*    center;
   double*    normal;
@@ -43,7 +43,6 @@ typedef struct ConvexHull {
   FullVertexT* vertices;
   unsigned     nvertices;
   FaceT*       faces;
-//  unsigned*    facesizes;
   unsigned     nfaces;
   RidgeT*      ridges;
   unsigned     nridges;

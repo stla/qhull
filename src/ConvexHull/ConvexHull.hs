@@ -46,7 +46,7 @@ convexHull points triangulate stdout file = do
       free resultPtr
       error $ "qhull returned an error (code " ++ show exitcode ++ ")"
     else do
-      result <- peekConvexHull resultPtr
+      result <- (>>=) (peek resultPtr) cConvexHullToConvexHull
       free resultPtr
       return result
 
@@ -54,7 +54,7 @@ convexHull points triangulate stdout file = do
 xxx :: ConvexHull -> [[Int]]
 xxx chull = map (IM.keys . _rvertices) (IM.elems (_allridges chull))
 
--- | whether a pair of vertices form an edge
+-- | whether a pair of vertices form an edge of the hull
 isEdge :: ConvexHull -> (Index, Index) -> Bool
 isEdge hull (i,j) = Pair i j `H.member` _alledges hull
 
@@ -62,7 +62,7 @@ isEdge hull (i,j) = Pair i j `H.member` _alledges hull
 toPoints :: ConvexHull -> (Index, Index) -> Maybe ([Double], [Double])
 toPoints hull (i,j) = H.lookup (Pair i j) (_alledges hull)
 
--- | edge as pair of points, no check
+-- | edge as pair of points, without checking the edge exists
 toPoints' :: ConvexHull -> (Index, Index) -> ([Double], [Double])
 toPoints' hull (i,j) = (H.!) (_alledges hull) (Pair i j)
 
@@ -75,14 +75,11 @@ facetVertices :: Facet -> [[Double]]
 facetVertices = IM.elems . _fvertices
 
 -- | get facets ids an edge belongs to
-edgeOf :: ConvexHull -> (Index, Index) -> Maybe [Int]
-edgeOf hull v1v2@(v1, v2) =
-  if not (isEdge hull v1v2)
-    then Nothing
-    else Just $ IM.keys (IM.filter (elem v1v2') facesEdges)
+edgeOf :: ConvexHull -> (Index, Index) -> [Int]
+edgeOf hull v1v2 = IM.keys (IM.filter (elem v1v2) facesEdges)
   where
     facesEdges = IM.map (H.keys . _edges) (_facets hull)
-    v1v2' = if v1<v2 then Pair v1 v2 else Pair v2 v1
+    -- v1v2' = if v1<v2 then Pair v1 v2 else Pair v2 v1 -- useless
 
 -- | group facets of the same family
 groupedFacets :: ConvexHull -> [(Maybe Int, [IndexMap [Double]], [EdgeMap])]
@@ -96,7 +93,7 @@ groupedFacets hull =
     verticesGroups = map (map _fvertices) facesGroups
     families       = map (map _family) facesGroups
 
--- | group faces of the same family and merge vertices and edges
+-- | group facets of the same family and merge vertices and edges
 groupedFacets' :: ConvexHull -> [(Maybe Int, IndexMap [Double], EdgeMap)]
 groupedFacets' hull =
   zip3 (map head families) (map (foldr IM.union IM.empty) verticesGroups)

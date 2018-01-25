@@ -27,13 +27,13 @@ voronoi2ForR v d =
         f edge = case edge of
           Edge2 ((x0,y0),(x1,y1)) ->
             "segments(" ++ intercalate "," (map show [x0,y0,x1,y1]) ++
-                        ", col=\"green\", lty=2, lwd=2)"
+                        ", col=\"black\", lty=1, lwd=1)"
           IEdge2 ((x0,y0),(x1,y1)) ->
             "segments(" ++ intercalate "," (map show [x0,y0,x0+x1,y0+y1]) ++
-                        ", col=\"red\", lty=2, lwd=2)"
+                        ", col=\"red\", lty=1, lwd=1)"
           TIEdge2 ((x0,y0),(x1,y1)) ->
             "segments(" ++ intercalate "," (map show [x0,y0,x1,y1]) ++
-                        ", col=\"red\", lty=2, lwd=2)"
+                        ", col=\"red\", lty=1, lwd=1)"
     boundedCells = map snd (restrictVoronoi2 v)
     boundedCellForR :: Int -> Cell2 -> String
     boundedCellForR i cell =
