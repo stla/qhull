@@ -5,16 +5,14 @@ module Voronoi2D
  , prettyShowVoronoi2
  , voronoiCell2
  , voronoi2
- , clipVoronoi2
- , voronoi2ForR)
+ , clipVoronoi2)
   where
 import           Control.Arrow      (second)
 import           Data.List
-import           Data.Maybe
 import           Data.Tuple.Extra   (both)
 import           Delaunay
 import           Text.Show.Pretty   (ppShow)
-import           Voronoi
+import           Voronoi.Voronoi
 
 
 type Point2 = (Double, Double)
@@ -74,27 +72,3 @@ truncEdge2 box edge =
 
 clipVoronoi2 :: Box2 -> Voronoi2 -> Voronoi2
 clipVoronoi2 box = map (second (map (truncEdge2 box)))
-
-voronoi2ForR :: Voronoi2 -> Maybe Tesselation -> String
-voronoi2ForR v d =
-  (if isJust d then dcode else "") ++ unlines (map cellForRgl v)
-  where
-    dcode = delaunay2ForR (fromJust d) True
-    cellForRgl :: ([Double], Cell2) -> String
-    cellForRgl (site, edges) =
-      point ++ "\n" ++ unlines (map f edges)
-      where
-        point =
-          "points(" ++ show (site!!0) ++ ", " ++ show (site!!1) ++
-                    ", pch=19, col=\"blue\")"
-        f :: Edge2 -> String
-        f edge = case edge of
-          Edge2 ((x0,y0),(x1,y1)) ->
-            "segments(" ++ intercalate "," (map show [x0,y0,x1,y1]) ++
-                        ", col=\"green\", lty=2, lwd=2)"
-          IEdge2 ((x0,y0),(x1,y1)) ->
-            "segments(" ++ intercalate "," (map show [x0,y0,x0+x1,y0+y1]) ++
-                        ", col=\"red\", lty=2, lwd=2)"
-          TIEdge2 ((x0,y0),(x1,y1)) ->
-            "segments(" ++ intercalate "," (map show [x0,y0,x1,y1]) ++
-                        ", col=\"red\", lty=2, lwd=2)"

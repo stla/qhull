@@ -8,7 +8,7 @@ import           Text.Show.Pretty
 import           Vis
 
 delaunay3vis :: Delaunay -> VisObject Double
-delaunay3vis tess = VisObjects $ concat $ map visRidge (elems $ allRidges tess)
+delaunay3vis tess = VisObjects $ concatMap visRidge (elems $ allRidges tess)
   where
     visRidge ridge =
       [ Triangle (pts!!0) (pts!!1) (pts!!2) (makeColor 0 0 1 0.5)

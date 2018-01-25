@@ -4,7 +4,6 @@ module Voronoi3D
  , Voronoi3
  , prettyShowVoronoi3
  , clipVoronoi3
- , voronoi3ForRgl
  , voronoiCell3
  , voronoi3
  , cell3Vertices
@@ -12,11 +11,10 @@ module Voronoi3D
   where
 import           Control.Arrow      (second)
 import           Data.List
-import           Data.Maybe
 import           Data.Tuple.Extra   (both)
 import           Delaunay
 import           Text.Show.Pretty   (ppShow)
-import           Voronoi
+import           Voronoi.Voronoi
 
 type Point3 = (Double, Double, Double)
 type Vector3 = (Double, Double, Double)
@@ -106,25 +104,3 @@ truncEdge3 (xmin, xmax, ymin, ymax, zmin, zmax) edge =
 
 clipVoronoi3 :: Box3 -> Voronoi3 -> Voronoi3
 clipVoronoi3 box = map (second (map (truncEdge3 box)))
-
-voronoi3ForRgl :: Voronoi3 -> Maybe Tesselation -> String
-voronoi3ForRgl v d =
-  let code = unlines $ map cellForRgl v in
-  if isJust d
-    then code ++ "\n" ++ "# Delaunay:\n" ++
-         delaunay3rgl (fromJust d) True True True (Just 0.9)
-    else code
-  where
-    cellForRgl :: ([Double], Cell3) -> String
-    cellForRgl (site, cell) = plotpoint ++ unlines (map f cell)
-      where
-        plotpoint = "spheres3d(" ++ intercalate "," (map show site) ++ ", radius=0.1, color=\"red\")\n"
-        f :: Edge3 -> String
-        f edge = case edge of
-          Edge3 (x,y) ->
-            "segments3d(rbind(c" ++ show x ++ ", c" ++ show y ++ "))"
-          TIEdge3 (x,y) ->
-            "segments3d(rbind(c" ++ show x ++ ", c" ++ show y ++ "), col=c(\"red\",\"red\"))"
-          IEdge3 (x,y) ->
-            "segments3d(rbind(c" ++ show x ++ ", c" ++ show (sumTriplet x y) ++ "), col=c(\"red\",\"red\"))"
-        sumTriplet (a,b,c) (a',b',c') = (a+a',b+b',c+c')

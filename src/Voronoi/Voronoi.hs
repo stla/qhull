@@ -1,4 +1,4 @@
-module Voronoi
+module Voronoi.Voronoi
   where
 import qualified Data.IntMap.Strict as IM
 import qualified Data.IntSet        as IS

@@ -3,14 +3,17 @@ module Main
 import           ConvexHull.Examples
 import qualified Data.IntMap.Strict  as IM
 import           Delaunay
+import           Delaunay.R
+import           System.IO
 import           Text.Show.Pretty
 
 main :: IO ()
 main = do
 
-  tess <- delaunay rgg False
-  pPrint tess
+  -- tess <- delaunay rgg False
+  -- pPrint tess
 
-  -- x <- randomInSphere 1000
-  -- tess <- delaunay2 x False
-  -- print $ IM.size (_tiles tess)
+  x <- randomInSphere 100
+  tess <- delaunay x False
+  let code = delaunay3rgl tess False True False Nothing
+  writeFile "rgl/delaunay_sphere.R" code

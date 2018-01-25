@@ -72,7 +72,7 @@ the tiles identifiers. A `Tile` object has five fields:
 
 -   `facetsIds`, a set of facets identifiers, the facets of the tile;
 
--   `family`, xxxxx
+-   `family`, two tiles of the same family share the same circumcenter;
 
 -   `toporiented`, the orientation of the tile.
 

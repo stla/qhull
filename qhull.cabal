@@ -23,13 +23,16 @@ library
                      , Delaunay.Delaunay
                      , Delaunay.CDelaunay
                      , Delaunay.Types
+                     , Delaunay.R
                      , Voronoi2D
                      , Voronoi3D
-                     , Voronoi
+                     , Voronoi.Voronoi
+                     , Voronoi.R
                      , ConvexHull
                      , ConvexHull.ConvexHull
                      , ConvexHull.CConvexHull
                      , ConvexHull.Types
+                     , ConvexHull.R
                      , ConvexHull.Examples
   build-depends:       base >= 4.7 && < 5
                      , split

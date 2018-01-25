@@ -2,10 +2,12 @@ module Main
   where
 import           ConvexHull
 import           ConvexHull.Examples
+import           ConvexHull.R
 import qualified Data.IntMap.Strict  as IM
 import           Delaunay
 import           System.IO
 import           Text.Show.Pretty
+import           Voronoi.R
 import           Voronoi2D
 import           Voronoi3D
 

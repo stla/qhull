@@ -6,15 +6,13 @@ import           ConvexHull.Types
 import qualified Data.HashMap.Strict    as H
 import qualified Data.IntMap.Strict     as IM
 import           Data.List
+import           Data.List.Unique      (allUnique)
 import           Data.Maybe
-import Foreign.C.String
+import           Foreign.C.String
 import           Foreign.C.Types
 import           Foreign.Marshal.Alloc  (free, mallocBytes)
 import           Foreign.Marshal.Array  (pokeArray)
 import           Foreign.Storable       (peek, sizeOf)
-import System.IO (writeFile) -- for rgl
-import Data.List.Index (iconcatMap) -- for rgl
-import Data.Tuple.Extra (fst3, snd3, thd3) -- for rgl
 
 convexHull :: [[Double]]     -- vertices
            -> Bool           -- triangulate
@@ -31,6 +29,8 @@ convexHull points triangulate stdout file = do
     error "dimension must be at least 2"
   when (n <= dim) $
     error "insufficient number of points"
+  unless (allUnique points) $
+    error "some points are duplicated"
   pointsPtr <- mallocBytes (n * dim * sizeOf (undefined :: CDouble))
   pokeArray pointsPtr (concatMap (map realToFrac) points)
   exitcodePtr <- mallocBytes (sizeOf (undefined :: CUInt))
@@ -50,6 +50,10 @@ convexHull points triangulate stdout file = do
       free resultPtr
       return result
 
+
+xxx :: ConvexHull -> [[Int]]
+xxx chull = map (IM.keys . _rvertices) (IM.elems (_allridges chull))
+
 -- | whether a pair of vertices form an edge
 isEdge :: ConvexHull -> (Index, Index) -> Bool
 isEdge hull (i,j) = Pair i j `H.member` _alledges hull
@@ -66,25 +70,9 @@ toPoints' hull (i,j) = (H.!) (_alledges hull) (Pair i j)
 hullVertices :: ConvexHull -> [[Double]]
 hullVertices hull = map _point (IM.elems (_allvertices hull))
 
--- -- | get ridges of a convex hull
--- hullEdges :: ConvexHull -> [([Double], [Double])]
--- hullEdges chull = map ((\x -> (x!!0, x!!1)) . IM.elems)
---                       (IM.elems (_allridges chull))
-xxx :: ConvexHull -> [[Int]]
-xxx chull = map (IM.keys . _rvertices) (IM.elems (_allridges chull))
-
 -- | get vertices of a facet
 facetVertices :: Facet -> [[Double]]
 facetVertices = IM.elems . _fvertices
-
--- -- | get edges of a face as a map ; now it is in _edges face
--- faceEdges :: ConvexHull -> Face -> EdgeMap
--- faceEdges hull face = H.filterWithKey (\x _ -> x `elem` pairs) (_alledges hull)
---   where
---     pairs = [Pair i j | i <- faceVerticesIndices,
---                         j <- faceVerticesIndices, j > i]
---     faceVerticesIndices = IM.keys (_fvertices face)
-
 
 -- | get facets ids an edge belongs to
 edgeOf :: ConvexHull -> (Index, Index) -> Maybe [Int]
@@ -122,52 +110,3 @@ groupedFacets' hull =
     families       = map (map _family) facesGroups
     delta :: EdgeMap -> EdgeMap -> EdgeMap
     delta e1 e2 = H.difference (H.union e1 e2) (H.intersection e1 e2)
-
-
-convexHull3DrglCode :: [[Double]] -> Bool -> Maybe FilePath -> IO String
-convexHull3DrglCode points rainbow file = do
-  -- get edges --
-  hull1 <- convexHull points False False (Just "tmp.txt")
-  let edges = H.elems (_alledges hull1)
-  -- get triangles --
-  hull2 <- convexHull points True False Nothing
-  let families = map _family (IM.elems $ _facets hull2)
-  -- print families
-  let grpFaces = groupedFacets hull2
-  let triangles = map (map IM.elems . snd3) grpFaces
-  -- mapM_ (mapM_ (print . length)) triangles
-  -- code for edges --
-  let code1 = concatMap rglSegment edges
-  -- color palette --
-  let code_colors = if rainbow
-                      then "colors <- rainbow(" ++ show (length grpFaces + 1) ++
-                           ", alpha=0.5)\n"
-                      else "colors <- rep(\"blue\", " ++
-                           show (length grpFaces + 1) ++ ")\n"
-  -- code for triangles --
-  let code2 = iconcatMap (\i x -> concatMap (rglTriangle i) x) triangles
-  -- whole code --
-  let code = code_colors ++ code1 ++ code2
-  -- write file --
-  when (isJust file) $
-    writeFile (fromJust file) code
-  -- --
-  return code
-  -- auxiliary functions --
-  where
-    asTriplet p = (p!!0, p!!1, p!!2)
-    rglSegment :: ([Double], [Double]) -> String
-    rglSegment (p1', p2') =
-      let p1 = asTriplet p1' in
-      let p2 = asTriplet p2' in
-      "segments3d(rbind(c" ++ show p1 ++ ", c" ++ show p2 ++
-        "), color=\"black\")\n"
-    rglTriangle :: Int -> [[Double]] -> String
-    rglTriangle i threepoints =
-      "triangles3d(rbind(c" ++ show p1 ++ ", c" ++ show p2 ++
-      ", c" ++ show p3 ++ "), color=colors[" ++ show (i+1) ++ "]" ++
-      ", alpha=0.75)\n"
-      where
-        p1 = asTriplet $ threepoints!!0
-        p2 = asTriplet $ threepoints!!1
-        p3 = asTriplet $ threepoints!!2
