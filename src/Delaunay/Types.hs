@@ -2,10 +2,7 @@ module Delaunay.Types
   where
 import           Data.IntMap.Strict (IntMap)
 import           Data.IntSet        (IntSet)
-
-type Index = Int
-type IndexMap = IntMap
-type IndexSet = IntSet
+import           Qhull.Types
 
 data Site = Site {
     _point          :: [Double]
@@ -23,7 +20,7 @@ data Simplex = Simplex {
   , _volume       :: Double
 } deriving Show
 
-data TileFacet = TileFacet { -- c'est une facette d'un tile
+data TileFacet = TileFacet {
     _subsimplex :: Simplex
   , _facetOf    :: IntSet
 } deriving Show
@@ -32,9 +29,12 @@ data Tile = Tile {
     _simplex      :: Simplex
   , _neighborsIds :: IntSet
   , _facetsIds    :: IntSet
-  , _family       :: Maybe Int
+  , _family       :: Family
   , _toporiented  :: Bool
 } deriving Show
+
+instance HasFamily Tile where
+  family = _family
 
 data Tesselation = Tesselation {
     _sites      :: IndexMap Site

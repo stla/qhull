@@ -1,5 +1,6 @@
 plot(0,0,xlim=c(-1.5,1.5),ylim=c(-1.5,1.5))
 
+library(viridis)
 colors <- rainbow(41)
 colors[seq(1,41,by=2)] <- viridis(21)
 

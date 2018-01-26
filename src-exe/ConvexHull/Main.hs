@@ -14,10 +14,17 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  points <- randomInCube 1000
-  code <- convexHull3DrglCode (map (map (approx 4)) points) True (Just "rgl/convexhull04.R")
+  let c = 4
+      a = 1
+  let curve3D = map (\x -> [ cos (2*pi*x) * (c + a * cos (2*pi*x))
+                          ,  sin (2*pi*x) * (c + a * cos (2*pi*x))
+                          ,  a * sin (2*pi*x)]) [i/50 | i <- [0 .. 50]]
+  code <- convexHull3DrglCode curve3D True (Just "rgl/convexhull_curveOnTorus.R")
   putStrLn "done"
 
+  -- points <- randomInCube 1000
+  -- code <- convexHull3DrglCode (map (map (approx 4)) points) True (Just "rgl/convexhull04.R")
+  -- putStrLn "done"
 
   -- let square3D = [[-1,-1, 0]
   --                ,[-1,-1, 0]

@@ -50,7 +50,7 @@ prettyShowVoronoi2 v m = do
     prettyShowEdges2 n edges = intercalate "\n" (map (prettyShowEdge2 n) edges)
     prettyShowCell2 :: Maybe Int -> ([Double], Cell2) -> String
     prettyShowCell2 n (site, edges) =
-      "[Double] " ++ ppShow site ++ " :\n" ++ prettyShowEdges2 n edges
+      "Site " ++ ppShow site ++ " :\n" ++ prettyShowEdges2 n edges
 
 asPair :: [Double] -> (Double, Double)
 asPair [a,b] = (a,b)

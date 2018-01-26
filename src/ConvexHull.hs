@@ -1,5 +1,6 @@
 module ConvexHull
   ( module X )
   where
-import ConvexHull.Types as X
-import ConvexHull.ConvexHull  as X
+import           ConvexHull.ConvexHull as X
+import           ConvexHull.Types      as X
+import           Qhull.Types           as X

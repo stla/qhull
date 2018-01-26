@@ -5,6 +5,7 @@ import           ConvexHull.Examples
 import           ConvexHull.R
 import qualified Data.IntMap.Strict  as IM
 import           Delaunay
+import           Delaunay.R
 import           System.IO
 import           Text.Show.Pretty
 import           Voronoi.R
@@ -28,6 +29,38 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
+  let c = 4
+      a = 1
+  let curve3D = map (\x -> [ cos (2*pi*x) * (c + a * cos (2*pi*x))
+                          ,  sin (2*pi*x) * (c + a * cos (2*pi*x))
+                          ,  a * sin (2*pi*x)]) [i/50 | i <- [0 .. 50]]
+  tess <- delaunay curve3D False
+  let v = voronoi3 tess
+  writeFile "rgl/voronoi_curve3Dtorus.R" (voronoi3ForRgl v (Just tess))
+
+  -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
+  --                         ,  sin (pi*x) * sin (2*pi*x)
+  --                         ,  cos (pi*x)]) [i/50 | i <- [0 .. 50]]
+  -- tess <- delaunay curve3D False
+  -- let v = voronoi3 tess
+  -- writeFile "rgl/voronoi_curve3D.R" (voronoi3ForRgl v (Just tess))
+
+  -- x <- randomOnTorus 50 4 1
+  -- tess <- delaunay (x ++ [[4,0,0],[-4,0,0],[0,4,0],[0,-4,0]]) False
+  -- writeFile "rgl/delaunay_torus00.R" (delaunay3rgl tess True True True Nothing)
+  -- -- pPrint (_tiles tess)
+  -- -- pPrint (_tilefacets tess)
+  -- let v = voronoi3 tess
+  -- -- pPrint v
+  -- -- pPrint $ zip [0 .. 50] (map (map (facetCenters tess) . vertexNeighborFacets tess) [0 .. 50])
+  -- code <- voronoi3ForRgl' v Nothing
+  -- writeFile "rgl/voronoi_torus00.R" code
+
+  -- x <- randomInSquare 100
+  -- tess <- delaunay (x ++ [[-1,-1],[-1,2],[2,-1],[2,2]]) False
+  -- let v = voronoi2 tess
+  -- writeFile "Rplots/voronoi_randomInSquare00.R" (voronoi2ForR v Nothing)
+
   -- let cube = [[i,j,k] | i <- [-1,2], j <- [-1,2], k <- [-1,2]]
   -- x <- randomInCube 30
   -- tess <- delaunay (cube ++ x) False
@@ -37,14 +70,14 @@ main = do
   -- code <- voronoi3ForRgl' v Nothing
   -- writeFile "rgl/voronoi_randomInCube00.R" code
 
-  let cube = [[i,j,k] | i <- [0,1], j <- [0,1], k <- [0,1]]
-  x <- randomInCube 30
-  tess <- delaunay (cube ++ x) False
-  let v = voronoi3 tess
-      v' = restrictVoronoi3box (-5,5) (-5,5) (-5,5) v
-  prettyShowVoronoi3 v' (Just 3)
-  code <- voronoi3ForRgl' v' Nothing
-  writeFile "rgl/voronoi_randomInCube01.R" code
+  -- let cube = [[i,j,k] | i <- [0,1], j <- [0,1], k <- [0,1]]
+  -- x <- randomInCube 30
+  -- tess <- delaunay (cube ++ x) False
+  -- let v = voronoi3 tess
+  --     v' = restrictVoronoi3box (-5,5) (-5,5) (-5,5) v
+  -- prettyShowVoronoi3 v' (Just 3)
+  -- code <- voronoi3ForRgl' v' Nothing
+  -- writeFile "rgl/voronoi_randomInCube01.R" code
 
   -- x <- randomInCircle 50
   -- tess <- delaunay (x ++ [[0,0]]) False

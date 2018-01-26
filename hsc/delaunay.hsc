@@ -10,6 +10,7 @@ import qualified Data.IntSet         as IS
 -- import qualified Data.HashMap.Strict as H
 import           Foreign
 import           Foreign.C.Types
+import           Qhull.Types (Family(..))
 
 #include "delaunay2.h"
 
@@ -229,8 +230,8 @@ cTileToTile points ctile = do
                      , _neighborsIds = IS.fromAscList neighbors
                      , _facetsIds    = IS.fromAscList ridgesids
                      , _family       = if family == -1
-                                        then Nothing
-                                        else Just (fromIntegral family)
+                                        then None
+                                        else Family (fromIntegral family)
                      , _toporiented  = orient == 1 })
 
 data CTesselation = CTesselation {

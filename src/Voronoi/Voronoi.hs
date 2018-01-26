@@ -37,7 +37,7 @@ edgesFromTileFacet tess tilefacet
   | length tileindices == 1
     = Just $ IEdge (c1, _normal simplex)
   | c1 == c2 = Nothing
-  | isJust (_family tile1) && (_family tile1 == _family tile2) = Nothing
+--  | isJust (_family tile1) && (_family tile1 == _family tile2) = Nothing -- ?
   | otherwise = Just $ Edge (c1, c2)
   where
     (simplex, tileindices) = tileFacetAsPair tilefacet
@@ -50,7 +50,7 @@ edgesFromTileFacet tess tilefacet
 voronoiCell :: ([TileFacet] -> [TileFacet]) -> (Edge -> a) -> Tesselation
             -> Index -> [a]
 voronoiCell facetsQuotienter edgeTransformer tess i =
-  let tilefacets = facetsQuotienter $ vertexNeighborFacets tess i in
+  let tilefacets = facetsQuotienter $ IM.elems (vertexNeighborFacets tess i) in
   map (edgeTransformer . fromJust) $
       filter isJust $ map (edgesFromTileFacet tess) tilefacets
 

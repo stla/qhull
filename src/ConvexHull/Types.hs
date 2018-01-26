@@ -4,10 +4,7 @@ import           Data.Hashable
 import           Data.HashMap.Strict (HashMap)
 import           Data.IntMap.Strict  (IntMap)
 import           Data.IntSet         (IntSet)
-
-type Index = Int
-type IndexMap = IntMap
-type IndexSet = IntSet
+import           Qhull.Types
 
 data IndexPair = Pair Index Index
   deriving (Show, Read)
@@ -23,7 +20,7 @@ data Vertex = Vertex {
     _point         :: [Double]
   , _neighfacets   :: IntSet
   , _neighvertices :: IndexSet
-  , _neighridges   :: IndexSet
+  , _neighridges   :: IntSet
 } deriving Show
 
 data Ridge = Ridge {
@@ -39,9 +36,12 @@ data Facet = Facet {
   , _offset    :: Double
   , _area      :: Double
   , _neighbors :: IntSet
-  , _family    :: Maybe Int
+  , _family    :: Family
   , _edges     :: EdgeMap
 } deriving Show
+
+instance HasFamily Facet where
+  family = _family
 
 data ConvexHull = ConvexHull {
     _allvertices :: IndexMap Vertex

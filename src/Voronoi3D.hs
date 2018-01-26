@@ -23,7 +23,7 @@ type Point3 = (Double, Double, Double)
 type Vector3 = (Double, Double, Double)
 data Edge3 = Edge3 (Point3, Point3) | IEdge3 (Point3, Vector3)
              | TIEdge3 (Point3, Point3)
-              deriving Show
+              deriving (Show, Eq)
 type Cell3 = [Edge3]
 type Voronoi3 = [([Double], Cell3)]
 type Box3 = (Double, Double, Double, Double, Double, Double)
@@ -31,8 +31,14 @@ type Box3 = (Double, Double, Double, Double, Double, Double)
 -- | pretty print a 3D Voronoi diagram
 prettyShowVoronoi3 :: Voronoi3 -> Maybe Int -> IO ()
 prettyShowVoronoi3 v m = do
+  let ntotal = show $ length v
+  let boundedDiagram = restrictVoronoi3 v
+  let nbounded = show $ length boundedDiagram
+  let ndegenerate = show $ length $ filterVoronoi3 null boundedDiagram
   let string = intercalate "\n---\n" (map (prettyShowCell3 m) v)
-  putStrLn string
+  let footer = "Voronoi diagram with " ++ ntotal ++ " cells, including " ++
+               nbounded ++ " bounded and " ++ ndegenerate ++ " degenerate."
+  putStrLn $ string ++ "\n------\n" ++ footer
   where
     roundPairPoint3 :: (Point3, Point3) -> Int -> (Point3, Point3)
     roundPairPoint3 ((x1,x2,x3), (y1,y2,y3)) n =
@@ -49,7 +55,7 @@ prettyShowVoronoi3 v m = do
     prettyShowEdges3 n edges = intercalate "\n" (map (prettyShowEdge3 n) edges)
     prettyShowCell3 :: Maybe Int -> ([Double], Cell3) -> String
     prettyShowCell3 n (site, edges) =
-      "[Double] " ++ ppShow site ++ " :\n" ++ prettyShowEdges3 n edges
+      "Site " ++ ppShow site ++ " :\n" ++ prettyShowEdges3 n edges
 
 asTriplet :: [a] -> (a, a, a)
 asTriplet [x,y,z] = (x,y,z)

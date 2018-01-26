@@ -3,6 +3,7 @@ module ConvexHull.ConvexHull
 import           Control.Monad          (unless, when)
 import           ConvexHull.CConvexHull
 import           ConvexHull.Types
+import           Data.Function          (on)
 import qualified Data.HashMap.Strict    as H
 import qualified Data.IntMap.Strict     as IM
 import           Data.List
@@ -13,6 +14,7 @@ import           Foreign.C.Types
 import           Foreign.Marshal.Alloc  (free, mallocBytes)
 import           Foreign.Marshal.Array  (pokeArray)
 import           Foreign.Storable       (peek, sizeOf)
+import           Qhull.Types
 
 convexHull :: [[Double]]     -- vertices
            -> Bool           -- triangulate
@@ -66,15 +68,15 @@ toPoints hull (i,j) = H.lookup (Pair i j) (_alledges hull)
 toPoints' :: ConvexHull -> (Index, Index) -> ([Double], [Double])
 toPoints' hull (i,j) = (H.!) (_alledges hull) (Pair i j)
 
--- | get vertices of a convex hull
+-- | vertices of a convex hull
 hullVertices :: ConvexHull -> [[Double]]
 hullVertices hull = map _point (IM.elems (_allvertices hull))
 
--- | get vertices of a facet
+-- | vertices of a facet
 facetVertices :: Facet -> [[Double]]
 facetVertices = IM.elems . _fvertices
 
--- | get facets ids an edge belongs to
+-- | facets ids an edge belongs to
 edgeOf :: ConvexHull -> (Index, Index) -> [Int]
 edgeOf hull (v1,v2) = IM.keys (IM.filter (elem (Pair v1 v2)) facesEdges)
   where
@@ -82,26 +84,25 @@ edgeOf hull (v1,v2) = IM.keys (IM.filter (elem (Pair v1 v2)) facesEdges)
     -- v1v2' = if v1<v2 then Pair v1 v2 else Pair v2 v1 -- useless
 
 -- | group facets of the same family
-groupedFacets :: ConvexHull -> [(Maybe Int, [IndexMap [Double]], [EdgeMap])]
+groupedFacets :: ConvexHull -> [(Family, [IndexMap [Double]], [EdgeMap])]
 groupedFacets hull =
   zip3 (map head families) verticesGroups edgesGroups
   where
     facets         = IM.elems (_facets hull)
-    facesGroups    = groupBy (\f1 f2 -> isJust (_family f1) &&
-                                        (_family f1 == _family f2)) facets
+    facesGroups    = groupBy (\f1 f2 -> sameFamily
+                                        (_family f1) (_family f2)) facets
     edgesGroups    = map (map _edges) facesGroups
     verticesGroups = map (map _fvertices) facesGroups
     families       = map (map _family) facesGroups
 
 -- | group facets of the same family and merge vertices and edges
-groupedFacets' :: ConvexHull -> [(Maybe Int, IndexMap [Double], EdgeMap)]
+groupedFacets' :: ConvexHull -> [(Family, IndexMap [Double], EdgeMap)]
 groupedFacets' hull =
   zip3 (map head families) (map (foldr IM.union IM.empty) verticesGroups)
        (map (foldr delta H.empty) edgesGroups)
   where
     facets         = IM.elems (_facets hull)
-    facesGroups    = groupBy (\f1 f2 -> isJust (_family f1) &&
-                                        (_family f1 == _family f2)) facets
+    facesGroups    = groupBy (sameFamily `on` _family) facets
     edgesGroups    = map (map _edges) facesGroups
     verticesGroups = map (map _fvertices) facesGroups
     families       = map (map _family) facesGroups

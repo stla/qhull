@@ -14,6 +14,7 @@ import           Data.Tuple.Extra    (both)
 import           Foreign
 import           Foreign.C.Types
 import           Foreign.C.String
+import           Qhull.Types (Family(..))
 
 #include "convexhull.h"
 
@@ -251,7 +252,7 @@ cFaceToFacet dim cface = do
                , _offset    = offset
                , _area      = area
                , _neighbors = IS.fromAscList neighbors
-               , _family    = if family == -1 then Nothing else Just family
+               , _family    = if family == -1 then None else Family family
                , _edges     = edges }
 
 data CConvexHull = CConvexHull {

@@ -56,6 +56,12 @@ randomInCircle n = do
   let rho   = map (/2) (take n (randoms g2 :: [Double]))
   return $ zipWith (\r a  -> [(r+0.5) * cos a, (r+0.5) * sin a]) rho theta
 
+randomInSquare :: Int -> IO [[Double]]
+randomInSquare n = do
+  g <- newStdGen
+  return $ chunksOf 2 (take (2*n) (randoms g :: [Double]))
+
+
 randomInSphere :: Int -> IO [[Double]]
 randomInSphere n = do
   g1 <- newStdGen
@@ -69,17 +75,27 @@ randomInSphere n = do
                                 r * cos a         ])
                      rho phi theta
 
-randomInSphere' :: Int -> IO [[Double]]
-randomInSphere' n = do
+randomOnSphere :: Int -> Double -> IO [[Double]]
+randomOnSphere n r = do
   g <- newStdGen
   let x = take (2*n) (randoms g :: [Double])
   let u_ = map (*(2*pi)) (take n x)
   let v_ = drop n x
-  return $ zipWith (\u v -> [sin u * cos (acos (2*v-1)),
-                             sin u * sin (acos (2*v-1)),
-                             cos u                     ]) u_ v_
+  return $ zipWith (\u v -> [r * sin u * cos (acos (2*v-1)),
+                             r * sin u * sin (acos (2*v-1)),
+                             r * cos u                     ]) u_ v_
 
 randomInCube :: Int -> IO [[Double]]
 randomInCube n = do
   g <- newStdGen
   return $ chunksOf 3 (take (3*n) (randoms g :: [Double]))
+
+randomOnTorus :: Int -> Double -> Double -> IO [[Double]]
+randomOnTorus n c a = do
+  g <- newStdGen
+  let x = take (2*n) (randoms g :: [Double])
+  let u_ = map (*(2*pi)) (take n x)
+  let v_ = map (*(2*pi)) (drop n x)
+  return $ zipWith (\u v -> [cos u * (c + a * cos v),
+                             sin u * (c + a * cos v),
+                             a * sin v              ]) u_ v_
