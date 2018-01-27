@@ -12,26 +12,31 @@ import           Foreign.C.Types
 import           Foreign.Marshal.Alloc (free, mallocBytes)
 import           Foreign.Marshal.Array (pokeArray)
 import           Foreign.Storable      (peek, sizeOf)
-import Qhull.Types
+import           Qhull.Types
 
-delaunay :: [[Double]] -> Bool -> IO Tesselation
-delaunay sites deg = do
+delaunay :: [[Double]] -- sites
+         -> Bool       -- add a point at infinity
+         -> Bool       -- include degenerate tiles
+         -> IO Tesselation
+delaunay sites atinfinity degenerate = do
   let n     = length sites
       dim   = length (head sites)
       check = all (== dim) (map length (tail sites))
-  unless check $
-    error "the points must have the same dimension"
   when (dim < 2) $
     error "dimension must be at least 2"
   when (n <= dim+1) $
     error "insufficient number of points"
+  unless check $
+    error "the points must have the same dimension"
   unless (allUnique sites) $
     error "some points are duplicated"
   sitesPtr <- mallocBytes (n * dim * sizeOf (undefined :: CDouble))
   pokeArray sitesPtr (concatMap (map realToFrac) sites)
   exitcodePtr <- mallocBytes (sizeOf (undefined :: CUInt))
   resultPtr <- c_tesselation sitesPtr
-               (fromIntegral dim) (fromIntegral n) (fromIntegral $ fromEnum deg)
+               (fromIntegral dim) (fromIntegral n)
+               (fromIntegral $ fromEnum atinfinity)
+               (fromIntegral $ fromEnum degenerate)
                exitcodePtr
   exitcode <- peek exitcodePtr
   free exitcodePtr

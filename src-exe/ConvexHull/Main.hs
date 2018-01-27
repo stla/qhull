@@ -14,6 +14,19 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
+  -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
+  --                         ,  sin (pi*x) * sin (2*pi*x)
+  --                         ,  cos (pi*x)]) [i/200 | i <- [0 .. 200]]
+  -- code <- convexHull3DrglCode (nub $ curve3D ++ map (\[x,y,z] -> [x,y,z+2]) curve3D) True
+  --                             (Just "rgl/convexhull_curveOnSphere3.R")
+  -- putStrLn "done"
+
+  -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
+  --                         ,  sin (pi*x) * sin (2*pi*x)
+  --                         ,  cos (pi*x)]) [i/200 | i <- [0 .. 200]]
+  -- code <- convexHull3DrglCode curve3D True (Just "rgl/convexhull_curveOnSphere.R")
+  -- putStrLn "done"
+
   let c = 4
       a = 1
   let curve3D = map (\x -> [ cos (2*pi*x) * (c + a * cos (2*pi*x))
@@ -50,26 +63,8 @@ main = do
   -- putStrLn "\n--- CUBE ---"
   -- pPrint chull2
 
-  -- let hcube = [[-1,-1,-1,-1]
-  --             ,[-1,-1, 1,-1]
-  --             ,[-1, 1,-1,-1]
-  --             ,[-1, 1, 1,-1]
-  --             ,[ 1,-1,-1,-1]
-  --             ,[ 1,-1, 1,-1]
-  --             ,[ 1, 1,-1,-1]
-  --             ,[ 1, 1, 1,-1]
-  --             ,[-1,-1,-1, 1]
-  --             ,[-1,-1, 1, 1]
-  --             ,[-1, 1,-1, 1]
-  --             ,[-1, 1, 1, 1]
-  --             ,[ 1,-1,-1, 1]
-  --             ,[ 1,-1, 1, 1]
-  --             ,[ 1, 1,-1, 1]
-  --             ,[ 1, 1, 1, 1]]
-  -- chull <- convexHull hcube False
-  -- pPrint (_allridges chull)
-  -- pPrint (_allvertices chull)
-  -- pPrint (_faces chull)
+  -- chull <- convexHull cube4 True False Nothing
+  -- pPrint chull
 
   -- chull <- convexHull cube5 False False Nothing
   -- putStrLn "done"

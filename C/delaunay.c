@@ -21,12 +21,13 @@ TesselationT* tesselation(
 	double*   sites,
 	unsigned  dim,
 	unsigned  n,
+  unsigned  atinfinity,
   unsigned  degenerate,
 	unsigned* exitcode
 )
 {
 	char opts[250]; /* option flags for qhull, see qh_opt.htm */
-  sprintf(opts, "qhull d Qt Fn Qbb");
+  sprintf(opts, "qhull d Qt Fn Qbb%s", atinfinity ? " Qz" : "");
 	qhT qh_qh; /* Qhull's data structure */
   qhT *qh= &qh_qh;
   QHULL_LIB_CHECK
@@ -69,8 +70,8 @@ TesselationT* tesselation(
         allfacets[i_facet].simplex.center =
           facet->degenerate ? nanvector(dim)
                               : qh_facetcenter(qh, facet->vertices);
-        allfacets[i_facet].simplex.normal = facet->normal;
-        allfacets[i_facet].simplex.offset = facet->offset;
+        // allfacets[i_facet].simplex.normal = facet->normal;
+        // allfacets[i_facet].simplex.offset = facet->offset;
         /* calculate circumradius */
         if(!facet->degenerate){
           pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
@@ -310,12 +311,12 @@ TesselationT* tesselation(
               allridges_dup[i_ridge_dup].simplex.volume = surface;
             }
             qh_normalize2(qh, normal, dim, 1, NULL, NULL);
-            allridges_dup[i_ridge_dup].simplex.normal =
+            allridges_dup[i_ridge_dup].normal =
               malloc(dim * sizeof(double));
             for(unsigned i=0; i < dim; i++){
-              allridges_dup[i_ridge_dup].simplex.normal[i] = normal[i];
+              allridges_dup[i_ridge_dup].normal[i] = normal[i];
             }
-            allridges_dup[i_ridge_dup].simplex.offset =
+            allridges_dup[i_ridge_dup].offset =
               - dotproduct(points[0], normal, dim);
             if(dim > 2){ /* ridge center is already done if dim 2 */
               if(facet->degenerate){
@@ -348,20 +349,18 @@ TesselationT* tesselation(
               double thepoint[dim]; /* the point center+normal */
               for(unsigned i=0; i < dim; i++){
                 thepoint[i] = allridges_dup[i_ridge_dup].simplex.center[i] +
-                              allridges_dup[i_ridge_dup].simplex.normal[i];
+                              allridges_dup[i_ridge_dup].normal[i];
               }
               /* we check that these two points are on the same side of the ridge */
               double h1 = dotproduct(otherpoint,
-                                     allridges_dup[i_ridge_dup].simplex.normal,
-                                     dim) +
-                          allridges_dup[i_ridge_dup].simplex.offset;
+                                     allridges_dup[i_ridge_dup].normal, dim) +
+                          allridges_dup[i_ridge_dup].offset;
               double h2 = dotproduct(thepoint,
-                                     allridges_dup[i_ridge_dup].simplex.normal,
-                                     dim) +
-                          allridges_dup[i_ridge_dup].simplex.offset;
+                                     allridges_dup[i_ridge_dup].normal, dim) +
+                          allridges_dup[i_ridge_dup].offset;
               if(h1*h2 > 0){
                 for(unsigned i=0; i < dim; i++){
-                  allridges_dup[i_ridge_dup].simplex.normal[i] *= -1;
+                  allridges_dup[i_ridge_dup].normal[i] *= -1;
                 }
               }
             }
@@ -372,6 +371,7 @@ TesselationT* tesselation(
           i_ridge_dup++;
         } // end loop combinations (m)
         qsortu(allfacets[i_facet].ridgesids, dim+1);
+        /**/
         i_facet++;
       } // end FORALLfacets
     }
@@ -436,7 +436,13 @@ TesselationT* tesselation(
 	qh_freeqhull(qh, !qh_ALL);                  /* free long memory */
 	qh_memfreeshort(qh, &curlong, &totlong);   /* free short memory and memory allocator */
 
-  return out;
+  if(*exitcode){
+    free(out);
+    return 0;
+  }else{
+    return out;
+  }
+
 }
 
 
@@ -444,7 +450,7 @@ void testdel2(){
   double sites[27] = {0,0,0, 0,0,1, 0,1,0, 0,1,1, 1,0,0, 1,0,1, 1,1,0, 1,1,1, 0.5,0.5,0.5};
   unsigned exitcode;
   unsigned dim = 3;
-  TesselationT* x = tesselation(sites, dim, 9, 0, &exitcode);
+  TesselationT* x = tesselation(sites, dim, 9, 0, 0, &exitcode);
   printf("TESTDEL2 - nfacets:%u\n", x->ntiles);
   for(unsigned f=0; f < x->ntiles; f++){
     printf("facet %u - sites:\n", f);

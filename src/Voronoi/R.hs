@@ -48,6 +48,7 @@ voronoi2ForR v d =
 voronoi3ForRgl :: Voronoi3 -> Maybe Tesselation -> String
 voronoi3ForRgl v d =
   let code = unlines $ map cellForRgl v in
+  "library(rgl)\n" ++
   if isJust d
     then code ++ "\n" ++ "# Delaunay:\n" ++
          delaunay3rgl (fromJust d) True True True (Just 0.9)

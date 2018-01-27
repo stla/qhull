@@ -29,18 +29,18 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 
 ---
 
-tileFacetAsPair :: TileFacet -> (Simplex, [Int])
-tileFacetAsPair = _subsimplex &&& (IS.toList . _facetOf)
+-- tileFacetAsPair :: TileFacet -> (Simplex, [Int])
+-- tileFacetAsPair = _subsimplex &&& (IS.toList . _facetOf)
 
 edgesFromTileFacet :: Tesselation -> TileFacet -> Maybe Edge
 edgesFromTileFacet tess tilefacet
   | length tileindices == 1
-    = Just $ IEdge (c1, _normal simplex)
+    = Just $ IEdge (c1, _normal tilefacet)
   | c1 == c2 = Nothing
 --  | isJust (_family tile1) && (_family tile1 == _family tile2) = Nothing -- ?
   | otherwise = Just $ Edge (c1, c2)
   where
-    (simplex, tileindices) = tileFacetAsPair tilefacet
+    tileindices = (IS.toList . _facetOf) tilefacet
     tiles = _tiles tess
     tile1 = tiles IM.! head tileindices
     tile2 = tiles IM.! last tileindices

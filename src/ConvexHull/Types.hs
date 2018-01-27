@@ -44,7 +44,7 @@ instance HasFamily Facet where
   family = _family
 
 data ConvexHull = ConvexHull {
-    _allvertices :: IndexMap Vertex
+    _allvertices :: IndexMap Vertex -- ou hvertices, etc ?
   , _facets      :: IntMap Facet
   , _allridges   :: IntMap Ridge
   , _alledges    :: EdgeMap

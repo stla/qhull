@@ -1,10 +1,10 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
-module Delaunay2.CDelaunay
+module Delaunay.CDelaunay
   ( cTesselationToTesselation
   , c_tesselation )
   where
 import           Control.Monad       ((<$!>))
-import           Delaunay2.Types
+import           Delaunay.Types
 import           Data.IntMap.Strict  (fromAscList)
 import qualified Data.IntSet         as IS
 -- import qualified Data.HashMap.Strict as H
@@ -12,7 +12,7 @@ import           Foreign
 import           Foreign.C.Types
 import           Qhull.Types (Family(..))
 
-#include "delaunay2.h"
+#include "delaunay.h"
 
 data CSite = CSite {
     __id :: CUInt
@@ -77,8 +77,6 @@ data CSimplex = CSimplex {
     __sitesids :: Ptr CUInt
   , __center :: Ptr CDouble
   , __radius :: CDouble
-  , __normal :: Ptr CDouble
-  , __offset :: CDouble
   , __volume :: CDouble
 }
 
@@ -89,29 +87,22 @@ instance Storable CSimplex where
       sitesids'    <- #{peek SimplexT, sitesids} ptr
       center'      <- #{peek SimplexT, center} ptr
       radius'      <- #{peek SimplexT, radius} ptr
-      normal'      <- #{peek SimplexT, normal} ptr
-      offset'      <- #{peek SimplexT, offset} ptr
       volume'      <- #{peek SimplexT, volume} ptr
       return CSimplex { __sitesids    = sitesids'
                       , __center      = center'
                       , __radius      = radius'
-                      , __normal      = normal'
-                      , __offset      = offset'
                       , __volume      = volume'
                     }
-    poke ptr (CSimplex r1 r2 r3 r4 r5 r6)
+    poke ptr (CSimplex r1 r2 r3 r4)
       = do
           #{poke SimplexT, sitesids} ptr r1
           #{poke SimplexT, center} ptr r2
           #{poke SimplexT, radius} ptr r3
-          #{poke SimplexT, normal} ptr r4
-          #{poke SimplexT, offset} ptr r5
-          #{poke SimplexT, volume} ptr r6
+          #{poke SimplexT, volume} ptr r4
 
 cSimplexToSimplex :: [[Double]] -> Int -> CSimplex -> IO Simplex
 cSimplexToSimplex sites simplexdim csimplex = do
   let radius      = cdbl2dbl $ __radius csimplex
-      offset      = cdbl2dbl $ __offset csimplex
       volume      = cdbl2dbl $ __volume csimplex
       dim         = length (head sites)
   sitesids <- (<$!>) (map fromIntegral)
@@ -119,14 +110,10 @@ cSimplexToSimplex sites simplexdim csimplex = do
   let points = fromAscList
                (zip sitesids (map ((!!) sites) sitesids))
   center <- (<$!>) (map cdbl2dbl) (peekArray dim (__center csimplex))
-  normal <- (<$!>) (map cdbl2dbl) (peekArray simplexdim (__normal csimplex))
   return Simplex { _points       = points
                  , _circumcenter = center
                  , _circumradius = radius
-                 , _normal       = normal
-                 , _offset       = offset
-                 , _volume       = volume
-                 }
+                 , _volume       = volume }
   where
     cdbl2dbl :: CDouble -> Double
     cdbl2dbl x = if isNaN x then 0/0 else realToFrac x
@@ -136,6 +123,8 @@ data CSubTile = CSubTile {
   , __subsimplex :: CSimplex
   , __ridgeOf1 :: CUInt
   , __ridgeOf2 :: CInt
+  , __normal :: Ptr CDouble
+  , __offset :: CDouble
 }
 
 instance Storable CSubTile where
@@ -146,16 +135,22 @@ instance Storable CSubTile where
       simplex'  <- #{peek SubTileT, simplex} ptr
       ridgeOf1' <- #{peek SubTileT, ridgeOf1} ptr
       ridgeOf2' <- #{peek SubTileT, ridgeOf2} ptr
+      normal'   <- #{peek SubTileT, normal} ptr
+      offset'   <- #{peek SubTileT, offset} ptr
       return CSubTile { __id'        = id'
                       , __subsimplex = simplex'
                       , __ridgeOf1   = ridgeOf1'
-                      , __ridgeOf2   = ridgeOf2' }
-    poke ptr (CSubTile r1 r2 r3 r4)
+                      , __ridgeOf2   = ridgeOf2'
+                      , __normal     = normal'
+                      , __offset     = offset' }
+    poke ptr (CSubTile r1 r2 r3 r4 r5 r6)
       = do
           #{poke SubTileT, id} ptr r1
           #{poke SubTileT, simplex} ptr r2
           #{poke SubTileT, ridgeOf1} ptr r3
           #{poke SubTileT, ridgeOf2} ptr r4
+          #{poke SubTileT, normal} ptr r5
+          #{poke SubTileT, offset} ptr r6
 
 cSubTiletoTileFacet :: [[Double]] -> CSubTile -> IO (Int, TileFacet)
 cSubTiletoTileFacet points csubtile = do
@@ -165,9 +160,13 @@ cSubTiletoTileFacet points csubtile = do
       ridgeOf    = if ridgeOf2 == -1 then [ridgeOf1] else [ridgeOf1, ridgeOf2]
       id'        = fromIntegral $ __id' csubtile
       subsimplex = __subsimplex csubtile
+      offset     = realToFrac $ __offset csubtile
   simplex <- cSimplexToSimplex points dim subsimplex
+  normal <- (<$!>) (map realToFrac) (peekArray dim (__normal csubtile))
   return (id', TileFacet { _subsimplex = simplex
-                         , _facetOf    = IS.fromAscList ridgeOf })
+                         , _facetOf    = IS.fromAscList ridgeOf
+                         , _normal     = normal
+                         , _offset     = offset })
 
 data CTile = CTile {
     __id'' :: CUInt
@@ -270,6 +269,7 @@ foreign import ccall unsafe "tesselation" c_tesselation
   :: Ptr CDouble -- sites
   -> CUInt       -- dim
   -> CUInt       -- nsites
+  -> CUInt       -- 0/1, point at infinity
   -> CUInt       -- 0/1, include degenerate
   -> Ptr CUInt   -- exitcode
   -> IO (Ptr CTesselation)

@@ -8,7 +8,7 @@ import qualified Data.HashMap.Strict    as H
 import qualified Data.IntMap.Strict     as IM
 import           Data.List
 import           Data.List.Unique       (allUnique)
-import           Data.Maybe
+import           Data.Tuple.Extra       (both)
 import           Foreign.C.String
 import           Foreign.C.Types
 import           Foreign.Marshal.Alloc  (free, mallocBytes)
@@ -56,6 +56,26 @@ convexHull points triangulate stdout file = do
 xxx :: ConvexHull -> [[Int]]
 xxx chull = map (IM.keys . _rvertices) (IM.elems (_allridges chull))
 
+-- | convex hull summary
+hullSummary :: ConvexHull -> String
+hullSummary hull =
+  "Convex hull:\n" ++
+  show nvertices ++ " vertices\n" ++
+  show nfacets ++ " facets (" ++ families ++ ")\n" ++
+  show nridges ++ " ridges\n" ++
+  show nedges ++ " edges\n"
+  where
+    nvertices = IM.size (_allvertices hull)
+    nedges = H.size (_alledges hull)
+    nridges = IM.size (_allridges hull)
+    facets = _facets hull
+    nfacets = IM.size facets
+    (nf1,nf2) = both length $
+                partition (None ==)
+                          (nubBy sameFamily (map _family $ IM.elems facets))
+    families = show nf1 ++ " single, " ++
+               show nf2 ++ if nf2>1 then " families" else " family"
+
 -- | whether a pair of vertices form an edge of the hull
 isEdge :: ConvexHull -> (Index, Index) -> Bool
 isEdge hull (i,j) = Pair i j `H.member` _alledges hull
@@ -89,8 +109,7 @@ groupedFacets hull =
   zip3 (map head families) verticesGroups edgesGroups
   where
     facets         = IM.elems (_facets hull)
-    facesGroups    = groupBy (\f1 f2 -> sameFamily
-                                        (_family f1) (_family f2)) facets
+    facesGroups    = groupBy (sameFamily `on` _family) facets
     edgesGroups    = map (map _edges) facesGroups
     verticesGroups = map (map _fvertices) facesGroups
     families       = map (map _family) facesGroups

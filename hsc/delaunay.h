@@ -12,8 +12,6 @@ typedef struct Simplex {
   unsigned* sitesids;
   double*   center;
   double    radius;
-  double*   normal;
-  double    offset;
   double    volume;
 } SimplexT;
 
@@ -22,6 +20,8 @@ typedef struct SubTile {
   SimplexT simplex;
   unsigned ridgeOf1;
   int      ridgeOf2;
+  double*  normal;
+  double   offset;
   unsigned flag;
 } SubTileT;
 
@@ -46,5 +46,5 @@ typedef struct Tesselation {
   unsigned  nsubtiles;
 } TesselationT;
 
-TesselationT* tesselation(double*, unsigned, unsigned, unsigned, unsigned*);
+TesselationT* tesselation(double*, unsigned, unsigned, unsigned, unsigned, unsigned*);
 void testdel2();

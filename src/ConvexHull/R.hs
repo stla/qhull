@@ -6,7 +6,7 @@ import qualified Data.HashMap.Strict as H
 import qualified Data.IntMap.Strict  as IM
 import           Data.List.Index     (iconcatMap)
 import           Data.Maybe
-import           Data.Tuple.Extra    (fst3, snd3, thd3)
+import           Data.Tuple.Extra    (snd3)
 import           System.IO           (writeFile)
 
 convexHull3DrglCode :: [[Double]] -> Bool -> Maybe FilePath -> IO String
@@ -16,11 +16,8 @@ convexHull3DrglCode points rainbow file = do
   let edges = H.elems (_alledges hull1)
   -- get triangles --
   hull2 <- convexHull points True False Nothing
-  let families = map _family (IM.elems $ _facets hull2)
-  -- print families
   let grpFaces = groupedFacets hull2
   let triangles = map (map IM.elems . snd3) grpFaces
-  -- mapM_ (mapM_ (print . length)) triangles
   -- code for edges --
   let code1 = concatMap rglSegment edges
   -- color palette --
@@ -32,7 +29,7 @@ convexHull3DrglCode points rainbow file = do
   -- code for triangles --
   let code2 = iconcatMap (\i x -> concatMap (rglTriangle i) x) triangles
   -- whole code --
-  let code = code_colors ++ code1 ++ code2
+  let code = "library(rgl)\n" ++ code_colors ++ code1 ++ code2
   -- write file --
   when (isJust file) $
     writeFile (fromJust file) code

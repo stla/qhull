@@ -9,6 +9,7 @@ import           Delaunay
 delaunay2ForR :: Tesselation -> Bool -> String
 delaunay2ForR tess colors =
   let tiles = IM.elems (_tiles tess) in
+  "plot(0, 0, type=\"n\", xlim=c(0,5), ylim=c(0,5)) # please set the limits\n" ++ 
   (if colors
     then "colors <- heat.colors(" ++ show (length tiles + 1) ++ ", alpha=0.5)\n"
     else "\n") ++
@@ -32,6 +33,7 @@ delaunay2ForR tess colors =
 delaunay3rgl :: Tesselation -> Bool -> Bool -> Bool -> Maybe Double -> String
 delaunay3rgl tess onlyexterior segments colors alpha =
   let ridges = IM.elems (_tilefacets tess) in
+  "library(rgl)\n" ++
   (if colors
     then "colors <- topo.colors(" ++ show (length ridges +1) ++ ", alpha=0.5)\n"
     else "\n") ++

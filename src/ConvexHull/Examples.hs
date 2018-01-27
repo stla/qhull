@@ -1,7 +1,14 @@
 module ConvexHull.Examples
   where
+import           Data.List
 import           Data.List.Split (chunksOf)
 import           System.Random
+
+translate3 :: [[Double]] -> [Double] -> [[Double]]
+translate3 points u = map (zipWith (+) u) points
+
+duplicate3 :: [[Double]] -> [Double] -> [[Double]]
+duplicate3 points u = nub $ points ++ translate3 points u
 
 rgg :: [[Double]]
 rgg = [[-5,-5, 16], [-5, 8, 3 ], [ 4,-1, 3 ], [ 4,-5, 7], [ 4,-1,-10],
@@ -47,6 +54,11 @@ cube5 :: [[Double]]
 cube5 = [[i,j,k,l,m] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1],
                        m <- [-1,1]]
 
+dodecahedron :: [[Double]]
+dodecahedron = let phi = (1 + sqrt 5)/2 in
+               [[0,i,j] | i <- [-1,1], j <- [-phi, phi]] ++
+               [[j,0,i] | i <- [-1,1], j <- [-phi, phi]] ++
+               [[i,j,0] | i <- [-1,1], j <- [-phi, phi]]
 
 randomInCircle :: Int -> IO [[Double]]
 randomInCircle n = do

@@ -29,14 +29,27 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  let c = 4
-      a = 1
-  let curve3D = map (\x -> [ cos (2*pi*x) * (c + a * cos (2*pi*x))
-                          ,  sin (2*pi*x) * (c + a * cos (2*pi*x))
-                          ,  a * sin (2*pi*x)]) [i/50 | i <- [0 .. 50]]
-  tess <- delaunay curve3D False
+  let x = duplicate3 (duplicate3 (duplicate3 (cube3 ++ [[0,0,0]]) [2,0,0]) [0,2,0]) [0,0,2]
+  tess <- delaunay x False False
   let v = voronoi3 tess
-  writeFile "rgl/voronoi_curve3Dtorus.R" (voronoi3ForRgl v (Just tess))
+  code <- voronoi3ForRgl' v Nothing
+  writeFile "rgl/voronoi_multicube.R" code
+
+  -- let x = dodecahedron ++ [[0,0,0]]
+  -- tess <- delaunay x False
+  -- let v = voronoi3 tess
+  -- code <- voronoi3ForRgl' v Nothing
+  -- writeFile "rgl/voronoi_centricDodecahedron.R" code
+  -- prettyShowVoronoi3 v (Just 3)
+
+  -- let c = 4
+  --     a = 1
+  -- let curve3D = map (\x -> [ cos (2*pi*x) * (c + a * cos (2*pi*x))
+  --                         ,  sin (2*pi*x) * (c + a * cos (2*pi*x))
+  --                         ,  a * sin (2*pi*x)]) [i/50 | i <- [0 .. 50]]
+  -- tess <- delaunay curve3D False
+  -- let v = voronoi3 tess
+  -- writeFile "rgl/voronoi_curve3Dtorus.R" (voronoi3ForRgl v (Just tess))
 
   -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
   --                         ,  sin (pi*x) * sin (2*pi*x)

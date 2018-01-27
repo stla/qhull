@@ -11,7 +11,7 @@ import           Delaunay.Types
 -- import qualified Data.HashMap.Strict as H
 import           Foreign
 import           Foreign.C.Types
-import           Qhull.Types (Family(..))
+import           Qhull.Types        (Family (..))
 
 data CSite = CSite {
     __id             :: CUInt
@@ -25,48 +25,48 @@ data CSite = CSite {
 
 instance Storable CSite where
     sizeOf    __ = (56)
-{-# LINE 28 "delaunay2.hsc" #-}
+{-# LINE 29 "delaunay.hsc" #-}
     alignment __ = 8
-{-# LINE 29 "delaunay2.hsc" #-}
+{-# LINE 30 "delaunay.hsc" #-}
     peek ptr = do
       id'              <- (\hsc_ptr -> peekByteOff hsc_ptr 0) ptr
-{-# LINE 31 "delaunay2.hsc" #-}
+{-# LINE 32 "delaunay.hsc" #-}
       neighsites'      <- (\hsc_ptr -> peekByteOff hsc_ptr 8) ptr
-{-# LINE 32 "delaunay2.hsc" #-}
+{-# LINE 33 "delaunay.hsc" #-}
       nneighsites'     <- (\hsc_ptr -> peekByteOff hsc_ptr 16) ptr
-{-# LINE 33 "delaunay2.hsc" #-}
+{-# LINE 34 "delaunay.hsc" #-}
       neighridgesids'  <- (\hsc_ptr -> peekByteOff hsc_ptr 24) ptr
-{-# LINE 34 "delaunay2.hsc" #-}
+{-# LINE 35 "delaunay.hsc" #-}
       nneighridges'    <- (\hsc_ptr -> peekByteOff hsc_ptr 32) ptr
-{-# LINE 35 "delaunay2.hsc" #-}
+{-# LINE 36 "delaunay.hsc" #-}
       neightiles'      <- (\hsc_ptr -> peekByteOff hsc_ptr 40) ptr
-{-# LINE 36 "delaunay2.hsc" #-}
+{-# LINE 37 "delaunay.hsc" #-}
       nneightiles'     <- (\hsc_ptr -> peekByteOff hsc_ptr 48) ptr
-{-# LINE 37 "delaunay2.hsc" #-}
-      return CSite { __id = id'
-                   , __neighsites = neighsites'
-                   , __nneighsites = nneighsites'
+{-# LINE 38 "delaunay.hsc" #-}
+      return CSite { __id             = id'
+                   , __neighsites     = neighsites'
+                   , __nneighsites    = nneighsites'
                    , __neighridgesids = neighridgesids'
-                   , __nneighridges = nneighridges'
-                   , __neightiles = neightiles'
-                   , __nneightiles = nneightiles'
+                   , __nneighridges   = nneighridges'
+                   , __neightiles     = neightiles'
+                   , __nneightiles    = nneightiles'
                   }
     poke ptr (CSite r1 r2 r3 r4 r5 r6 r7)
       = do
           (\hsc_ptr -> pokeByteOff hsc_ptr 0) ptr r1
-{-# LINE 48 "delaunay2.hsc" #-}
+{-# LINE 49 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 8) ptr r2
-{-# LINE 49 "delaunay2.hsc" #-}
+{-# LINE 50 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 16) ptr r3
-{-# LINE 50 "delaunay2.hsc" #-}
+{-# LINE 51 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 24) ptr r4
-{-# LINE 51 "delaunay2.hsc" #-}
+{-# LINE 52 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 32) ptr r5
-{-# LINE 52 "delaunay2.hsc" #-}
+{-# LINE 53 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 40) ptr r6
-{-# LINE 53 "delaunay2.hsc" #-}
+{-# LINE 54 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 48) ptr r7
-{-# LINE 54 "delaunay2.hsc" #-}
+{-# LINE 55 "delaunay.hsc" #-}
 
 cSiteToSite :: [[Double]] -> CSite -> IO (Int, Site)
 cSiteToSite sites csite = do
@@ -92,55 +92,42 @@ data CSimplex = CSimplex {
     __sitesids :: Ptr CUInt
   , __center   :: Ptr CDouble
   , __radius   :: CDouble
-  , __normal   :: Ptr CDouble
-  , __offset   :: CDouble
   , __volume   :: CDouble
 }
 
 instance Storable CSimplex where
-    sizeOf    __ = (48)
-{-# LINE 86 "delaunay2.hsc" #-}
+    sizeOf    __ = (32)
+{-# LINE 85 "delaunay.hsc" #-}
     alignment __ = 8
-{-# LINE 87 "delaunay2.hsc" #-}
+{-# LINE 86 "delaunay.hsc" #-}
     peek ptr = do
       sitesids'    <- (\hsc_ptr -> peekByteOff hsc_ptr 0) ptr
-{-# LINE 89 "delaunay2.hsc" #-}
+{-# LINE 88 "delaunay.hsc" #-}
       center'      <- (\hsc_ptr -> peekByteOff hsc_ptr 8) ptr
-{-# LINE 90 "delaunay2.hsc" #-}
+{-# LINE 89 "delaunay.hsc" #-}
       radius'      <- (\hsc_ptr -> peekByteOff hsc_ptr 16) ptr
-{-# LINE 91 "delaunay2.hsc" #-}
-      normal'      <- (\hsc_ptr -> peekByteOff hsc_ptr 24) ptr
-{-# LINE 92 "delaunay2.hsc" #-}
-      offset'      <- (\hsc_ptr -> peekByteOff hsc_ptr 32) ptr
-{-# LINE 93 "delaunay2.hsc" #-}
-      volume'      <- (\hsc_ptr -> peekByteOff hsc_ptr 40) ptr
-{-# LINE 94 "delaunay2.hsc" #-}
+{-# LINE 90 "delaunay.hsc" #-}
+      volume'      <- (\hsc_ptr -> peekByteOff hsc_ptr 24) ptr
+{-# LINE 91 "delaunay.hsc" #-}
       return CSimplex { __sitesids    = sitesids'
                       , __center      = center'
                       , __radius      = radius'
-                      , __normal      = normal'
-                      , __offset      = offset'
                       , __volume      = volume'
                     }
-    poke ptr (CSimplex r1 r2 r3 r4 r5 r6)
+    poke ptr (CSimplex r1 r2 r3 r4)
       = do
           (\hsc_ptr -> pokeByteOff hsc_ptr 0) ptr r1
-{-# LINE 104 "delaunay2.hsc" #-}
+{-# LINE 99 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 8) ptr r2
-{-# LINE 105 "delaunay2.hsc" #-}
+{-# LINE 100 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 16) ptr r3
-{-# LINE 106 "delaunay2.hsc" #-}
+{-# LINE 101 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 24) ptr r4
-{-# LINE 107 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 32) ptr r5
-{-# LINE 108 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 40) ptr r6
-{-# LINE 109 "delaunay2.hsc" #-}
+{-# LINE 102 "delaunay.hsc" #-}
 
 cSimplexToSimplex :: [[Double]] -> Int -> CSimplex -> IO Simplex
 cSimplexToSimplex sites simplexdim csimplex = do
   let radius      = cdbl2dbl $ __radius csimplex
-      offset      = cdbl2dbl $ __offset csimplex
       volume      = cdbl2dbl $ __volume csimplex
       dim         = length (head sites)
   sitesids <- (<$!>) (map fromIntegral)
@@ -148,14 +135,10 @@ cSimplexToSimplex sites simplexdim csimplex = do
   let points = fromAscList
                (zip sitesids (map ((!!) sites) sitesids))
   center <- (<$!>) (map cdbl2dbl) (peekArray dim (__center csimplex))
-  normal <- (<$!>) (map cdbl2dbl) (peekArray simplexdim (__normal csimplex))
   return Simplex { _points       = points
                  , _circumcenter = center
                  , _circumradius = radius
-                 , _normal       = normal
-                 , _offset       = offset
-                 , _volume       = volume
-                 }
+                 , _volume       = volume }
   where
     cdbl2dbl :: CDouble -> Double
     cdbl2dbl x = if isNaN x then 0/0 else realToFrac x
@@ -165,37 +148,48 @@ data CSubTile = CSubTile {
   , __subsimplex :: CSimplex
   , __ridgeOf1   :: CUInt
   , __ridgeOf2   :: CInt
+  , __normal     :: Ptr CDouble
+  , __offset     :: CDouble
 }
 
 instance Storable CSubTile where
     sizeOf    __ = (72)
-{-# LINE 142 "delaunay2.hsc" #-}
+{-# LINE 132 "delaunay.hsc" #-}
     alignment __ = 8
-{-# LINE 143 "delaunay2.hsc" #-}
+{-# LINE 133 "delaunay.hsc" #-}
     peek ptr = do
       id'       <- (\hsc_ptr -> peekByteOff hsc_ptr 0) ptr
-{-# LINE 145 "delaunay2.hsc" #-}
+{-# LINE 135 "delaunay.hsc" #-}
       simplex'  <- (\hsc_ptr -> peekByteOff hsc_ptr 8) ptr
-{-# LINE 146 "delaunay2.hsc" #-}
-      ridgeOf1' <- (\hsc_ptr -> peekByteOff hsc_ptr 56) ptr
-{-# LINE 147 "delaunay2.hsc" #-}
-      ridgeOf2' <- (\hsc_ptr -> peekByteOff hsc_ptr 60) ptr
-{-# LINE 148 "delaunay2.hsc" #-}
+{-# LINE 136 "delaunay.hsc" #-}
+      ridgeOf1' <- (\hsc_ptr -> peekByteOff hsc_ptr 40) ptr
+{-# LINE 137 "delaunay.hsc" #-}
+      ridgeOf2' <- (\hsc_ptr -> peekByteOff hsc_ptr 44) ptr
+{-# LINE 138 "delaunay.hsc" #-}
+      normal'   <- (\hsc_ptr -> peekByteOff hsc_ptr 48) ptr
+{-# LINE 139 "delaunay.hsc" #-}
+      offset'   <- (\hsc_ptr -> peekByteOff hsc_ptr 56) ptr
+{-# LINE 140 "delaunay.hsc" #-}
       return CSubTile { __id'        = id'
                       , __subsimplex = simplex'
                       , __ridgeOf1   = ridgeOf1'
                       , __ridgeOf2   = ridgeOf2'
-                    }
-    poke ptr (CSubTile r1 r2 r3 r4)
+                      , __normal     = normal'
+                      , __offset     = offset' }
+    poke ptr (CSubTile r1 r2 r3 r4 r5 r6)
       = do
           (\hsc_ptr -> pokeByteOff hsc_ptr 0) ptr r1
-{-# LINE 156 "delaunay2.hsc" #-}
+{-# LINE 149 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 8) ptr r2
-{-# LINE 157 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 56) ptr r3
-{-# LINE 158 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 60) ptr r4
-{-# LINE 159 "delaunay2.hsc" #-}
+{-# LINE 150 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 40) ptr r3
+{-# LINE 151 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 44) ptr r4
+{-# LINE 152 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 48) ptr r5
+{-# LINE 153 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 56) ptr r6
+{-# LINE 154 "delaunay.hsc" #-}
 
 cSubTiletoTileFacet :: [[Double]] -> CSubTile -> IO (Int, TileFacet)
 cSubTiletoTileFacet points csubtile = do
@@ -205,11 +199,13 @@ cSubTiletoTileFacet points csubtile = do
       ridgeOf    = if ridgeOf2 == -1 then [ridgeOf1] else [ridgeOf1, ridgeOf2]
       id'        = fromIntegral $ __id' csubtile
       subsimplex = __subsimplex csubtile
+      offset     = realToFrac $ __offset csubtile
   simplex <- cSimplexToSimplex points dim subsimplex
-  return (id', TileFacet {
-                          _subsimplex = simplex
-                        , _facetOf    = IS.fromAscList ridgeOf
-               })
+  normal <- (<$!>) (map realToFrac) (peekArray dim (__normal csubtile))
+  return (id', TileFacet { _subsimplex = simplex
+                         , _facetOf    = IS.fromAscList ridgeOf
+                         , _normal     = normal
+                         , _offset     = offset })
 
 data CTile = CTile {
     __id''        :: CUInt
@@ -223,27 +219,27 @@ data CTile = CTile {
 }
 
 instance Storable CTile where
-    sizeOf    __ = (96)
-{-# LINE 187 "delaunay2.hsc" #-}
+    sizeOf    __ = (80)
+{-# LINE 184 "delaunay.hsc" #-}
     alignment __ = 8
-{-# LINE 188 "delaunay2.hsc" #-}
+{-# LINE 185 "delaunay.hsc" #-}
     peek ptr = do
       id'         <- (\hsc_ptr -> peekByteOff hsc_ptr 0) ptr
-{-# LINE 190 "delaunay2.hsc" #-}
+{-# LINE 187 "delaunay.hsc" #-}
       simplex'    <- (\hsc_ptr -> peekByteOff hsc_ptr 8) ptr
-{-# LINE 191 "delaunay2.hsc" #-}
-      neighbors'  <- (\hsc_ptr -> peekByteOff hsc_ptr 56) ptr
-{-# LINE 192 "delaunay2.hsc" #-}
-      nneighbors' <- (\hsc_ptr -> peekByteOff hsc_ptr 64) ptr
-{-# LINE 193 "delaunay2.hsc" #-}
-      ridgesids'  <- (\hsc_ptr -> peekByteOff hsc_ptr 72) ptr
-{-# LINE 194 "delaunay2.hsc" #-}
-      nridges'    <- (\hsc_ptr -> peekByteOff hsc_ptr 80) ptr
-{-# LINE 195 "delaunay2.hsc" #-}
-      family'     <- (\hsc_ptr -> peekByteOff hsc_ptr 84) ptr
-{-# LINE 196 "delaunay2.hsc" #-}
-      orient      <- (\hsc_ptr -> peekByteOff hsc_ptr 88) ptr
-{-# LINE 197 "delaunay2.hsc" #-}
+{-# LINE 188 "delaunay.hsc" #-}
+      neighbors'  <- (\hsc_ptr -> peekByteOff hsc_ptr 40) ptr
+{-# LINE 189 "delaunay.hsc" #-}
+      nneighbors' <- (\hsc_ptr -> peekByteOff hsc_ptr 48) ptr
+{-# LINE 190 "delaunay.hsc" #-}
+      ridgesids'  <- (\hsc_ptr -> peekByteOff hsc_ptr 56) ptr
+{-# LINE 191 "delaunay.hsc" #-}
+      nridges'    <- (\hsc_ptr -> peekByteOff hsc_ptr 64) ptr
+{-# LINE 192 "delaunay.hsc" #-}
+      family'     <- (\hsc_ptr -> peekByteOff hsc_ptr 68) ptr
+{-# LINE 193 "delaunay.hsc" #-}
+      orient      <- (\hsc_ptr -> peekByteOff hsc_ptr 72) ptr
+{-# LINE 194 "delaunay.hsc" #-}
       return CTile { __id''        = id'
                    , __simplex     = simplex'
                    , __neighbors   = neighbors'
@@ -256,21 +252,21 @@ instance Storable CTile where
     poke ptr (CTile r1 r2 r3 r4 r5 r6 r7 r8)
       = do
           (\hsc_ptr -> pokeByteOff hsc_ptr 0) ptr r1
-{-# LINE 209 "delaunay2.hsc" #-}
+{-# LINE 206 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 8) ptr r2
-{-# LINE 210 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 56) ptr r3
-{-# LINE 211 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 64) ptr r4
-{-# LINE 212 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 72) ptr r5
-{-# LINE 213 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 80) ptr r6
-{-# LINE 214 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 84) ptr r7
-{-# LINE 215 "delaunay2.hsc" #-}
-          (\hsc_ptr -> pokeByteOff hsc_ptr 88) ptr r8
-{-# LINE 216 "delaunay2.hsc" #-}
+{-# LINE 207 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 40) ptr r3
+{-# LINE 208 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 48) ptr r4
+{-# LINE 209 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 56) ptr r5
+{-# LINE 210 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 64) ptr r6
+{-# LINE 211 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 68) ptr r7
+{-# LINE 212 "delaunay.hsc" #-}
+          (\hsc_ptr -> pokeByteOff hsc_ptr 72) ptr r8
+{-# LINE 213 "delaunay.hsc" #-}
 
 cTileToTile :: [[Double]] -> CTile -> IO (Int, Tile)
 cTileToTile points ctile = do
@@ -304,20 +300,20 @@ data CTesselation = CTesselation {
 
 instance Storable CTesselation where
     sizeOf    __ = (40)
-{-# LINE 249 "delaunay2.hsc" #-}
+{-# LINE 246 "delaunay.hsc" #-}
     alignment __ = 8
-{-# LINE 250 "delaunay2.hsc" #-}
+{-# LINE 247 "delaunay.hsc" #-}
     peek ptr = do
       sites'     <- (\hsc_ptr -> peekByteOff hsc_ptr 0) ptr
-{-# LINE 252 "delaunay2.hsc" #-}
+{-# LINE 249 "delaunay.hsc" #-}
       tiles'     <- (\hsc_ptr -> peekByteOff hsc_ptr 8) ptr
-{-# LINE 253 "delaunay2.hsc" #-}
+{-# LINE 250 "delaunay.hsc" #-}
       ntiles'    <- (\hsc_ptr -> peekByteOff hsc_ptr 16) ptr
-{-# LINE 254 "delaunay2.hsc" #-}
+{-# LINE 251 "delaunay.hsc" #-}
       subtiles'  <- (\hsc_ptr -> peekByteOff hsc_ptr 24) ptr
-{-# LINE 255 "delaunay2.hsc" #-}
+{-# LINE 252 "delaunay.hsc" #-}
       nsubtiles' <- (\hsc_ptr -> peekByteOff hsc_ptr 32) ptr
-{-# LINE 256 "delaunay2.hsc" #-}
+{-# LINE 253 "delaunay.hsc" #-}
       return CTesselation {
                      __sites     = sites'
                    , __tiles     = tiles'
@@ -328,20 +324,21 @@ instance Storable CTesselation where
     poke ptr (CTesselation r1 r2 r3 r4 r5)
       = do
           (\hsc_ptr -> pokeByteOff hsc_ptr 0) ptr r1
-{-# LINE 266 "delaunay2.hsc" #-}
+{-# LINE 263 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 8) ptr r2
-{-# LINE 267 "delaunay2.hsc" #-}
+{-# LINE 264 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 16) ptr r3
-{-# LINE 268 "delaunay2.hsc" #-}
+{-# LINE 265 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 24) ptr r4
-{-# LINE 269 "delaunay2.hsc" #-}
+{-# LINE 266 "delaunay.hsc" #-}
           (\hsc_ptr -> pokeByteOff hsc_ptr 32) ptr r5
-{-# LINE 270 "delaunay2.hsc" #-}
+{-# LINE 267 "delaunay.hsc" #-}
 
 foreign import ccall unsafe "tesselation" c_tesselation
   :: Ptr CDouble -- sites
   -> CUInt       -- dim
   -> CUInt       -- nsites
+  -> CUInt       -- 0/1, point at infinity
   -> CUInt       -- 0/1, include degenerate
   -> Ptr CUInt   -- exitcode
   -> IO (Ptr CTesselation)

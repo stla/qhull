@@ -16,6 +16,7 @@ import           Control.Arrow      (second)
 import           Data.List
 import           Data.Tuple.Extra   (both)
 import           Delaunay
+import qualified Data.IntSet        as IS
 import           Text.Show.Pretty   (ppShow)
 import           Voronoi.Voronoi
 
@@ -67,12 +68,14 @@ edgeToEdge3 (IEdge (x, v)) = IEdge3 (both asTriplet (x, v))
 
 equalFacets :: TileFacet -> TileFacet -> Bool
 equalFacets tfacet1 tfacet2 =
-  length f1 == 1 && length f2 == 1 &&
+  IS.size f1 == 1 && IS.size f2 == 1 &&
   _circumcenter p1 == _circumcenter p2 &&
-  _normal p1 == _normal p2
+  _normal tfacet1 == _normal tfacet2
   where
-    (p1, f1) = tileFacetAsPair tfacet1
-    (p2, f2) = tileFacetAsPair tfacet2
+    p1 = _subsimplex tfacet1
+    f1 = _facetOf tfacet1
+    p2 = _subsimplex tfacet2
+    f2 = _facetOf tfacet2
 
 -- | Voronoi cell of a vertex given by its index
 voronoiCell3 :: Tesselation -> Index -> Cell3

@@ -210,9 +210,9 @@ double ridgeMaxDistance(RidgeT ridge, unsigned v, unsigned dim){
   return dists[1];
 }
 
-/* neighbor vertices of a vertex from all ridges */
+/* neighbor vertices of a vertex from all ridges, for dim>2 */
 unsigned* neighVertices(unsigned id, RidgeT* allridges, unsigned nridges,
-                        unsigned dim, unsigned* lengthout)
+                        unsigned dim, unsigned triangulate, unsigned* lengthout)
 {
   unsigned* neighs = malloc(0);
   *lengthout = 0;
@@ -220,7 +220,7 @@ unsigned* neighVertices(unsigned id, RidgeT* allridges, unsigned nridges,
     for(unsigned v=0; v < allridges[e].nvertices; v++){
       if(id == allridges[e].vertices[v].id){
         for(unsigned w=0; w < allridges[e].nvertices; w++){
-          if(w != v && (dim == 3 || // dim3 pas besoin de tester la distance: il n'y a que deux vertices connectés
+          if(w != v && (triangulate || dim == 3 || // dim3 pas besoin de tester la distance: il n'y a que deux vertices connectés
              squaredDistance(allridges[e].vertices[w].point,
                              allridges[e].vertices[v].point, dim) <=
               ridgeMaxDistance(allridges[e], v, dim)))
@@ -262,7 +262,7 @@ unsigned* neighRidges(unsigned id, RidgeT* allridges, unsigned nridges,
   return neighs;
 }
 
-/* whether x1 and x2 belong to array */
+/* whether distinct x1 and x2 belong to array of distinct values */
 unsigned areElementsOf(unsigned x1, unsigned x2, unsigned* array,
                        unsigned length)
 {
@@ -461,7 +461,7 @@ ConvexHullT* convexHull(
 //            printf("ridge size: %u\n", ridgeSize);
             ridges[i_ridge].nvertices = ridgeSize;
             unsigned ids[ridgeSize];
-            for(unsigned v=0; v<ridgeSize; v++){
+            for(unsigned v=0; v < ridgeSize; v++){
               ids[v] =
                 qh_pointid(qh, ((vertexT*)ridge->vertices->e[v].p)->point);
             }
@@ -481,11 +481,11 @@ ConvexHullT* convexHull(
             i_ridge++;
           }
           /* merge triangulated ridges */
-          if(dim > 3){
+          if(dim > 3 && !triangulate){
             unsigned l;
             faces[i_facet].ridges  = mergeRidges(ridges, nridges, &l);
             faces[i_facet].nridges = l;
-          }else{ /* dim=2 */
+          }else{ /* dim 2 or 3, or triangulate option */
             faces[i_facet].ridges  = ridges;
             faces[i_facet].nridges = nridges;
           }
@@ -553,7 +553,7 @@ ConvexHullT* convexHull(
           unsigned nneighsvertices;
           vertices[i_vertex].neighvertices =
             neighVertices(vertices[i_vertex].id, allridges, n_allridges,
-                          dim, &nneighsvertices);
+                          dim, triangulate, &nneighsvertices);
           vertices[i_vertex].nneighsvertices = nneighsvertices;
         }
         qsortu(vertices[i_vertex].neighvertices,
