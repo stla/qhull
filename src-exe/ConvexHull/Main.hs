@@ -14,12 +14,21 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
-                          ,  sin (pi*x) * sin (2*pi*x)
-                          ,  cos (pi*x)]) [i/200 | i <- [0 .. 200]]
-  code <- convexHull3DrglCode (nub $ curve3D ++ map (\[x,y,z] -> [x,y,z+2]) curve3D) True
-                              (Just "rgl/convexhull_curveOnSphere3.R")
-  putStrLn "done"
+  points <- randomInCube 100
+  hull <- convexHull points False False Nothing
+  pPrint $ _hfacets hull
+  pPrint $ _hedges hull
+  pPrint $ _hvertices hull
+
+  -- code <- convexHull3DrglCode teapot True (Just "rgl/convexhull_teapot.R")
+  -- putStrLn "done"
+
+  -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
+  --                         ,  sin (pi*x) * sin (2*pi*x)
+  --                         ,  cos (pi*x)]) [i/200 | i <- [0 .. 200]]
+  -- code <- convexHull3DrglCode (nub $ curve3D ++ map (\[x,y,z] -> [x,y,z+2]) curve3D) True
+  --                             (Just "rgl/convexhull_curveOnSphere3.R")
+  -- putStrLn "done"
 
   -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
   --                         ,  sin (pi*x) * sin (2*pi*x)

@@ -7,11 +7,12 @@ double** intersections(
   unsigned  dim,
   unsigned  n,
   unsigned* nintersections,
-  unsigned* exitcode
+  unsigned* exitcode,
+  unsigned  print
 )
 {
   char opts[250];
-  sprintf(opts, "qhull s H H%f", interiorpoint[0]); //, interiorpoint[1] , interiorpoint[2]);
+  sprintf(opts, "qhull s Fp FF H H%f", interiorpoint[0]); //, interiorpoint[1] , interiorpoint[2]);
   for(unsigned i=1; i < dim; i++){
     char x[20];
     sprintf(x, ",%f", interiorpoint[i]);
@@ -25,7 +26,7 @@ double** intersections(
   qh_meminit(qh, stderr);
   boolT ismalloc  = False; /* True if qhull should free points in qh_freeqhull() or reallocation */
   FILE *errfile   = NULL;
-  FILE* outfile   = stdout; // NULL
+  FILE* outfile = print ? stdout : NULL;
   qh_zero(qh, errfile);
   *exitcode = qh_new_qhull(qh, dim+1, n, halfspaces, ismalloc, opts, outfile,
                            errfile);
@@ -38,11 +39,15 @@ double** intersections(
     facetT *facet;
     unsigned i_facet = 0;
     FORALLfacets{
-      out[i_facet] = malloc(dim * sizeof(double));
-      for(unsigned i=0; i < dim; i++){
-        out[i_facet][i] = - facet->normal[i] / facet->offset + qh->feasible_point[i]; // = interiorpoint ?
+      if(facet->offset != 0){
+        out[i_facet] = malloc(dim * sizeof(double));
+        for(unsigned i=0; i < dim; i++){
+          out[i_facet][i] = - facet->normal[i] / facet->offset + qh->feasible_point[i]; // = interiorpoint ? yes
+        }
+        i_facet++;
+      }else{
+        (*nintersections)--;
       }
-      i_facet++;
     }
 
   }

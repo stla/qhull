@@ -5,7 +5,6 @@ import           Data.IntMap.Strict    (IntMap)
 import qualified Data.IntMap.Strict    as IM
 import qualified Data.IntSet           as IS
 import           Data.List.Unique      (allUnique)
--- import           Data.Maybe
 import           Delaunay.CDelaunay
 import           Delaunay.Types
 import           Foreign.C.Types
@@ -14,7 +13,7 @@ import           Foreign.Marshal.Array (pokeArray)
 import           Foreign.Storable      (peek, sizeOf)
 import           Qhull.Types
 
-delaunay :: [[Double]] -- sites
+delaunay :: [[Double]] -- sites (vertices)
          -> Bool       -- add a point at infinity
          -> Bool       -- include degenerate tiles
          -> IO Tesselation

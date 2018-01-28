@@ -13,7 +13,7 @@ convexHull3DrglCode :: [[Double]] -> Bool -> Maybe FilePath -> IO String
 convexHull3DrglCode points rainbow file = do
   -- get edges --
   hull1 <- convexHull points False False Nothing
-  let edges = H.elems (_alledges hull1)
+  let edges = H.elems (_hedges hull1)
   -- get triangles --
   hull2 <- convexHull points True False Nothing
   let grpFaces = groupedFacets hull2

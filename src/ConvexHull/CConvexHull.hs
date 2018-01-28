@@ -314,14 +314,14 @@ cFaceToFace dim cface = do
               (zip (map (\(i,j) -> Pair i j) edges')
                    (map (both ((IM.!) vertices)) edges'))
   return Facet { _fvertices = vertices
-               , _ridges    = IM.fromAscList ridges
+               , _fridges   = IM.fromAscList ridges
                , _centroid  = center
                , _normal    = normal
                , _offset    = offset
                , _area      = area
                , _neighbors = IS.fromAscList neighbors
                , _family    = if family == -1 then None else Family family
-               , _edges     = edges }
+               , _fedges    = edges }
 
 data CConvexHull = CConvexHull {
     __dim         :: CUInt
@@ -423,8 +423,8 @@ cConvexHullToConvexHull cconvexhull = do
                   H.fromList
                   (zip (map (\(i,j) -> Pair i j) alledges')
                        (map (both ((IM.!) points)) alledges'))
-  return ConvexHull { _allvertices = vertices
-                    , _facets = fromAscList (zip [0 .. nfaces-1] faces)
-                    , _allridges = fromAscList allridges
-                    , _alledges = alledges
+  return ConvexHull { _hvertices = vertices
+                    , _hfacets  = fromAscList (zip [0 .. nfaces-1] faces)
+                    , _hridges  = fromAscList allridges
+                    , _hedges   = alledges
                     }

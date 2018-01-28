@@ -24,6 +24,7 @@ library
                      , Delaunay.CDelaunay
                      , Delaunay.Types
                      , Delaunay.R
+                     , Delaunay.Examples
                      , Voronoi2D
                      , Voronoi3D
                      , Voronoi.Voronoi
@@ -40,6 +41,8 @@ library
                      , HalfSpaces.ToySolver
                      , HalfSpaces.CHalfSpaces
                      , HalfSpaces.HalfSpaces
+                     , HalfSpaces.Examples
+                     , HalfSpaces
   build-depends:       base >= 4.7 && < 5
                      , split
                      , containers

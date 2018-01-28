@@ -30,22 +30,22 @@ data Ridge = Ridge {
 
 data Facet = Facet {
     _fvertices :: IndexMap [Double]
-  , _ridges    :: IntMap Ridge
+  , _fridges   :: IntMap Ridge
   , _centroid  :: [Double]
   , _normal    :: [Double]
   , _offset    :: Double
   , _area      :: Double
   , _neighbors :: IntSet
   , _family    :: Family
-  , _edges     :: EdgeMap
+  , _fedges    :: EdgeMap
 } deriving Show
 
 instance HasFamily Facet where
   family = _family
 
 data ConvexHull = ConvexHull {
-    _allvertices :: IndexMap Vertex -- ou hvertices, etc ?
-  , _facets      :: IntMap Facet
-  , _allridges   :: IntMap Ridge
-  , _alledges    :: EdgeMap
+    _hvertices :: IndexMap Vertex
+  , _hfacets   :: IntMap Facet
+  , _hridges   :: IntMap Ridge
+  , _hedges    :: EdgeMap
 } deriving Show

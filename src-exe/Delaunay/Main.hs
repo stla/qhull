@@ -14,7 +14,7 @@ main = do
   tess <- delaunay rgg False False
   let f1 = _tiles tess IM.! 1
   hull <- convexHull rgg False False Nothing
-  let f2 = _facets hull IM.! 1
+  let f2 = _hfacets hull IM.! 1
   pPrint $ family f1
   pPrint $ family f2
 

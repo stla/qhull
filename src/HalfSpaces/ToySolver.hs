@@ -1,4 +1,5 @@
 module HalfSpaces.ToySolver
+  (interiorPoint)
   where
 import           Control.Monad                (replicateM_)
 import           Data.Default.Class
@@ -7,11 +8,11 @@ import qualified Data.IntMap.Strict           as IM
 import           Data.List                    (nub)
 import           Data.Ratio                   (Rational)
 import           Data.VectorSpace
-import           HalfSpaces.Constraint
+import           HalfSpaces.Constraint        (Constraint (..), Sense (..),
+                                               varsOfConstraint)
 import           HalfSpaces.LinearCombination
 import           ToySolver.Arith.Simplex      as Simplex hiding (Lt)
 import qualified ToySolver.Data.LA            as LA
-
 
 constraintToCoeffMap :: Int -> Constraint -> IntMap Rational
 constraintToCoeffMap
@@ -39,4 +40,5 @@ interiorPoint constraints = do
   mapM_ (assertAtom solver) atoms
   setObj solver (negateV $ LA.var dim)
   o <- optimize solver def
+  print o
   mapM (getValue solver) [0 .. dim-1]

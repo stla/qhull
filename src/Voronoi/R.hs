@@ -74,7 +74,7 @@ voronoi3ForRgl' v d = do
   let code1 = voronoi3ForRgl v d
       boundedCells = map (cell3Vertices . snd) (restrictVoronoi3 v)
   hulls <- mapM (\cell -> convexHull cell True False Nothing) boundedCells
-  let triangles = map (map facetVertices . IM.elems . _facets) hulls
+  let triangles = map (map facetVertices . IM.elems . _hfacets) hulls
       code_colors = "colors <- rainbow(" ++ show (length triangles +1) ++ ")\n"
       code2 = iconcatMap (\i x -> concatMap (rglTriangle i) x ++ "\n") triangles
   return $ code_colors ++ code1 ++ code2

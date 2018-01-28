@@ -54,7 +54,7 @@ convexHull points triangulate stdout file = do
 
 
 xxx :: ConvexHull -> [[Int]]
-xxx chull = map (IM.keys . _rvertices) (IM.elems (_allridges chull))
+xxx chull = map (IM.keys . _rvertices) (IM.elems (_hridges chull))
 
 -- | convex hull summary
 hullSummary :: ConvexHull -> String
@@ -65,10 +65,10 @@ hullSummary hull =
   show nridges ++ " ridges\n" ++
   show nedges ++ " edges\n"
   where
-    nvertices = IM.size (_allvertices hull)
-    nedges = H.size (_alledges hull)
-    nridges = IM.size (_allridges hull)
-    facets = _facets hull
+    nvertices = IM.size (_hvertices hull)
+    nedges = H.size (_hedges hull)
+    nridges = IM.size (_hridges hull)
+    facets = _hfacets hull
     nfacets = IM.size facets
     (nf1,nf2) = both length $
                 partition (None ==)
@@ -78,19 +78,19 @@ hullSummary hull =
 
 -- | whether a pair of vertices form an edge of the hull
 isEdge :: ConvexHull -> (Index, Index) -> Bool
-isEdge hull (i,j) = Pair i j `H.member` _alledges hull
+isEdge hull (i,j) = Pair i j `H.member` _hedges hull
 
 -- | edge as pair of points
 toPoints :: ConvexHull -> (Index, Index) -> Maybe ([Double], [Double])
-toPoints hull (i,j) = H.lookup (Pair i j) (_alledges hull)
+toPoints hull (i,j) = H.lookup (Pair i j) (_hedges hull)
 
 -- | edge as pair of points, without checking the edge exists
 toPoints' :: ConvexHull -> (Index, Index) -> ([Double], [Double])
-toPoints' hull (i,j) = (H.!) (_alledges hull) (Pair i j)
+toPoints' hull (i,j) = (H.!) (_hedges hull) (Pair i j)
 
 -- | vertices of a convex hull
 hullVertices :: ConvexHull -> [[Double]]
-hullVertices hull = map _point (IM.elems (_allvertices hull))
+hullVertices hull = map _point (IM.elems (_hvertices hull))
 
 -- | vertices of a facet
 facetVertices :: Facet -> [[Double]]
@@ -100,7 +100,7 @@ facetVertices = IM.elems . _fvertices
 edgeOf :: ConvexHull -> (Index, Index) -> [Int]
 edgeOf hull (v1,v2) = IM.keys (IM.filter (elem (Pair v1 v2)) facesEdges)
   where
-    facesEdges = IM.map (H.keys . _edges) (_facets hull)
+    facesEdges = IM.map (H.keys . _fedges) (_hfacets hull)
     -- v1v2' = if v1<v2 then Pair v1 v2 else Pair v2 v1 -- useless
 
 -- | group facets of the same family
@@ -108,9 +108,9 @@ groupedFacets :: ConvexHull -> [(Family, [IndexMap [Double]], [EdgeMap])]
 groupedFacets hull =
   zip3 (map head families) verticesGroups edgesGroups
   where
-    facets         = IM.elems (_facets hull)
+    facets         = IM.elems (_hfacets hull)
     facesGroups    = groupBy (sameFamily `on` _family) facets
-    edgesGroups    = map (map _edges) facesGroups
+    edgesGroups    = map (map _fedges) facesGroups
     verticesGroups = map (map _fvertices) facesGroups
     families       = map (map _family) facesGroups
 
@@ -120,9 +120,9 @@ groupedFacets' hull =
   zip3 (map head families) (map (foldr IM.union IM.empty) verticesGroups)
        (map (foldr delta H.empty) edgesGroups)
   where
-    facets         = IM.elems (_facets hull)
+    facets         = IM.elems (_hfacets hull)
     facesGroups    = groupBy (sameFamily `on` _family) facets
-    edgesGroups    = map (map _edges) facesGroups
+    edgesGroups    = map (map _fedges) facesGroups
     verticesGroups = map (map _fvertices) facesGroups
     families       = map (map _family) facesGroups
     delta :: EdgeMap -> EdgeMap -> EdgeMap

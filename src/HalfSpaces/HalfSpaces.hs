@@ -1,25 +1,27 @@
 module HalfSpaces.HalfSpaces
   where
-import           Control.Monad          ((<$!>), (=<<), unless, when)
-import           HalfSpaces.CHalfSpaces
+import           Control.Monad          (unless, when, (<$!>), (=<<))
 import           Foreign.C.Types
 import           Foreign.Marshal.Alloc  (free, mallocBytes)
-import           Foreign.Marshal.Array  (pokeArray, peekArray)
+import           Foreign.Marshal.Array  (peekArray, pokeArray)
 import           Foreign.Storable       (peek, sizeOf)
+import           HalfSpaces.CHalfSpaces
+import           HalfSpaces.Constraint  (Constraint, normalizeConstraints)
+import           HalfSpaces.ToySolver
 
-hsintersections :: [[Double]]     -- halfspaces
-                -> [Double]       -- interior point
-                -> IO [[Double]]
-hsintersections halfspaces ipoint = do
+hsintersections' :: [[Double]]     -- halfspaces
+                 -> [Double]       -- interior point
+                 -> Bool           -- print to stdout
+                 -> IO [[Double]]
+hsintersections' halfspaces ipoint stdout = do
   let n     = length halfspaces
       dim   = length ipoint
-      check = all (== dim+1) (map length halfspaces)
-  unless check $
+  unless (all (== dim+1) (map length halfspaces)) $
     error "the points must have the same dimension"
   when (dim < 2) $
     error "dimension must be at least 2"
   when (n <= dim) $
-    error "insufficient number of points"
+    error "insufficient number of halfspaces"
   hsPtr <- mallocBytes (n * (dim+1) * sizeOf (undefined :: CDouble))
   pokeArray hsPtr (concatMap (map realToFrac) halfspaces)
   ipointPtr <- mallocBytes (dim * sizeOf (undefined :: CDouble))
@@ -28,7 +30,7 @@ hsintersections halfspaces ipoint = do
   nintersectionsPtr <- mallocBytes (sizeOf (undefined :: CUInt))
   resultPtr <- c_intersections hsPtr ipointPtr
                (fromIntegral dim) (fromIntegral n)
-               nintersectionsPtr exitcodePtr
+               nintersectionsPtr exitcodePtr (fromIntegral $ fromEnum stdout)
   exitcode <- peek exitcodePtr
   free exitcodePtr
   free hsPtr
@@ -45,6 +47,12 @@ hsintersections halfspaces ipoint = do
       free resultPtr
       free nintersectionsPtr
       return result
+
+hsintersections :: [Constraint] -> Bool -> IO [[Double]]
+hsintersections constraints stdout = do
+  let halfspacesMatrix = normalizeConstraints constraints
+  ipoint <- (<$!>) (map realToFrac) (interiorPoint constraints)
+  hsintersections' halfspacesMatrix ipoint stdout
 
 cubeConstraints' :: [[Double]]
 cubeConstraints' = [[ 1, 0, 0,-1]

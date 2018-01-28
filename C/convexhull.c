@@ -391,6 +391,7 @@ ConvexHullT* convexHull(
     	fclose(sfile);
     }
 
+    qh_vertexneighbors(qh);
     //qh_getarea(qh, qh->facet_list); // no triowner if I do that; do qh_facetarea, not facet->f.area
 
     unsigned   nfaces    = qh->num_facets;
@@ -517,6 +518,7 @@ ConvexHullT* convexHull(
         /* neighbor faces of the vertex */
         if(dim > 2){ /* because bug for dim=2: qh_setsize(qh, vertex->neighbors) = 0 */
           vertices[i_vertex].nneighfacets = qh_setsize(qh, vertex->neighbors);
+          printf("nneighfacets: %d\n", qh_setsize(qh, vertex->neighbors));
           vertices[i_vertex].neighfacets =
             malloc(vertices[i_vertex].nneighfacets * sizeof(unsigned));
           facetT *neighbor, **neighborp;
@@ -615,5 +617,11 @@ ConvexHullT* convexHull(
 	qh_memfreeshort(qh, &curlong, &totlong); /* free short memory and memory allocator */
 
   printf("RETURN\n");
-  return out;
+  if(*exitcode){
+    free(out);
+    return 0;
+  }else{
+    return out;
+  }
+
 }

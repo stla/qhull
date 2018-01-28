@@ -42,13 +42,6 @@ fromList
               , _circumcenter =
                   [ -0.5000000000000009 , -3.0 , -3.499999999999999 ]
               , _circumradius = 8.154753215150047
-              , _normal =
-                  [ -7.03638769136053e-2
-                  , -0.4221832614816321
-                  , -0.4925471383952373
-                  , -0.7577648283003651
-                  ]
-              , _offset = 1.3369136613585004
               , _volume = 78.0
               }
         , _neighborsIds = fromList [ 1 , 3 ]
@@ -85,10 +78,6 @@ identifiers to their coordinates
 
 -   `_circumradius`, the circumradius;
 
--   `_normal`, the coordinates of the normal of the simplex;
-
--   `_offset`, the offset of the simplex;
-
 -   `_volume`, the volume of the simplex (the area in dimension 2, the
   length in dimension 1).
 
@@ -109,11 +98,11 @@ fromList
                     ]
               , _circumcenter = [ -0.5000000000000009 , -3.0 , -10.0 ]
               , _circumradius = 4.924428900898053
-              , _normal = [ 0.0 , 0.0 , -1.0 ]
-              , _offset = -10.0
               , _volume = 36.0
               }
         , _facetOf = fromList [ 0 ]
+        , _normal = [ 0.0 , 0.0 , -1.0 ]
+        , _offset = -10.0
         }
     )
   , ( 1
@@ -124,9 +113,10 @@ fromList
 
 This is a map of `TileFacet` objects. A tile facet is a subsimplex. The keys of
 the map are the identifiers of the facets.
-A `TileFacet` object has two fields: `_subsimplex`, a `Simplex` object, and
+A `TileFacet` object has four fields: `_subsimplex`, a `Simplex` object,
 `_facetOf`, the identifiers of the tiles this facet belongs to (a set of one
-or two integers).
+or two integers), `_normal`, the normal of the facet, and `offset`, the offset
+of the facet.
 
 Finally, the output of `delaunay` has a `_sites` field, the vertices with
 additional information:
@@ -250,8 +240,192 @@ bounded, they have infinite edges:
 
 ## Convex hull
 
+The `convexHull` function of the `ConvexHull` module generates the convex hull
+of a list of points.
+
 ```haskell
 import ConvexHull
+import ConvexHull.Examples -- for the function randomInCube
+points <- randomInCube 100 -- 100 random points in a cube
+hull <- convexHull points False False Nothing
+```
+
+The vertices of the convex hull are stored in the field `_hvertices`:
+
+```haskell
+> _hvertices hull
+fromList
+  [ ( 3
+    , Vertex
+        { _point =
+            [ 0.7872072051657094 , 0.450772463858757 , 1.9900427529711773e-2 ]
+        , _neighfacets = fromList [ 42 , 43 , 47 , 48 ]
+        , _neighvertices = fromList [ 1 , 11 , 64 , 88 ]
+        , _neighridges = fromList [ 70 , 71 , 72 , 77 ]
+        }
+    )
+  , ( 6
+    , Vertex
+      ......
+```
+
+The edges in the field `_hedges`:
+
+```haskell
+> _hedges hull
+fromList
+  [ ( Pair 14 70
+    , ( [ 0.9215432980174852 , 0.8554065771602318 , 0.9842902519648512 ]
+      , [ 0.9497713758656887 , 0.998006476041318 , 0.7243639875028591 ]
+      )
+    )
+  , ( Pair 84 99
+    ......
+```
+
+The facets in the field `_hfacets`:
+
+```haskell
+> _hfacets hull
+fromList
+  [ ( 0
+    , Facet
+        { _fvertices =
+            fromList
+              [ ( 4
+                , [ 1.5757133629105136e-3
+                  , 0.6442797662244039
+                  , 0.7058559215899725
+                  ]
+                )
+              , ( 67
+                , [ 2.7500520534961326e-2
+                  , 0.37516259577251554
+                  , 0.7331611715042575
+                  ]
+                )
+              , ( 77
+                , [ 3.46399386146774e-2
+                  , 5.575911794526589e-2
+                  , 0.46787034305814157
+                  ]
+                )
+              ]
+        , _fridges =
+            fromList
+              [ ( 0
+                , Ridge
+                    { _rvertices =
+                        fromList
+                          [ ( 4
+                            , [ 1.5757133629105136e-3
+                              , 0.6442797662244039
+                              , 0.7058559215899725
+                              ]
+                            )
+                          , ( 77
+                            , [ 3.46399386146774e-2
+                              , 5.575911794526589e-2
+                              , 0.46787034305814157
+                              ]
+                            )
+                          ]
+                    , _ridgeOf = fromList [ 0 , 4 ]
+                    }
+                )
+              , ( 1
+                , Ridge
+                    { _rvertices =
+                        fromList
+                          [ ( 4
+                            , [ 1.5757133629105136e-3
+                              , 0.6442797662244039
+                              , 0.7058559215899725
+                              ]
+                            )
+                          , ( 67
+                            , [ 2.7500520534961326e-2
+                              , 0.37516259577251554
+                              , 0.7331611715042575
+                              ]
+                            )
+                          ]
+                    , _ridgeOf = fromList [ 0 , 2 ]
+                    }
+                )
+              , ( 2
+                , Ridge
+                    { _rvertices =
+                        fromList
+                          [ ( 67
+                            , [ 2.7500520534961326e-2
+                              , 0.37516259577251554
+                              , 0.7331611715042575
+                              ]
+                            )
+                          , ( 77
+                            , [ 3.46399386146774e-2
+                              , 5.575911794526589e-2
+                              , 0.46787034305814157
+                              ]
+                            )
+                          ]
+                    , _ridgeOf = fromList [ 0 , 1 ]
+                    }
+                )
+              ]
+        , _centroid =
+            [ 2.1238724170849748e-2 , 0.3584004933140618 , 0.6356291453841239 ]
+        , _normal =
+            [ -0.9930268604214181
+            , -8.766369712550202e-2
+            , 7.882087723357102e-2
+            ]
+        , _offset = 2.40848904384814e-3
+        , _area = 4.0339144929987907e-2
+        , _neighbors = fromList [ 1 , 2 , 4 ]
+        , _family = None
+        , _fedges =
+            fromList
+              [ ( Pair 4 67
+                , ( [ 1.5757133629105136e-3
+                    , 0.6442797662244039
+                    , 0.7058559215899725
+                    ]
+                  , [ 2.7500520534961326e-2
+                    , 0.37516259577251554
+                    , 0.7331611715042575
+                    ]
+                  )
+                )
+              , ( Pair 67 77
+                , ( [ 2.7500520534961326e-2
+                    , 0.37516259577251554
+                    , 0.7331611715042575
+                    ]
+                  , [ 3.46399386146774e-2
+                    , 5.575911794526589e-2
+                    , 0.46787034305814157
+                    ]
+                  )
+                )
+              , ( Pair 4 77
+                , ( [ 1.5757133629105136e-3
+                    , 0.6442797662244039
+                    , 0.7058559215899725
+                    ]
+                  , [ 3.46399386146774e-2
+                    , 5.575911794526589e-2
+                    , 0.46787034305814157
+                    ]
+                  )
+                )
+              ]
+        }
+    )
+  , ( 1
+    , Facet
+      ......
 ```
 
 [![convexhull02.gif](https://s17.postimg.org/zbl78b1bz/convexhull02.gif)](https://postimg.org/image/80zw0dyez/)
