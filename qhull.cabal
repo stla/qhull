@@ -37,6 +37,9 @@ library
                      , Qhull.Types
                      , HalfSpaces.LinearCombination
                      , HalfSpaces.Constraint
+                     , HalfSpaces.ToySolver
+                     , HalfSpaces.CHalfSpaces
+                     , HalfSpaces.HalfSpaces
   build-depends:       base >= 4.7 && < 5
                      , split
                      , containers
@@ -49,6 +52,7 @@ library
                      , Unique
                      , vector-space
                      , toysolver
+                     , data-default-class
   other-extensions:    ForeignFunctionInterface
                      , TypeFamilies
   default-language:    Haskell2010
@@ -71,6 +75,7 @@ library
                      , C/delaunay.c
                      , C/convexhull.c
                      , C/utils.c
+                     , C/halfspaces.c
   ghc-options:         -O0 -Wall
 
 executable test_delaunay

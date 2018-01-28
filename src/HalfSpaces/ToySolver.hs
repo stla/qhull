@@ -17,7 +17,7 @@ constraintToCoeffMap :: Int -> Constraint -> IntMap Rational
 constraintToCoeffMap
   newvar (Constraint (LinearCombination lhs) sense (LinearCombination rhs)) =
   let terms = mapKeys (subtract 1)
-              (mergeWithKey (\i x y -> Just (x-y)) id (IM.map negate) lhs rhs)
+              (mergeWithKey (\_ x y -> Just (x-y)) id (IM.map negate) lhs rhs)
   in
   if sense == Lt
     then IM.union terms (IM.singleton newvar 1)
@@ -40,16 +40,3 @@ interiorPoint constraints = do
   setObj solver (negateV $ LA.var dim)
   o <- optimize solver def
   mapM (getValue solver) [0 .. dim-1]
-
-cubeConstraints :: [Constraint]
-cubeConstraints =
-  [ x .<= constant 1
-  , x .>= constant (-1)
-  , y .<= constant 1
-  , y .>= constant (-1)
-  , z .<= constant 1
-  , z .>= constant (-1) ]
-  where
-    x = asLinearCombination 1
-    y = asLinearCombination 2
-    z = asLinearCombination 3

@@ -30,7 +30,7 @@ instance AdditiveGroup LinearCombination where
   zeroV = LinearCombination (IM.singleton 0 0)
   (^+^) (LinearCombination imap1) (LinearCombination imap2) =
     LinearCombination
-    (mergeWithKey (\i x y -> Just (x+y)) id id imap1 imap2)
+    (mergeWithKey (\_ x y -> Just (x+y)) id id imap1 imap2)
   negateV (LinearCombination imap) = LinearCombination (IM.map negate imap)
 
 instance VectorSpace LinearCombination where
@@ -38,26 +38,27 @@ instance VectorSpace LinearCombination where
   (*^) lambda (LinearCombination imap) =
     LinearCombination (IM.map (*lambda) imap)
 
-type Var = Int
+type Var = LinearCombination
+type VarIndex = Int
 
-newVar :: Int -> Var
+newVar :: VarIndex -> Var
 newVar i = if i >= 0
-            then i
+            then LinearCombination (IM.singleton i 1)
             else error "negative index"
 
 linearCombination :: [(Rational,Var)] -> LinearCombination
-linearCombination terms =
-  LinearCombination (IM.fromListWith (+) (map swap terms))
+linearCombination terms = linearCombo (map swap terms)
+--  LinearCombination (IM.fromListWith (+) (map swap terms))
 
-asLinearCombination :: Var -> LinearCombination
-asLinearCombination var = LinearCombination (IM.singleton var 1)
+-- asLinearCombination :: Var -> LinearCombination
+-- asLinearCombination var = LinearCombination (IM.singleton var 1)
 
 constant :: Rational -> LinearCombination
 constant x = LinearCombination (IM.singleton 0 x)
 
-normalizeLinearCombination :: [Var] -> LinearCombination -> IntMap Rational
+normalizeLinearCombination :: [VarIndex] -> LinearCombination -> IntMap Rational
 normalizeLinearCombination vars (LinearCombination lc) =
   IM.union lc (IM.fromList [(i,0) | i <- vars `union` [0]])
 
-varsOfLinearCombo :: LinearCombination -> [Var]
+varsOfLinearCombo :: LinearCombination -> [VarIndex]
 varsOfLinearCombo (LinearCombination imap) = IM.keys imap
