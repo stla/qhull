@@ -9,7 +9,17 @@ int cmpvertices (const void * a, const void * b) {
 }
 // - sort full vertices
 int cmpfullvertices (const void * a, const void * b) {
-   return ( (*((FullVertexT*)a)).id - (*((FullVertexT*)b)).id );
+  return ( (*((FullVertexT*)a)).id - (*((FullVertexT*)b)).id );
+}
+// - sort edges
+int cmpedges (const void * a, const void * b) {
+  if((*(unsigned**)a)[0] > (*(unsigned**)b)[0]){
+    return 1;
+  }else if((*(unsigned**)a)[0] == (*(unsigned**)b)[0]){
+    return (*(unsigned**)a)[1] - (*(unsigned**)b)[1];
+  }else{
+    return -1;
+  }
 }
 
 /* test equality of two _sorted_ arrays */
@@ -391,7 +401,6 @@ ConvexHullT* convexHull(
     	fclose(sfile);
     }
 
-    qh_vertexneighbors(qh);
     //qh_getarea(qh, qh->facet_list); // no triowner if I do that; do qh_facetarea, not facet->f.area
 
     unsigned   nfaces    = qh->num_facets;
@@ -508,6 +517,7 @@ ConvexHullT* convexHull(
     unsigned nvertices = qh->num_vertices;
     FullVertexT* vertices = malloc(nvertices * sizeof(FullVertexT));
     {
+      qh_vertexneighbors(qh); /* make the neighbor facets of the vertices */
       vertexT *vertex;
       unsigned i_vertex=0;
       FORALLvertices{
@@ -515,28 +525,32 @@ ConvexHullT* convexHull(
         vertices[i_vertex].id    = (unsigned) qh_pointid(qh, vertex->point);
         vertices[i_vertex].point = getpoint(points, dim, vertices[i_vertex].id);
 
-        /* neighbor faces of the vertex */
-        if(dim > 2){ /* because bug for dim=2: qh_setsize(qh, vertex->neighbors) = 0 */
-          vertices[i_vertex].nneighfacets = qh_setsize(qh, vertex->neighbors);
-          printf("nneighfacets: %d\n", qh_setsize(qh, vertex->neighbors));
-          vertices[i_vertex].neighfacets =
-            malloc(vertices[i_vertex].nneighfacets * sizeof(unsigned));
-          facetT *neighbor, **neighborp;
-          unsigned i_neighbor = 0;
-          FOREACHneighbor_(vertex){
-            vertices[i_vertex].neighfacets[i_neighbor] = neighbor->id;
-            i_neighbor++;
-          }
-        }else{ /* dim=2  - we also treat the neighbor vertices here */
-          vertices[i_vertex].nneighfacets    = 2;
-          vertices[i_vertex].neighfacets     = malloc(2 * sizeof(unsigned));
+        /* neighbor facets of the vertex */
+        vertices[i_vertex].nneighfacets = qh_setsize(qh, vertex->neighbors);
+        vertices[i_vertex].neighfacets =
+          malloc(vertices[i_vertex].nneighfacets * sizeof(unsigned));
+        facetT *neighbor, **neighborp;
+        unsigned i_neighbor = 0;
+        FOREACHneighbor_(vertex){
+          vertices[i_vertex].neighfacets[i_neighbor] = neighbor->id;
+          i_neighbor++;
+        }
+        qsortu(vertices[i_vertex].neighfacets, vertices[i_vertex].nneighfacets);
+
+        /* neighbor vertices of the vertex */
+        if(dim > 2){
+          unsigned nneighsvertices;
+          vertices[i_vertex].neighvertices =
+            neighVertices(vertices[i_vertex].id, allridges, n_allridges,
+                          dim, triangulate, &nneighsvertices);
+          vertices[i_vertex].nneighsvertices = nneighsvertices;
+        }else{ /* dim=2 */
           vertices[i_vertex].nneighsvertices = 2;
           vertices[i_vertex].neighvertices   = malloc(2 * sizeof(unsigned));
           unsigned count = 0;
           for(unsigned f=0; f < nfaces; f++){
             for(unsigned i=0; i < 2; i++){
               if(faces[f].vertices[i].id == vertices[i_vertex].id){
-                vertices[i_vertex].neighfacets[count]   = f;
                 vertices[i_vertex].neighvertices[count] =
                   faces[f].vertices[1-i].id;
                 count++;
@@ -548,18 +562,9 @@ ConvexHullT* convexHull(
             }
           }
         }
-        qsortu(vertices[i_vertex].neighfacets, vertices[i_vertex].nneighfacets);
-
-        /* neighbor vertices of the vertex */
-        if(dim > 2){ /* already done for dim=2 */
-          unsigned nneighsvertices;
-          vertices[i_vertex].neighvertices =
-            neighVertices(vertices[i_vertex].id, allridges, n_allridges,
-                          dim, triangulate, &nneighsvertices);
-          vertices[i_vertex].nneighsvertices = nneighsvertices;
-        }
         qsortu(vertices[i_vertex].neighvertices,
                vertices[i_vertex].nneighsvertices);
+
         /* neighbor ridges of the vertex */
         if(dim > 2){
           unsigned nneighridges;
@@ -585,6 +590,7 @@ ConvexHullT* convexHull(
     }
     nalledges /= 2;
     unsigned** alledges = allEdges(vertices, nvertices, nalledges);
+    qsort(alledges, nalledges, sizeof(unsigned*), cmpedges);
 
     { /* faces edges */
       facetT *facet; unsigned i_facet=0;
@@ -592,6 +598,7 @@ ConvexHullT* convexHull(
         unsigned nfaceedges;
         faces[i_facet].edges  =
           faceEdges(faces[i_facet], alledges, nalledges, &nfaceedges);
+        //qsort(faces[i_facet].edges, nfaceedges, sizeof(unsigned*), cmpedges); useless, I think
         faces[i_facet].nedges = nfaceedges;
         /**/
         i_facet++;

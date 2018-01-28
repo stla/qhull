@@ -1,13 +1,13 @@
 module ConvexHull.R
   where
-import           Control.Monad       (when)
+import           Control.Monad              (when)
 import           ConvexHull
-import qualified Data.HashMap.Strict as H
-import qualified Data.IntMap.Strict  as IM
-import           Data.List.Index     (iconcatMap)
+import qualified Data.HashMap.Strict.InsOrd as H
+import qualified Data.IntMap.Strict         as IM
+import           Data.List.Index            (iconcatMap)
 import           Data.Maybe
-import           Data.Tuple.Extra    (snd3)
-import           System.IO           (writeFile)
+import           Data.Tuple.Extra           (snd3)
+import           System.IO                  (writeFile)
 
 convexHull3DrglCode :: [[Double]] -> Bool -> Maybe FilePath -> IO String
 convexHull3DrglCode points rainbow file = do

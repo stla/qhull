@@ -4,18 +4,18 @@ module ConvexHull.CConvexHull
   ( cConvexHullToConvexHull
   , c_convexhull )
   where
-import           Control.Monad       ((<$!>), (=<<))
+import           Control.Monad              ((<$!>), (=<<))
 import           ConvexHull.Types
-import qualified Data.HashMap.Strict as H
-import           Data.IntMap.Strict  (IntMap, fromAscList)
-import qualified Data.IntMap.Strict  as IM
-import qualified Data.IntSet         as IS
+import qualified Data.HashMap.Strict.InsOrd as H
+import           Data.IntMap.Strict         (IntMap, fromAscList)
+import qualified Data.IntMap.Strict         as IM
+import qualified Data.IntSet                as IS
 import           Data.List
-import           Data.Tuple.Extra    (both)
+import           Data.Tuple.Extra           (both)
 import           Foreign
 import           Foreign.C.String
 import           Foreign.C.Types
-import           Qhull.Types (Family(..))
+import           Qhull.Types                (Family (..))
 
 data CVertex = CVertex {
     __id    :: CUInt

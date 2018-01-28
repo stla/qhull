@@ -1,19 +1,20 @@
 module ConvexHull.ConvexHull
   where
-import           Control.Monad          (unless, when)
+import           Control.Monad              (unless, when)
 import           ConvexHull.CConvexHull
 import           ConvexHull.Types
-import           Data.Function          (on)
-import qualified Data.HashMap.Strict    as H
-import qualified Data.IntMap.Strict     as IM
+import           Data.Function              (on)
+import qualified Data.HashMap.Strict.InsOrd as H
+import qualified Data.IntMap.Strict         as IM
 import           Data.List
-import           Data.List.Unique       (allUnique)
-import           Data.Tuple.Extra       (both)
+import           Data.List.Unique           (allUnique)
+import           Data.Maybe
+import           Data.Tuple.Extra           (both)
 import           Foreign.C.String
 import           Foreign.C.Types
-import           Foreign.Marshal.Alloc  (free, mallocBytes)
-import           Foreign.Marshal.Array  (pokeArray)
-import           Foreign.Storable       (peek, sizeOf)
+import           Foreign.Marshal.Alloc      (free, mallocBytes)
+import           Foreign.Marshal.Array      (pokeArray)
+import           Foreign.Storable           (peek, sizeOf)
 import           Qhull.Types
 
 convexHull :: [[Double]]     -- vertices
@@ -86,7 +87,7 @@ toPoints hull (i,j) = H.lookup (Pair i j) (_hedges hull)
 
 -- | edge as pair of points, without checking the edge exists
 toPoints' :: ConvexHull -> (Index, Index) -> ([Double], [Double])
-toPoints' hull (i,j) = (H.!) (_hedges hull) (Pair i j)
+toPoints' hull (i,j) = fromJust $ toPoints hull (i,j)
 
 -- | vertices of a convex hull
 hullVertices :: ConvexHull -> [[Double]]

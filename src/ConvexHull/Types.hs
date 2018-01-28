@@ -1,7 +1,7 @@
 module ConvexHull.Types
   where
 import           Data.Hashable
-import           Data.HashMap.Strict (HashMap)
+import           Data.HashMap.Strict.InsOrd (InsOrdHashMap)
 import           Data.IntMap.Strict  (IntMap)
 import           Data.IntSet         (IntSet)
 import           Qhull.Types
@@ -14,7 +14,7 @@ instance Eq IndexPair where
 instance Hashable IndexPair where
   hashWithSalt _ (Pair i j) = (i+j)*(i+j+1) + 2 * min i j
 
-type EdgeMap = HashMap IndexPair ([Double],[Double])
+type EdgeMap = InsOrdHashMap IndexPair ([Double],[Double])
 
 data Vertex = Vertex {
     _point         :: [Double]

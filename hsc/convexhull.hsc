@@ -9,7 +9,7 @@ import           Data.IntMap.Strict  (IntMap, fromAscList)
 import qualified Data.IntMap.Strict  as IM
 import qualified Data.IntSet         as IS
 import           Data.List
-import qualified Data.HashMap.Strict as H
+import qualified Data.HashMap.Strict.InsOrd as H
 import           Data.Tuple.Extra    (both)
 import           Foreign
 import           Foreign.C.Types

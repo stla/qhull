@@ -50,7 +50,7 @@ library
                      , extra
                      , ilist
                      , hashable
-                     , unordered-containers
+                     , insert-ordered-containers
                      , random
                      , Unique
                      , vector-space

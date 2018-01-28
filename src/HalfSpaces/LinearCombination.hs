@@ -17,7 +17,9 @@ instance Show LinearCombination where
     intercalate " + " $
       map (\(i,r) -> if i==0
                       then showRational r
-                      else showRational r ++ " x" ++ show i)
+                      else if r == 1
+                            then "x" ++ show i
+                            else showRational r ++ "*x" ++ show i)
           (IM.toAscList x)
     where
       showRational :: Rational -> String
