@@ -3,7 +3,7 @@ module Voronoi.Voronoi
 import qualified Data.IntMap.Strict as IM
 import qualified Data.IntSet        as IS
 import           Data.Maybe
-import           Data.Tuple.Extra   ((&&&))
+-- import           Data.Tuple.Extra   ((&&&))
 import           Delaunay
 
 

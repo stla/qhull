@@ -152,12 +152,11 @@ TesselationT* tesselation(
     for(unsigned v=0; v < n; v++){
       allsites[v].id           = v;
       allsites[v].nneighsites  = 0;
-      allsites[v].neighsites   = malloc(0);
+      allsites[v].neighsites   = malloc(0); /* will be filled by appending */
       allsites[v].nneighridges = 0;
       allsites[v].nneightiles  = 0;
       verticesFacetsNeighbours[v] = uzeros(nfacets);
     }
-
     /* --- fill verticesFacetsNeighbours, derive number of neighbor facets */
     /* --- and derive neighbor sites */
     for(unsigned i_facet=0; i_facet < nfacets; i_facet++){

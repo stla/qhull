@@ -14,12 +14,12 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
-  --                         ,  sin (pi*x) * sin (2*pi*x)
-  --                         ,  cos (pi*x)]) [i/200 | i <- [0 .. 200]]
-  -- code <- convexHull3DrglCode (nub $ curve3D ++ map (\[x,y,z] -> [x,y,z+2]) curve3D) True
-  --                             (Just "rgl/convexhull_curveOnSphere3.R")
-  -- putStrLn "done"
+  let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
+                          ,  sin (pi*x) * sin (2*pi*x)
+                          ,  cos (pi*x)]) [i/200 | i <- [0 .. 200]]
+  code <- convexHull3DrglCode (nub $ curve3D ++ map (\[x,y,z] -> [x,y,z+2]) curve3D) True
+                              (Just "rgl/convexhull_curveOnSphere3.R")
+  putStrLn "done"
 
   -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
   --                         ,  sin (pi*x) * sin (2*pi*x)
@@ -27,13 +27,13 @@ main = do
   -- code <- convexHull3DrglCode curve3D True (Just "rgl/convexhull_curveOnSphere.R")
   -- putStrLn "done"
 
-  let c = 4
-      a = 1
-  let curve3D = map (\x -> [ cos (2*pi*x) * (c + a * cos (2*pi*x))
-                          ,  sin (2*pi*x) * (c + a * cos (2*pi*x))
-                          ,  a * sin (2*pi*x)]) [i/50 | i <- [0 .. 50]]
-  code <- convexHull3DrglCode curve3D True (Just "rgl/convexhull_curveOnTorus.R")
-  putStrLn "done"
+  -- let c = 4
+  --     a = 1
+  -- let curve3D = map (\x -> [ cos (2*pi*x) * (c + a * cos (2*pi*x))
+  --                         ,  sin (2*pi*x) * (c + a * cos (2*pi*x))
+  --                         ,  a * sin (2*pi*x)]) [i/50 | i <- [0 .. 50]]
+  -- code <- convexHull3DrglCode curve3D True (Just "rgl/convexhull_curveOnTorus.R")
+  -- putStrLn "done"
 
   -- points <- randomInCube 1000
   -- code <- convexHull3DrglCode (map (map (approx 4)) points) True (Just "rgl/convexhull04.R")

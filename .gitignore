@@ -28,3 +28,6 @@ zz.txt
 *.txt
 rgl/.Rhistory
 Rplots/.Rhistory
+ztemp/
+Temp.hs
+*.dll
