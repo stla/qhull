@@ -25,7 +25,7 @@ The `delaunay` function splits the polyhedron into simplices, the tiles of the
 tesselation:
 
 ```haskell
-> d <- delaunay vertices False
+> d <- delaunay vertices False False
 > _tiles d
 fromList
   [ ( 0
@@ -67,9 +67,9 @@ the tiles identifiers. A `Tile` object has five fields:
 
 -   `family`, two tiles of the same family share the same circumcenter;
 
--   `toporiented`, the orientation of the tile.
+-   `toporiented`, Boolean, whether the tile is top-oriented.
 
-A `Simplex` object has six fields:
+A `Simplex` object has four fields:
 
 -   `_points`, the vertices of the simplex, actually a map of the vertices
 identifiers to their coordinates
@@ -166,13 +166,17 @@ centricCuboctahedron = [[i,j,0] | i <- [-1,1], j <- [-1,1]] ++
                        [[0,0,0]]
 import Delaunay
 import Voronoi3D
-d <- delaunay centricCuboctahedron False
+d <- delaunay centricCuboctahedron False False
 v = voronoi3 d
 ```
 
+In some circumstances, one has to run the Delaunay tesselation including the
+degenerate tiles in order to get the correct Voronoi diagram, that is to say
+`delaunay vertices False True`.
+
 The output of `voronoi3` is a list of Voronoi cells given as pairs, each pair
 consisting of a site and a list of edges.
-This is the cell of the center `[0,0,0]`:
+This is the cell of the center `[0, 0, 0]`:
 
 ```haskell
 > last v
@@ -215,19 +219,13 @@ bounded, they have infinite edges:
   , Edge3 ( ( -0.5 , -0.5 , 0.5 ) , ( -1.0 , 0.0 , 0.0 ) )
   , IEdge3
       ( ( -0.5 , -0.5 , 0.5 )
-      , ( -0.5773502691896258
-        , -0.5773502691896258
-        , 0.5773502691896258
-        )
+      , ( -0.5773502691896258 , -0.5773502691896258 , 0.5773502691896258 )
       )
   , Edge3 ( ( -0.5 , -0.5 , -0.5 ) , ( 0.0 , -1.0 , 0.0 ) )
   , Edge3 ( ( -0.5 , -0.5 , -0.5 ) , ( -1.0 , 0.0 , 0.0 ) )
   , IEdge3
       ( ( -0.5 , -0.5 , -0.5 )
-      , ( -0.5773502691896258
-        , -0.5773502691896258
-        , -0.5773502691896258
-        )
+      , ( -0.5773502691896258 , -0.5773502691896258 , -0.5773502691896258 )
       )
   , IEdge3 ( ( -1.0 , 0.0 , 0.0 ) , ( 1.0 , 0.0 , 0.0 ) )
   , IEdge3 ( ( 0.0 , -1.0 , 0.0 ) , ( 0.0 , -1.0 , 0.0 ) )
@@ -266,7 +264,7 @@ fromList
     )
   , ( 6
     , Vertex
-      ......
+  ......
 ```
 
 The edges in the field `_hedges`:
@@ -280,7 +278,7 @@ fromList
       )
     )
   , ( Pair 84 99
-    ......
+  ......
 ```
 
 The facets in the field `_hfacets`:
@@ -425,7 +423,7 @@ fromList
     )
   , ( 1
     , Facet
-      ......
+  ......
 ```
 
 [![convexhull02.gif](https://s17.postimg.org/zbl78b1bz/convexhull02.gif)](https://postimg.org/image/80zw0dyez/)

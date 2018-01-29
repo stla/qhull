@@ -15,8 +15,6 @@ data Simplex = Simplex {
     _points       :: IndexMap [Double]
   , _circumcenter :: [Double]
   , _circumradius :: Double
-  -- , _normal       :: [Double]
-  -- , _offset       :: Double
   , _volume       :: Double
 } deriving Show
 

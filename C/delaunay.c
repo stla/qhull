@@ -26,8 +26,9 @@ TesselationT* tesselation(
 	unsigned* exitcode
 )
 {
-	char opts[250]; /* option flags for qhull, see qh_opt.htm */
-  sprintf(opts, "qhull d Qt Fn Qbb%s", atinfinity ? " Qz" : "");
+	char opts[50]; /* option flags for qhull, see qh_opt.htm */
+  sprintf(opts, "qhull d Qt Qbb%s%s",
+          atinfinity ? " Qz" : "", dim>3 ? " Qx" : "");
 	qhT qh_qh; /* Qhull's data structure */
   qhT *qh= &qh_qh;
   QHULL_LIB_CHECK
