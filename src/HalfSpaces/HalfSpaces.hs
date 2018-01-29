@@ -6,7 +6,8 @@ import           Foreign.Marshal.Alloc  (free, mallocBytes)
 import           Foreign.Marshal.Array  (peekArray, pokeArray)
 import           Foreign.Storable       (peek, sizeOf)
 import           HalfSpaces.CHalfSpaces
-import           HalfSpaces.Constraint  (Constraint, normalizeConstraints)
+import           HalfSpaces.Constraint  (Constraint)
+import           HalfSpaces.Internal    (normalizeConstraints)
 import           HalfSpaces.ToySolver
 
 hsintersections' :: [[Double]]     -- halfspaces

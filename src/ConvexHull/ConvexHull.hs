@@ -102,7 +102,6 @@ edgeOf :: ConvexHull -> (Index, Index) -> [Int]
 edgeOf hull (v1,v2) = IM.keys (IM.filter (elem (Pair v1 v2)) facesEdges)
   where
     facesEdges = IM.map (H.keys . _fedges) (_hfacets hull)
-    -- v1v2' = if v1<v2 then Pair v1 v2 else Pair v2 v1 -- useless
 
 -- | group facets of the same family
 groupedFacets :: ConvexHull -> [(Family, [IndexMap [Double]], [EdgeMap])]

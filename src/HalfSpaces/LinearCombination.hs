@@ -43,24 +43,20 @@ instance VectorSpace LinearCombination where
 type Var = LinearCombination
 type VarIndex = Int
 
+-- | new variable
 newVar :: VarIndex -> Var
 newVar i = if i >= 0
             then LinearCombination (IM.singleton i 1)
             else error "negative index"
 
+-- | linear combination from list of terms
 linearCombination :: [(Rational,Var)] -> LinearCombination
 linearCombination terms = linearCombo (map swap terms)
 --  LinearCombination (IM.fromListWith (+) (map swap terms))
 
--- asLinearCombination :: Var -> LinearCombination
--- asLinearCombination var = LinearCombination (IM.singleton var 1)
-
+-- | constant linear combination
 constant :: Rational -> LinearCombination
 constant x = LinearCombination (IM.singleton 0 x)
 
-normalizeLinearCombination :: [VarIndex] -> LinearCombination -> IntMap Rational
-normalizeLinearCombination vars (LinearCombination lc) =
-  IM.union lc (IM.fromList [(i,0) | i <- vars `union` [0]])
-
-varsOfLinearCombo :: LinearCombination -> [VarIndex]
-varsOfLinearCombo (LinearCombination imap) = IM.keys imap
+-- | alias for `constant`
+cst = constant

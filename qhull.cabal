@@ -38,6 +38,7 @@ library
                      , Qhull.Types
                      , HalfSpaces.LinearCombination
                      , HalfSpaces.Constraint
+                     , HalfSpaces.Internal
                      , HalfSpaces.ToySolver
                      , HalfSpaces.CHalfSpaces
                      , HalfSpaces.HalfSpaces

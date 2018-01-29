@@ -2,8 +2,8 @@ module ConvexHull.Types
   where
 import           Data.Hashable
 import           Data.HashMap.Strict.InsOrd (InsOrdHashMap)
-import           Data.IntMap.Strict  (IntMap)
-import           Data.IntSet         (IntSet)
+import           Data.IntMap.Strict         (IntMap)
+import           Data.IntSet                (IntSet)
 import           Qhull.Types
 
 data IndexPair = Pair Index Index
