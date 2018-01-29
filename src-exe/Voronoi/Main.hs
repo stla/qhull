@@ -31,14 +31,27 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  x1 <- randomOnSphere 500 4
-  x2 <- randomOnSphere 500 2
-  let points = x1 ++ x2 ++ [[1,0,0],[-1,0,0]]
-  tess <- delaunay points False False
+  let x1 = let b=0 in
+            [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+      x2 = let b=pi/2 in
+            [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+  tess <- delaunay (nub $ x1 ++ x2 ++ map (map (/5)) cube3) False True
   let v = voronoi3 tess
-      vv = [last v, last (init v)]
-  code <- voronoi3ForRgl' vv Nothing
-  writeFile "rgl/voronoi_sphere01.R" code
+      vv = [last v]
+      v' = filter (\(_,cell) -> not (null cell)) v
+  prettyShowVoronoi3 v' (Just 10)
+  code <- voronoi3ForRgl' v' Nothing
+  writeFile "rgl/voronoi_twoCircles01.R" code
+  putStrLn "done"
+
+  -- x1 <- randomOnSphere 500 4
+  -- x2 <- randomOnSphere 500 2
+  -- let points = x1 ++ x2 ++ [[1,0,0],[-1,0,0]]
+  -- tess <- delaunay points False False
+  -- let v = voronoi3 tess
+  --     vv = [last v, last (init v)]
+  -- code <- voronoi3ForRgl' vv Nothing
+  -- writeFile "rgl/voronoi_sphere01.R" code
 
 --   let x1 = map (map (*2)) cube3
 --   let x2 = map (map (*(1/2))) cube3

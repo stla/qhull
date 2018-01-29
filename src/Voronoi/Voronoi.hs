@@ -36,8 +36,7 @@ edgesFromTileFacet :: Tesselation -> TileFacet -> Maybe Edge
 edgesFromTileFacet tess tilefacet
   | length tileindices == 1
     = Just $ IEdge (c1, _normal tilefacet)
-  | c1 == c2 = Nothing
---  | isJust (_family tile1) && (_family tile1 == _family tile2) = Nothing -- ?
+  | sameFamily (_family tile1) (_family tile2) || c1 == c2 = Nothing
   | otherwise = Just $ Edge (c1, c2)
   where
     tileindices = (IS.toList . _facetOf) tilefacet

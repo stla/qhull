@@ -19,7 +19,9 @@ centricCube =  [[-1,-1,-1],[-1,-1, 1],[-1, 1,-1],[-1, 1, 1],[ 1,-1,-1],
                 [ 1,-1, 1],[ 1, 1,-1],[ 1, 1, 1],[ 0, 0, 0]]
 
 squareLattice :: [[Double]]
-squareLattice = [[0,0],[0,1],[0,2],[1,0],[1,1],[1,2],[2,0],[2,1],[2,2]]
+squareLattice = [[0,0],[0,1],[0,2]
+                ,[1,0],[1,1],[1,2]
+                ,[2,0],[2,1],[2,2]]
 
 centricSquare :: [[Double]]
 centricSquare = [[0,0],[0,2],[2,0],[2,2],[1,1]]
@@ -85,7 +87,7 @@ randomInSphere n = do
   return $ zipWith3 (\r a b -> [r * sin a * cos b,
                                 r * sin a * sin b,
                                 r * cos a         ])
-                     rho phi theta
+                     rho theta phi
 
 randomOnSphere :: Int -> Double -> IO [[Double]]
 randomOnSphere n r = do

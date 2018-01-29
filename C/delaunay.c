@@ -61,6 +61,23 @@ TesselationT* tesselation(
 
     /* Initialize the tiles */
     TileT* allfacets = malloc(nfacets * sizeof(TileT));
+    {
+      facetT* facet;
+      unsigned i_facet = 0;
+      FORALLfacets{
+        if(facet->tricoplanar){
+          allfacets[i_facet].family = facet->f.triowner->id;
+          if(facet->id == facet->f.triowner->id){
+            allfacets[i_facet].simplex.center =
+              qh_facetcenter(qh, facet->vertices);
+          }
+        }else{
+          allfacets[i_facet].family = -1;
+        }
+        i_facet++;
+      }
+    }
+
   	{ /* facets ids, orientations, centers, normals, offsets, sites ids, neighbors, families */
       facetT* facet;
       unsigned i_facet = 0; /* facet counter */
@@ -72,16 +89,30 @@ TesselationT* tesselation(
         //   facet->degenerate ? nanvector(dim)
         //                       : qh_facetcenter(qh, facet->vertices);
         /* center and circumradius */
-        if(!facet->degenerate){
+        if(facet->tricoplanar){
+          allfacets[i_facet].simplex.center =
+            allfacets[allfacets[i_facet].family].simplex.center;
+        }else{
           allfacets[i_facet].simplex.center =
             qh_facetcenter(qh, facet->vertices);
-          pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
-          allfacets[i_facet].simplex.radius =
-            sqrt(squaredDistance(point, allfacets[i_facet].simplex.center,
-                                 dim));
-        }// }else{
-        //   allfacets[i_facet].simplex.radius = NAN;
-        // }
+        }
+        pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
+        allfacets[i_facet].simplex.radius =
+          sqrt(squaredDistance(point, allfacets[i_facet].simplex.center, dim));
+        // if(!facet->degenerate){
+        //   allfacets[i_facet].simplex.center = //facet->center;
+        //     qh_facetcenter(qh, facet->vertices);
+        //   // faire une première passe : calculer les centres des triowner
+        //   // pour ne pas les calculer pour les facets de la même famille
+        //   printf("center1: %f %f %f\n", facet->center[0], facet->center[1], facet->center[2]);
+        //   printf("center2: %f %f %f\n", allfacets[i_facet].simplex.center[0], allfacets[i_facet].simplex.center[1], allfacets[i_facet].simplex.center[2]);
+        //   pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
+        //   allfacets[i_facet].simplex.radius =
+        //     sqrt(squaredDistance(point, allfacets[i_facet].simplex.center,
+        //                          dim));
+        // }// }else{
+        // //   allfacets[i_facet].simplex.radius = NAN;
+        // // }
 
         { /* vertices ids of the facet */
           allfacets[i_facet].simplex.sitesids =
@@ -120,34 +151,34 @@ TesselationT* tesselation(
           }
         }
 
-        /* facet family */
-        if(facet->tricoplanar){
-          allfacets[i_facet].family = facet->f.triowner->id;
-        }else{
-          allfacets[i_facet].family = -1;
-        }
+        // /* facet family */
+        // if(facet->tricoplanar){
+        //   allfacets[i_facet].family = facet->f.triowner->id;
+        // }else{
+        //   allfacets[i_facet].family = -1;
+        // }
 
         /**/
   			i_facet++;
   		}
     }
 
-    /* for degenerate facets, take the center of the owner */
-    if(degenerate){
-      facetT *facet;
-      unsigned i_facet = 0;
-      FORALLfacets{
-        if(facet->degenerate){
-          allfacets[i_facet].simplex.center =
-            allfacets[allfacets[i_facet].family].simplex.center;
-          pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
-          allfacets[i_facet].simplex.radius =
-            sqrt(squaredDistance(point, allfacets[i_facet].simplex.center,
-                                 dim));
-        }
-        i_facet++;
-      }
-    }
+    //  /* for degenerate facets, take the center of the owner */
+    // if(degenerate){
+    //   facetT *facet;
+    //   unsigned i_facet = 0;
+    //   FORALLfacets{
+    //     if(facet->degenerate){
+    //       allfacets[i_facet].simplex.center =
+    //         allfacets[allfacets[i_facet].family].simplex.center;
+    //       pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
+    //       allfacets[i_facet].simplex.radius =
+    //         sqrt(squaredDistance(point, allfacets[i_facet].simplex.center,
+    //                              dim));
+    //     }
+    //     i_facet++;
+    //   }
+    // }
 
 		/* neighbor facets and neighbor vertices per vertex */
     /* --- we will use the following combinations, also used later */
@@ -338,33 +369,33 @@ TesselationT* tesselation(
             allridges_dup[i_ridge_dup].offset =
               - dotproduct(points[0], normal, dim);
             if(dim > 2){ /* ridge center is already done if dim 2 */
-              if(facet->degenerate){
-                allridges_dup[i_ridge_dup].simplex.center = nanvector(dim);
-                allridges_dup[i_ridge_dup].simplex.radius = NAN;
-              }else{
-                allridges_dup[i_ridge_dup].simplex.center =
-                  malloc(dim * sizeof(double));
-                double scal = 0;
-                for(unsigned i=0; i < dim; i++){
-                  scal += (points[0][i]-allfacets[i_facet].simplex.center[i]) *
-                            normal[i];
-                }
-                for(unsigned i=0; i < dim; i++){
-                  allridges_dup[i_ridge_dup].simplex.center[i] =
-                    allfacets[i_facet].simplex.center[i] + scal*normal[i];
-                }
-                allridges_dup[i_ridge_dup].simplex.radius =
-                  sqrt(squaredDistance(
-                        allridges_dup[i_ridge_dup].simplex.center,
-                        points[0], dim));
+              // if(facet->degenerate){
+              //   allridges_dup[i_ridge_dup].simplex.center = nanvector(dim);
+              //   allridges_dup[i_ridge_dup].simplex.radius = NAN;
+              // }else{
+              allridges_dup[i_ridge_dup].simplex.center =
+                malloc(dim * sizeof(double));
+              double scal = 0;
+              for(unsigned i=0; i < dim; i++){
+                scal += (points[0][i]-allfacets[i_facet].simplex.center[i]) *
+                          normal[i];
               }
+              for(unsigned i=0; i < dim; i++){
+                allridges_dup[i_ridge_dup].simplex.center[i] =
+                  allfacets[i_facet].simplex.center[i] + scal*normal[i];
+              }
+              allridges_dup[i_ridge_dup].simplex.radius =
+                sqrt(squaredDistance(
+                      allridges_dup[i_ridge_dup].simplex.center,
+                      points[0], dim));
+//              }
             }
             /* orient the normal (used for plotting unbounded Voronoi cells) */
             if(allridges_dup[i_ridge_dup].ridgeOf2 == -1)
                //&& (!facet->degenerate || dim==2))
             {
               pointT* otherpoint = /* the remaining vertex of the facet (the one not in the ridge) */
-                getpoint(sites, dim, allfacets[facet->id].simplex.sitesids[m]);
+                qh->interior_point; // getpoint(sites, dim, allfacets[facet->id].simplex.sitesids[m]);
               double thepoint[dim]; /* the point center+normal */
               for(unsigned i=0; i < dim; i++){
                 thepoint[i] = allridges_dup[i_ridge_dup].simplex.center[i] +
@@ -377,7 +408,10 @@ TesselationT* tesselation(
               double h2 = dotproduct(thepoint,
                                      allridges_dup[i_ridge_dup].normal, dim) +
                           allridges_dup[i_ridge_dup].offset;
-              if(h1*h2 > 0){
+              // printf("deg: %u, h1: %f, h2: %f\n", facet->degenerate, h1, h2);
+              // printf("offset: %f\n", allridges_dup[i_ridge_dup].offset);
+              // printf("normal: %f %f %f\n", allridges_dup[i_ridge_dup].normal[0], allridges_dup[i_ridge_dup].normal[1], allridges_dup[i_ridge_dup].normal[2]);
+              if(h1*h2 >= 0){
                 for(unsigned i=0; i < dim; i++){
                   allridges_dup[i_ridge_dup].normal[i] *= -1;
                 }
