@@ -18,7 +18,7 @@ double** intersections(
     sprintf(x, ",%f", interiorpoint[i]);
     strcat(opts, x);
   }
-  printf(opts);
+  printf(opts); printf("\n");
 
   qhT qh_qh; /* Qhull's data structure */
   qhT* qh= &qh_qh;
@@ -42,7 +42,8 @@ double** intersections(
       if(facet->offset != 0){
         out[i_facet] = malloc(dim * sizeof(double));
         for(unsigned i=0; i < dim; i++){
-          out[i_facet][i] = - facet->normal[i] / facet->offset + qh->feasible_point[i]; // = interiorpoint ? yes
+          out[i_facet][i] = - facet->normal[i] / facet->offset +
+                            qh->feasible_point[i]; // = interiorpoint ? yes
         }
         i_facet++;
       }else{

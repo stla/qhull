@@ -1,9 +1,11 @@
 module Main
   where
 import           ConvexHull
-import           ConvexHull.Examples
+import           Delaunay.Examples
 import           ConvexHull.R
 import qualified Data.IntMap.Strict  as IM
+import qualified Data.IntSet        as IS
+import Data.List
 import           Delaunay
 import           Delaunay.R
 import           System.IO
@@ -29,11 +31,36 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  let x = duplicate3 (duplicate3 (duplicate3 (cube3 ++ [[0,0,0]]) [2,0,0]) [0,2,0]) [0,0,2]
-  tess <- delaunay x False False
+  let x1 = map (map (*2)) cube3
+  let x2 = map (map (*(1/2))) cube3
+  tess <- delaunay (x1 ++ x2) False True
+  pPrint $ _tiles tess
+  let ridgeof = filter (\fo -> IS.size fo == 1) (map _facetOf (IM.elems (_tilefacets tess)))
+  print $ length ridgeof
+  print $ IM.size (_tilefacets tess)
+  let ridgevertices = map (IM.keys . _points . _subsimplex) (IM.elems (_tilefacets tess))
+  print $ length $ nub ridgevertices
+  let tilevertices = map (IM.keys . _points . _simplex) (IM.elems (_tiles tess))
+  pPrint $ length $ filter (== [3]) $ map (\verts -> filter (==3) $ map (\tv -> length (intersect tv verts)) tilevertices) ridgevertices
   let v = voronoi3 tess
   code <- voronoi3ForRgl' v Nothing
-  writeFile "rgl/voronoi_multicube.R" code
+--  let code = delaunay3rgl tess False True True (Just 0.5)
+  writeFile "rgl/voronoi_projhcube4.R" code
+
+  -- x1 <- randomOnSphere 500 1
+  -- x2 <- randomOnSphere 500 0.5
+  -- let points = x1 ++ x2 ++ [[0,0,0]]
+  -- tess <- delaunay points False False
+  -- let v = voronoi3 tess
+  --     vv = [last v]
+  -- code <- voronoi3ForRgl' vv Nothing
+  -- writeFile "rgl/voronoi_sphere.R" code
+
+  -- let x = duplicate3 (duplicate3 (duplicate3 (cube3 ++ [[0,0,0]]) [2,0,0]) [0,2,0]) [0,0,2]
+  -- tess <- delaunay x False False
+  -- let v = voronoi3 tess
+  -- code <- voronoi3ForRgl' v Nothing
+  -- writeFile "rgl/voronoi_multicube.R" code
 
   -- let x = dodecahedron ++ [[0,0,0]]
   -- tess <- delaunay x False

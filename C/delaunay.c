@@ -67,20 +67,20 @@ TesselationT* tesselation(
 
         allfacets[i_facet].id             = facet->id;
         allfacets[i_facet].orientation    = facet->toporient ? 1 : -1;
-        allfacets[i_facet].simplex.center =
-          facet->degenerate ? nanvector(dim)
-                              : qh_facetcenter(qh, facet->vertices);
-        // allfacets[i_facet].simplex.normal = facet->normal;
-        // allfacets[i_facet].simplex.offset = facet->offset;
-        /* calculate circumradius */
+        // allfacets[i_facet].simplex.center =
+        //   facet->degenerate ? nanvector(dim)
+        //                       : qh_facetcenter(qh, facet->vertices);
+        /* center and circumradius */
         if(!facet->degenerate){
+          allfacets[i_facet].simplex.center =
+            qh_facetcenter(qh, facet->vertices);
           pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
           allfacets[i_facet].simplex.radius =
             sqrt(squaredDistance(point, allfacets[i_facet].simplex.center,
                                  dim));
-        }else{
-          allfacets[i_facet].simplex.radius = NAN;
-        }
+        }// }else{
+        //   allfacets[i_facet].simplex.radius = NAN;
+        // }
 
         { /* vertices ids of the facet */
           allfacets[i_facet].simplex.sitesids =
@@ -129,6 +129,23 @@ TesselationT* tesselation(
         /**/
   			i_facet++;
   		}
+    }
+
+    /* for degenerate facets, take the center of the owner */
+    if(degenerate){
+      facetT *facet;
+      unsigned i_facet = 0;
+      FORALLfacets{
+        if(facet->degenerate){
+          allfacets[i_facet].simplex.center =
+            allfacets[allfacets[i_facet].family].simplex.center;
+          pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
+          allfacets[i_facet].simplex.radius =
+            sqrt(squaredDistance(point, allfacets[i_facet].simplex.center,
+                                 dim));
+        }
+        i_facet++;
+      }
     }
 
 		/* neighbor facets and neighbor vertices per vertex */
@@ -189,6 +206,8 @@ TesselationT* tesselation(
     }
     qh_getarea(qh, qh->facet_list); /* make facets volumes, available in facet->f.area */
     unsigned n_ridges = 0; /* count distinct ridges */
+
+
     { /* loop on facets */
       facetT *facet;
       unsigned i_ridge_dup = 0; /* ridge counter */
@@ -340,8 +359,8 @@ TesselationT* tesselation(
               }
             }
             /* orient the normal (used for plotting unbounded Voronoi cells) */
-            if(allridges_dup[i_ridge_dup].ridgeOf2 == -1 &&
-               (!facet->degenerate || dim==2))
+            if(allridges_dup[i_ridge_dup].ridgeOf2 == -1)
+               //&& (!facet->degenerate || dim==2))
             {
               pointT* otherpoint = /* the remaining vertex of the facet (the one not in the ridge) */
                 getpoint(sites, dim, allfacets[facet->id].simplex.sitesids[m]);

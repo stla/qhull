@@ -1,6 +1,6 @@
 module Main
   where
-import           ConvexHull.Examples
+import           Delaunay.Examples
 import qualified Data.IntMap.Strict  as IM
 import           Delaunay
 import           Delaunay.R
