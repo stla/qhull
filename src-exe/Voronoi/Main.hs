@@ -35,14 +35,31 @@ main = do
             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
       x2 = let b=pi/2 in
             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
-  tess <- delaunay (nub $ x1 ++ x2 ++ map (map (/5)) cube3) False True
+      x3 = [[cos (a*2*pi/100), sin (a*2*pi/100), 0] | a <- [0 .. 99]]
+  tess <- delaunay (nub $ x1 ++ x2 ++ x3 ++ map (map (/5)) cube3) False True
+--  let code = delaunay3rgl tess False True True (Just 0.5)
+  pPrint $ IM.filter (\c -> head c == -10.101) (IM.map (_circumcenter . _simplex) (_tiles tess))
+  pPrint $ IM.filterWithKey (\k _ -> k `elem` [392 .. 397]) (_tiles tess)
   let v = voronoi3 tess
-      vv = [last v]
       v' = filter (\(_,cell) -> not (null cell)) v
-  prettyShowVoronoi3 v' (Just 10)
-  code <- voronoi3ForRgl' v' Nothing
-  writeFile "rgl/voronoi_twoCircles01.R" code
-  putStrLn "done"
+--      v' = restrictVoronoi3box' ((-2,2),(-2,2),(-2,2)) v
+      v'' = clipVoronoi3 ((-1,1),(-1,1),(-1,1)) v'
+  code <- voronoi3ForRgl' v'' Nothing
+  writeFile "rgl/voronoi_twoCircles04.R" code
+
+--   let x1 = let b=0 in
+--             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+--       x2 = let b=pi/2 in
+--             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+--   tess <- delaunay (nub $ x1 ++ x2 ++ map (map (/5)) cube3) False True
+--   let v = voronoi3 tess
+--       vv = [last v]
+--       v' = filter (\(_,cell) -> not (null cell)) v
+--       v'' = clipVoronoi3 (-1,1,-1,1,-1,1) v'
+-- --  prettyShowVoronoi3 v' (Just 10)
+--   code <- voronoi3ForRgl' v'' Nothing
+--   writeFile "rgl/voronoi_twoCircles02.R" code
+--   putStrLn "done"
 
   -- x1 <- randomOnSphere 500 4
   -- x2 <- randomOnSphere 500 2

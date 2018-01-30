@@ -10,14 +10,18 @@ module Voronoi3D
  , voronoi3vertices
  , boundedCell3
  , restrictVoronoi3
- , restrictVoronoi3box)
+ , restrictVoronoi3'
+ , restrictVoronoi3box
+ , restrictVoronoi3box')
   where
-import           Control.Arrow      (second)
+import           Control.Arrow    (second)
+import           Control.Monad    (liftM2)
+import qualified Data.IntSet      as IS
 import           Data.List
-import           Data.Tuple.Extra   (both)
-import           Delaunay
-import qualified Data.IntSet        as IS
-import           Text.Show.Pretty   (ppShow)
+import           Data.Tuple.Extra (both)
+import           Delaunay.Types
+import           Qhull.Types
+import           Text.Show.Pretty (ppShow)
 import           Voronoi.Voronoi
 
 type Point3 = (Double, Double, Double)
@@ -27,7 +31,7 @@ data Edge3 = Edge3 (Point3, Point3) | IEdge3 (Point3, Vector3)
               deriving (Show, Eq)
 type Cell3 = [Edge3]
 type Voronoi3 = [([Double], Cell3)]
-type Box3 = (Double, Double, Double, Double, Double, Double)
+type Box3 = ((Double, Double), (Double, Double), (Double, Double))
 
 -- | pretty print a 3D Voronoi diagram
 prettyShowVoronoi3 :: Voronoi3 -> Maybe Int -> IO ()
@@ -41,6 +45,8 @@ prettyShowVoronoi3 v m = do
                nbounded ++ " bounded and " ++ ndegenerate ++ " degenerate."
   putStrLn $ string ++ "\n------\n" ++ footer
   where
+    approx :: RealFrac a => Int -> a -> a
+    approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
     roundPairPoint3 :: (Point3, Point3) -> Int -> (Point3, Point3)
     roundPairPoint3 ((x1,x2,x3), (y1,y2,y3)) n =
       (asTriplet $ map (approx n) [x1,x2,x3],
@@ -57,6 +63,7 @@ prettyShowVoronoi3 v m = do
     prettyShowCell3 :: Maybe Int -> ([Double], Cell3) -> String
     prettyShowCell3 n (site, edges) =
       "Site " ++ ppShow site ++ " :\n" ++ prettyShowEdges3 n edges
+
 
 asTriplet :: [a] -> (a, a, a)
 asTriplet [x,y,z] = (x,y,z)
@@ -93,14 +100,14 @@ boundedCell3 = all isEdge
     isEdge _         = False
 
 -- | whether a 3D Voronoi cell is inside a given box
-cell3inBox :: (Double,Double) -> (Double,Double) -> (Double,Double) -> Cell3 -> Bool
-cell3inBox (xmin,xmax) (ymin, ymax) (zmin,zmax) cell =
+cell3inBox :: Box3 -> Cell3 -> Bool
+cell3inBox ((xmin,xmax), (ymin, ymax), (zmin,zmax)) cell =
   boundedCell3 cell && all edgeInBox cell
   where
     tripletInBox (x,y,z) =
       x > xmin && y > ymin && z > zmin && x < xmax && y < ymax && z < zmax
     edgeInBox (Edge3 (p1,p2)) = tripletInBox p1 && tripletInBox p2
-    edgeInBox _ = False
+    edgeInBox _               = False
 
 filterVoronoi3 :: (Cell3 -> Bool) -> Voronoi3 -> Voronoi3
 filterVoronoi3 cellTester = filter (\(_, cell) -> cellTester cell)
@@ -109,10 +116,19 @@ filterVoronoi3 cellTester = filter (\(_, cell) -> cellTester cell)
 restrictVoronoi3 :: Voronoi3 -> Voronoi3
 restrictVoronoi3 = filterVoronoi3 boundedCell3
 
+-- | restrict a 3D Voronoi diagram to its nondegenerate bounded cells
+restrictVoronoi3' :: Voronoi3 -> Voronoi3
+restrictVoronoi3' = filterVoronoi3 (liftM2 (&&) boundedCell3 (not . null))
+--                    (\cell -> boundedCell3 cell && not (null cell))
+
 -- | restrict a 3D Voronoi diagram to the cells contained in a box
-restrictVoronoi3box :: (Double,Double) -> (Double,Double) -> (Double,Double)
-                    -> Voronoi3 -> Voronoi3
-restrictVoronoi3box xlim ylim zlim = filterVoronoi3 (cell3inBox xlim ylim zlim)
+restrictVoronoi3box :: Box3 -> Voronoi3 -> Voronoi3
+restrictVoronoi3box box = filterVoronoi3 (cell3inBox box)
+
+-- | restrict a 3D Voronoi diagram to the nondegenerate cells contained in a box
+restrictVoronoi3box' :: Box3 -> Voronoi3 -> Voronoi3
+restrictVoronoi3box' box =
+  filterVoronoi3 (not . null) . restrictVoronoi3box box
 
 -- | vertices of a bounded 3D cell
 cell3Vertices :: Cell3 -> [[Double]]
@@ -127,7 +143,7 @@ voronoi3vertices :: Voronoi3 -> [[Double]]
 voronoi3vertices = concatMap (\(_,cell) -> cell3Vertices cell)
 
 truncEdge3 :: Box3 -> Edge3 -> Edge3
-truncEdge3 (xmin, xmax, ymin, ymax, zmin, zmax) edge =
+truncEdge3 ((xmin, xmax), (ymin, ymax), (zmin, zmax)) edge =
   if isIEdge edge
     then TIEdge3 ((p1,p2,p3), (p1 + factor v1 v2 v3 * v1,
                   p2 + factor v1 v2 v3 * v2, p3 + factor v1 v2 v3 * v3))
@@ -136,17 +152,16 @@ truncEdge3 (xmin, xmax, ymin, ymax, zmin, zmax) edge =
     isIEdge (IEdge3 _) = True
     isIEdge _          = False
     IEdge3 ((p1,p2,p3), (v1,v2,v3)) = edge
-    -- factor u1 u2 u3 | u1==0 && u2==0 = if u3>0 then (zmax-p3)/u3 else (zmin-p3)/u3
-    --                 | u1==0 && u3==0 = if u2>0 then (ymax-p2)/u2 else (ymin-p2)/u2
-    --                 | u2==0 && u3==0 = if u1>0 then (xmax-p1)/u1 else (xmin-p1)/u1
-    --                 | otherwise = min (min (factor u1 0 0) (factor 0 u2 0))
-    --                                   (factor 0 0 u3)
-    -- IEdge3 ((p1,p2,p3), (v1,v2,v3)) = edge
-    factor u1 u2 u3 | u3==0 = factor2 (xmin,xmax,ymin,ymax) (p1,p2) (u1,u2)
-                    | u2==0 = factor2 (zmin,zmax,xmin,xmax) (p3,p1) (u3,u1)
-                    | u1==0 = factor2 (ymin,ymax,zmin,zmax) (p2,p3) (u2,u3)
-                    | otherwise = min (min (factor u1 u2 0) (factor 0 u2 u3))
-                                      (factor u1 0 u3)
+    factor u1 u2 u3 | u1==0 && u2==0 = (if u3>0 then zmax-p3 else zmin-p3)/u3
+                    | u1==0 && u3==0 = (if u2>0 then ymax-p2 else ymin-p2)/u2
+                    | u2==0 && u3==0 = (if u1>0 then xmax-p1 else xmin-p1)/u1
+                    | otherwise = min (min (factor u1 0 0) (factor 0 u2 0))
+                                      (factor 0 0 u3)
+    -- factor u1 u2 u3 | u3==0 = factor2 (xmin,xmax,ymin,ymax) (p1,p2) (u1,u2)
+    --                 | u2==0 = factor2 (zmin,zmax,xmin,xmax) (p3,p1) (u3,u1)
+    --                 | u1==0 = factor2 (ymin,ymax,zmin,zmax) (p2,p3) (u2,u3)
+    --                 | otherwise = min (min (factor u1 u2 0) (factor 0 u2 u3))
+    --                                   (factor u1 0 u3)
 
 -- | clip 3D Voronoi diagram in a bounding box
 clipVoronoi3 :: Box3 -> Voronoi3 -> Voronoi3

@@ -3,9 +3,9 @@ module Voronoi.Voronoi
 import qualified Data.IntMap.Strict as IM
 import qualified Data.IntSet        as IS
 import           Data.Maybe
--- import           Data.Tuple.Extra   ((&&&))
-import           Delaunay
-
+import           Delaunay.Delaunay (vertexNeighborFacets)
+import           Delaunay.Types
+import           Qhull.Types
 
 type Point = [Double]
 type Vector = [Double]
@@ -13,29 +13,22 @@ data Edge = Edge (Point, Point) | IEdge (Point, Vector)
      deriving Show
 type Cell = [Edge]
 
+-- factor2 :: (Double,Double,Double,Double) -> (Double,Double) -> (Double,Double) -> Double
+-- factor2 box@(xmin, xmax, ymin, ymax) p@(p1,p2) (v1,v2)
+--   | v1==0 = if v2>0 then (ymax-p2)/v2 else (ymin-p2)/v2
+--   | v2==0 = if v1>0 then (xmax-p1)/v1 else (xmin-p1)/v1
+--   | otherwise = min (factor2 box p (v1,0)) (factor2 box p (0,v2))
+--   --  | v1>0 && v2>0 = min ((r-p1)/v1) ((t-p2)/v2)
+--   --  | v1>0 && v2<0 = min ((r-p1)/v1) ((b-p2)/v2)
+--   --  | v1<0 && v2>0 = min ((l-p1)/v1) ((t-p2)/v2)
+--   --  | v1<0 && v2<0 = min ((l-p1)/v1) ((b-p2)/v2)
 
-factor2 :: (Double,Double,Double,Double) -> (Double,Double) -> (Double,Double) -> Double
-factor2 box@(xmin, xmax, ymin, ymax) p@(p1,p2) (v1,v2)
-  | v1==0 = if v2>0 then (ymax-p2)/v2 else (ymin-p2)/v2
-  | v2==0 = if v1>0 then (xmax-p1)/v1 else (xmin-p1)/v1
-  | otherwise = min (factor2 box p (v1,0)) (factor2 box p (0,v2))
-  --  | v1>0 && v2>0 = min ((r-p1)/v1) ((t-p2)/v2)
-  --  | v1>0 && v2<0 = min ((r-p1)/v1) ((b-p2)/v2)
-  --  | v1<0 && v2>0 = min ((l-p1)/v1) ((t-p2)/v2)
-  --  | v1<0 && v2<0 = min ((l-p1)/v1) ((b-p2)/v2)
-
-approx :: RealFrac a => Int -> a -> a
-approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
-
----
-
--- tileFacetAsPair :: TileFacet -> (Simplex, [Int])
--- tileFacetAsPair = _subsimplex &&& (IS.toList . _facetOf)
+-- approx :: RealFrac a => Int -> a -> a
+-- approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 
 edgesFromTileFacet :: Tesselation -> TileFacet -> Maybe Edge
 edgesFromTileFacet tess tilefacet
-  | length tileindices == 1
-    = Just $ IEdge (c1, _normal tilefacet)
+  | length tileindices == 1 = Just $ IEdge (c1, _normal tilefacet)
   | sameFamily (_family tile1) (_family tile2) || c1 == c2 = Nothing
   | otherwise = Just $ Edge (c1, c2)
   where

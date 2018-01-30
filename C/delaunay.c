@@ -61,44 +61,78 @@ TesselationT* tesselation(
 
     /* Initialize the tiles */
     TileT* allfacets = malloc(nfacets * sizeof(TileT));
-    {
+
+    { /* tiles families, and centers of the owners */
       facetT* facet;
       unsigned i_facet = 0;
       FORALLfacets{
         if(facet->tricoplanar){
           allfacets[i_facet].family = facet->f.triowner->id;
-          if(facet->id == facet->f.triowner->id){
-            allfacets[i_facet].simplex.center =
-              qh_facetcenter(qh, facet->vertices);
-          }
+          // if(!facet->degenerate){
+          //   if(i_facet == 392){
+          //     printf("area: %f", qh_facetarea(qh, facet));
+          //   }
+          //   allfacets[i_facet].simplex.center =
+          //     qh_facetcenter(qh, facet->vertices);
+          // }else{
+          //   facetT *neighbor, **neighborp;
+          //   FOREACHneighbor_(facet){
+          //     if(facetOK_(neighbor,0) && neighbor->f.triowner->id == facet->f.triowner->id){
+          //       allfacets[i_facet].simplex.center =
+          //         qh_facetcenter(qh, neighbor->vertices);
+          //       break;
+          //     }
+          //   }
+          // }
         }else{
           allfacets[i_facet].family = -1;
+        }
+        if(facet->degenerate){
+          allfacets[i_facet].simplex.volume = 0;
+        }else{
+          allfacets[i_facet].simplex.volume = qh_facetarea(qh, facet);
+        }
+        if(allfacets[i_facet].simplex.volume > 0){
+          allfacets[i_facet].simplex.center = qh_facetcenter(qh, facet->vertices);
         }
         i_facet++;
       }
     }
 
-  	{ /* facets ids, orientations, centers, normals, offsets, sites ids, neighbors, families */
+  	{ /* facets ids, orientations, centers, normals, offsets, sites ids, neighbors */
       facetT* facet;
       unsigned i_facet = 0; /* facet counter */
       FORALLfacets {
-
         allfacets[i_facet].id             = facet->id;
         allfacets[i_facet].orientation    = facet->toporient ? 1 : -1;
+        /* center and circumradius */
+        if(allfacets[i_facet].simplex.volume <= 0){
+          if(facet->tricoplanar){
+            unsigned ok = 0;
+            facetT *neighbor, **neighborp;
+            FOREACHneighbor_(facet){
+              if(facetOK_(neighbor,degenerate) &&
+                 neighbor->f.triowner->id == allfacets[i_facet].family &&
+                 allfacets[neighbor->id].simplex.volume > 0)
+              {
+                allfacets[i_facet].simplex.center = allfacets[neighbor->id].simplex.center;
+                ok = 1;
+                break;
+              }
+            }
+            if(!ok){
+              allfacets[i_facet].simplex.center = nanvector(dim);
+            }
+          }else{
+            allfacets[i_facet].simplex.center = nanvector(dim);
+          }
+        }
+        allfacets[i_facet].simplex.radius =
+          sqrt(squaredDistance(((vertexT*)facet->vertices->e[0].p)->point,
+                                allfacets[i_facet].simplex.center, dim));
         // allfacets[i_facet].simplex.center =
         //   facet->degenerate ? nanvector(dim)
         //                       : qh_facetcenter(qh, facet->vertices);
-        /* center and circumradius */
-        if(facet->tricoplanar){
-          allfacets[i_facet].simplex.center =
-            allfacets[allfacets[i_facet].family].simplex.center;
-        }else{
-          allfacets[i_facet].simplex.center =
-            qh_facetcenter(qh, facet->vertices);
-        }
-        pointT* point = ((vertexT*)facet->vertices->e[0].p)->point;
-        allfacets[i_facet].simplex.radius =
-          sqrt(squaredDistance(point, allfacets[i_facet].simplex.center, dim));
         // if(!facet->degenerate){
         //   allfacets[i_facet].simplex.center = //facet->center;
         //     qh_facetcenter(qh, facet->vertices);
@@ -236,9 +270,8 @@ TesselationT* tesselation(
       allridges_dup[r].simplex.sitesids = malloc(dim * sizeof(unsigned));
       allridges_dup[r].flag = 0;
     }
-    qh_getarea(qh, qh->facet_list); /* make facets volumes, available in facet->f.area */
+//    qh_getarea(qh, qh->facet_list); /* make facets volumes, available in facet->f.area */
     unsigned n_ridges = 0; /* count distinct ridges */
-
 
     { /* loop on facets */
       facetT *facet;
@@ -246,7 +279,7 @@ TesselationT* tesselation(
       unsigned i_facet = 0; /* facet counter */
       FORALLfacets {
 
-        allfacets[i_facet].simplex.volume = facet->f.area;
+//        allfacets[i_facet].simplex.volume = facet->f.area;
         allfacets[i_facet].nridges   = dim+1;
         allfacets[i_facet].ridgesids = malloc((dim+1) * sizeof(unsigned));
 

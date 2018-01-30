@@ -16,7 +16,8 @@ import           Data.Graph       (flattenSCCs, stronglyConnComp)
 import           Data.List
 import           Data.List.Index  (imap)
 import           Data.Tuple.Extra (both)
-import           Delaunay
+import           Delaunay.Types
+import           Qhull.Types
 import           Text.Show.Pretty (ppShow)
 import           Voronoi.Voronoi
 
@@ -28,7 +29,7 @@ data Edge2 = Edge2 (Point2, Point2) | IEdge2 (Point2, Vector2)
               deriving (Show, Eq)
 type Cell2 = [Edge2]
 type Voronoi2 = [([Double], Cell2)]
-type Box2 = (Double, Double, Double, Double)
+type Box2 = ((Double, Double), (Double, Double))
 
 -- | pretty print a Voronoi 2D diagram
 prettyShowVoronoi2 :: Voronoi2 -> Maybe Int -> IO ()
@@ -36,6 +37,8 @@ prettyShowVoronoi2 v m = do
   let string = intercalate "\n---\n" (map (prettyShowCell2 m) v)
   putStrLn string
   where
+    approx :: RealFrac a => Int -> a -> a
+    approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
     roundPairPoint2 :: (Point2, Point2) -> Int -> (Point2, Point2)
     roundPairPoint2 ((x1,x2), (y1,y2)) n =
       (asPair $ map (approx n) [x1,x2], asPair $ map (approx n) [y1,y2])
@@ -100,15 +103,18 @@ cell2Vertices' cell = flattenSCCs (stronglyConnComp x)
     connectedVertices _ _ = False
 
 truncEdge2 :: Box2 -> Edge2 -> Edge2
-truncEdge2 box edge =
+truncEdge2 ((xmin, xmax), (ymin, ymax)) edge =
   if isIEdge edge
-    then TIEdge2 (p, (p1 + factor * v1, p2 + factor * v2))
+    then TIEdge2 (p, (p1 + factor v1 v2 * v1, p2 + factor v1 v2 * v2))
     else edge
   where
     isIEdge (IEdge2 _) = True
     isIEdge _          = False
-    IEdge2 (p@(p1,p2), v@(v1,v2)) = edge
-    factor = factor2 box p v
+    IEdge2 (p@(p1,p2), (v1,v2)) = edge
+    factor w1 w2 | w1==0 = if w2>0 then (ymax-p2)/w2 else (ymin-p2)/w2
+                 | w2==0 = if w1>0 then (xmax-p1)/w1 else (xmin-p1)/w1
+                 | otherwise = min (factor w1 0) (factor 0 w2)
+    -- factor = factor2 box p v
 
 -- | clip a 2D Voronoi diagram in a bounding box
 clipVoronoi2 :: Box2 -> Voronoi2 -> Voronoi2
