@@ -31,6 +31,9 @@ data Facet = Facet {
   , _fedges    :: EdgeMap
 } deriving Show
 
+instance HasEdges Facet where
+  _edges = _fedges
+
 instance HasVertices Facet where
   _vertices = _fvertices
 
@@ -47,3 +50,6 @@ data ConvexHull = ConvexHull {
   , _hridges   :: IntMap Ridge
   , _hedges    :: EdgeMap
 } deriving Show
+
+instance HasEdges ConvexHull where
+  _edges = _hedges

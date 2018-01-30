@@ -47,5 +47,8 @@ data Tesselation = Tesselation {
     _sites      :: IndexMap Site
   , _tiles      :: IntMap Tile
   , _tilefacets :: IntMap TileFacet
-  , _edges      :: EdgeMap
+  , _edges'     :: EdgeMap
 } deriving Show
+
+instance HasEdges Tesselation where
+  _edges = _edges'

@@ -9,6 +9,7 @@ import qualified Data.HashMap.Strict.InsOrd as H
 import           Data.IntMap.Strict         (fromAscList, (!))
 import qualified Data.IntSet                as IS
 import           Data.List
+import           Data.Maybe
 import           Data.Tuple.Extra           (both, fst3, snd3, thd3, (&&&))
 import           Delaunay.Types
 import           Foreign
@@ -90,7 +91,14 @@ cSiteToSite sites csite = do
                 , _neighfacetsIds = IS.fromAscList neighridges
                 , _neightilesIds  = IS.fromAscList neightiles
                 }
-         , map (\j -> (min id' j, max id' j)) neighsites )
+         , map (\j -> (id', j)) (filterAscList id' neighsites) )
+  where
+    filterAscList :: Int -> [Int] -> [Int]
+    filterAscList n list =
+      let i = findIndex (>n) list in
+      if isJust i
+        then drop (fromJust i) list
+        else []
 
 data CSimplex = CSimplex {
     __sitesids :: Ptr CUInt
@@ -357,7 +365,7 @@ cTesselationToTesselation vertices ctess = do
   subtiles'' <- peekArray nsubtiles (__subtiles ctess)
   sites'     <- mapM (cSiteToSite vertices) sites''
   let sites = fromAscList (map (fst3 &&& snd3) sites')
-      edgesIndices = foldl' union [] (map thd3 sites')
+      edgesIndices = concatMap thd3 sites'
       edges = map (toPair &&& both (_point . ((!) sites))) edgesIndices
   tiles'     <- mapM (cTileToTile vertices) tiles''
   subtiles'  <- mapM (cSubTiletoTileFacet vertices) subtiles''
@@ -365,6 +373,6 @@ cTesselationToTesselation vertices ctess = do
          { _sites      = sites
          , _tiles      = fromAscList tiles'
          , _tilefacets = fromAscList subtiles'
-         , _edges      = H.fromList edges }
+         , _edges'     = H.fromList edges }
   where
     toPair (i,j) = Pair i j

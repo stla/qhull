@@ -36,6 +36,7 @@ library
                      , ConvexHull.R
                      , ConvexHull.Examples
                      , Qhull.Types
+                     , Qhull.Shared
                      , HalfSpaces.LinearCombination
                      , HalfSpaces.Constraint
                      , HalfSpaces.Internal

@@ -2,6 +2,8 @@ module Delaunay.R
   where
 import qualified Data.IntMap.Strict as IM
 import qualified Data.IntSet        as IS
+import qualified Data.HashMap.Strict.InsOrd as H
+import           Data.List
 import           Data.Maybe
 import           Delaunay
 
@@ -32,14 +34,20 @@ delaunay2ForR tess colors =
 -- | R code to plot a 3D Delaunay tesselation
 delaunay3rgl :: Tesselation -> Bool -> Bool -> Bool -> Maybe Double -> String
 delaunay3rgl tess onlyexterior segments colors alpha =
-  let ridges = IM.elems (_tilefacets tess) in
+  let allridges = IM.elems (_tilefacets tess) in
+  let ridges = (if onlyexterior
+                  then filter (not . sandwichedFacet) allridges
+                  else allridges) in
   "library(rgl)\n" ++
   (if colors
     then "colors <- topo.colors(" ++ show (length ridges +1) ++ ", alpha=0.5)\n"
     else "\n") ++
-  concatMap rglRidge (if onlyexterior
-                        then filter (not . sandwichedFacet) ridges
-                        else ridges)
+  concatMap rglRidge ridges ++
+  (if segments
+    then if onlyexterior
+      then concatMap rglSegment (tilefacetsEdges ridges)
+      else concatMap rglSegment (H.elems (_edges tess))
+    else "")
   where
     rglRidge :: TileFacet -> String
     rglRidge ridge =
@@ -55,19 +63,20 @@ delaunay3rgl tess onlyexterior segments colors alpha =
       (if isJust alpha
         then ", alpha=" ++ show (fromJust alpha) ++ ")\n"
         else ")\n")
-      ++
-      if segments
-        then
-          "segments3d(rbind(c" ++ show (pts!!0) ++
-          ", c" ++ show (pts!!1) ++
-          "), color=\"black\")\n" ++
-          "segments3d(rbind(c" ++ show (pts!!1) ++
-          ", c" ++ show (pts!!2) ++
-          "), color=\"black\")\n" ++
-          "segments3d(rbind(c" ++ show (pts!!2) ++
-          ", c" ++ show (pts!!0) ++
-          "), color=\"black\")\n"
-        else "\n"
       where
         pts = map (\p -> (p!!0,p!!1,p!!2))
                   (IM.elems $ _vertices $ _subsimplex ridge)
+    rglSegment :: ([Double], [Double]) -> String
+    rglSegment (p1, p2) =
+      "segments3d(rbind(c" ++ show p1' ++ ", c" ++ show p2' ++
+      "), color=\"black\")\n"
+      where
+        p1' = (p1!!0, p1!!1, p1!!2)
+        p2' = (p2!!0, p2!!1, p2!!2)
+    tilefacetsEdges :: [TileFacet] -> [([Double], [Double])]
+    tilefacetsEdges tilefacets = foldl' union [] (map tilefacetEdges tilefacets)
+      where
+        tilefacetEdges :: TileFacet -> [([Double], [Double])]
+        tilefacetEdges tilefacet = [(v!!0,v!!1),(v!!1,v!!2),(v!!2,v!!0)]
+          where
+            v = IM.elems $ _vertices $ _subsimplex tilefacet

@@ -35,3 +35,6 @@ class HasNormal m where
 
 class HasVertices m where
   _vertices :: m -> IndexMap [Double]
+
+class HasEdges m where
+  _edges :: m -> EdgeMap

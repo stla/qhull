@@ -8,7 +8,6 @@ import qualified Data.HashMap.Strict.InsOrd as H
 import qualified Data.IntMap.Strict         as IM
 import           Data.List
 import           Data.List.Unique           (allUnique)
-import           Data.Maybe
 import           Data.Tuple.Extra           (both)
 import           Foreign.C.String
 import           Foreign.C.Types
@@ -76,18 +75,6 @@ hullSummary hull =
                           (nubBy sameFamily (map _family $ IM.elems facets))
     families = show nf1 ++ " single, " ++
                show nf2 ++ if nf2>1 then " families" else " family"
-
--- | whether a pair of vertices form an edge of the hull
-isEdge :: ConvexHull -> (Index, Index) -> Bool
-isEdge hull (i,j) = Pair i j `H.member` _hedges hull
-
--- | edge as pair of points
-toPoints :: ConvexHull -> (Index, Index) -> Maybe ([Double], [Double])
-toPoints hull (i,j) = H.lookup (Pair i j) (_hedges hull)
-
--- | edge as pair of points, without checking the edge exists
-toPoints' :: ConvexHull -> (Index, Index) -> ([Double], [Double])
-toPoints' hull (i,j) = fromJust $ toPoints hull (i,j)
 
 -- | vertices of a convex hull
 hullVertices :: ConvexHull -> [[Double]]

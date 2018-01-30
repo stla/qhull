@@ -3,4 +3,5 @@ module Delaunay
   where
 import           Delaunay.Delaunay as X
 import           Delaunay.Types    as X
+import           Qhull.Shared      as X
 import           Qhull.Types       as X
