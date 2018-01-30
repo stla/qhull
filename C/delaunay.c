@@ -100,6 +100,7 @@ TesselationT* tesselation(
     }
 
   	{ /* facets ids, orientations, centers, normals, offsets, sites ids, neighbors */
+      qh_vertexneighbors(qh);
       facetT* facet;
       unsigned i_facet = 0; /* facet counter */
       FORALLfacets {
@@ -109,10 +110,11 @@ TesselationT* tesselation(
         if(allfacets[i_facet].simplex.volume <= 0){
           if(facet->tricoplanar){
             unsigned ok = 0;
+            vertexT* apex = (vertexT*)facet->vertices->e[0].p;
             facetT *neighbor, **neighborp;
-            FOREACHneighbor_(facet){
+            FOREACHneighbor_(apex){
               if(facetOK_(neighbor,degenerate) &&
-                 neighbor->f.triowner->id == allfacets[i_facet].family &&
+                 allfacets[neighbor->id].family == allfacets[i_facet].family &&
                  allfacets[neighbor->id].simplex.volume > 0)
               {
                 allfacets[i_facet].simplex.center = allfacets[neighbor->id].simplex.center;
@@ -121,9 +123,11 @@ TesselationT* tesselation(
               }
             }
             if(!ok){
+              printf("notok - facet %u - volume %f\n", i_facet, allfacets[i_facet].simplex.volume);
               allfacets[i_facet].simplex.center = nanvector(dim);
             }
           }else{
+            printf("not tricoplanar - facet %u - volume %f\n", i_facet, allfacets[i_facet].simplex.volume);
             allfacets[i_facet].simplex.center = nanvector(dim);
           }
         }
@@ -522,6 +526,7 @@ TesselationT* tesselation(
 	qh_freeqhull(qh, !qh_ALL);                  /* free long memory */
 	qh_memfreeshort(qh, &curlong, &totlong);   /* free short memory and memory allocator */
 
+  printf("RETURN\n");
   if(*exitcode){
     free(out);
     return 0;

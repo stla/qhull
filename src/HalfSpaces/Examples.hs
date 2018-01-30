@@ -28,7 +28,7 @@ rggConstraints =
 
 region3D :: [Constraint]
 region3D =
-  [ x .>=  0
+  [ x .>=  0 -- shortcut for x .>=. cst 0
   , x .<=  3
   , y .>=  0
   , y .<=. cst 2 ^-^ (2%3)*^x

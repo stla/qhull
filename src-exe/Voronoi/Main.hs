@@ -38,14 +38,16 @@ main = do
       x3 = [[cos (a*2*pi/100), sin (a*2*pi/100), 0] | a <- [0 .. 99]]
   tess <- delaunay (nub $ x1 ++ x2 ++ x3 ++ map (map (/5)) cube3) False True
 --  let code = delaunay3rgl tess False True True (Just 0.5)
-  pPrint $ IM.filter (\c -> head c == -10.101) (IM.map (_circumcenter . _simplex) (_tiles tess))
-  pPrint $ IM.filterWithKey (\k _ -> k `elem` [392 .. 397]) (_tiles tess)
+  pPrint $ IM.filter (isNaN . head) (IM.map (_circumcenter . _simplex) (_tiles tess))
+  -- pPrint $ IM.filterWithKey (\k _ -> k `elem` [459, 460, 464]) (_tiles tess)
+  -- pPrint $ IM.filter (\tile -> family tile == Family 460) (_tiles tess)
   let v = voronoi3 tess
       v' = filter (\(_,cell) -> not (null cell)) v
 --      v' = restrictVoronoi3box' ((-2,2),(-2,2),(-2,2)) v
       v'' = clipVoronoi3 ((-1,1),(-1,1),(-1,1)) v'
   code <- voronoi3ForRgl' v'' Nothing
   writeFile "rgl/voronoi_twoCircles04.R" code
+  putStrLn "done"
 
 --   let x1 = let b=0 in
 --             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
