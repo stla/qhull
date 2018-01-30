@@ -1,20 +1,8 @@
 module ConvexHull.Types
   where
-import           Data.Hashable
-import           Data.HashMap.Strict.InsOrd (InsOrdHashMap)
 import           Data.IntMap.Strict         (IntMap)
 import           Data.IntSet                (IntSet)
 import           Qhull.Types
-
-data IndexPair = Pair Index Index
-  deriving (Show, Read)
-instance Eq IndexPair where
-    Pair i j == Pair i' j' = (i == i' && j == j') || (i == j' && j == i')
-
-instance Hashable IndexPair where
-  hashWithSalt _ (Pair i j) = (i+j)*(i+j+1) + 2 * min i j
-
-type EdgeMap = InsOrdHashMap IndexPair ([Double],[Double])
 
 data Vertex = Vertex {
     _point         :: [Double]
@@ -28,20 +16,30 @@ data Ridge = Ridge {
   , _ridgeOf   :: IntSet
 } deriving Show
 
+instance HasVertices Ridge where
+  _vertices = _rvertices
+
 data Facet = Facet {
     _fvertices :: IndexMap [Double]
   , _fridges   :: IntMap Ridge
   , _centroid  :: [Double]
-  , _normal    :: [Double]
-  , _offset    :: Double
+  , _normal'   :: [Double]
+  , _offset'   :: Double
   , _area      :: Double
   , _neighbors :: IntSet
-  , _family    :: Family
+  , _family'   :: Family
   , _fedges    :: EdgeMap
 } deriving Show
 
+instance HasVertices Facet where
+  _vertices = _fvertices
+
+instance HasNormal Facet where
+  _normal = _normal'
+  _offset = _offset'
+
 instance HasFamily Facet where
-  family = _family
+  _family = _family'
 
 data ConvexHull = ConvexHull {
     _hvertices :: IndexMap Vertex

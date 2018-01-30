@@ -52,7 +52,7 @@ delaunay sites atinfinity degenerate = do
 
 -- | vertices ids of a tile facet
 facetVertices :: TileFacet -> IndexSet
-facetVertices = IS.fromAscList . IM.keys . _points . _subsimplex
+facetVertices = IS.fromAscList . IM.keys . _vertices . _subsimplex
 
 -- | tile facets a vertex belongs to, vertex given by its index;
 -- the output is the empty map if the index is not valid

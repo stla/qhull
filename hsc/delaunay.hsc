@@ -3,14 +3,16 @@ module Delaunay.CDelaunay
   ( cTesselationToTesselation
   , c_tesselation )
   where
-import           Control.Monad       ((<$!>))
+import           Control.Monad              ((<$!>))
+import qualified Data.HashMap.Strict.InsOrd as H
+import           Data.IntMap.Strict         (fromAscList, (!))
+import qualified Data.IntSet                as IS
+import           Data.List
+import           Data.Tuple.Extra           (both, fst3, snd3, thd3, (&&&))
 import           Delaunay.Types
-import           Data.IntMap.Strict  (fromAscList)
-import qualified Data.IntSet         as IS
--- import qualified Data.HashMap.Strict as H
 import           Foreign
 import           Foreign.C.Types
-import           Qhull.Types (Family(..))
+import           Qhull.Types
 
 #include "delaunay.h"
 
@@ -53,7 +55,7 @@ instance Storable CSite where
           #{poke SiteT, neightiles} ptr r6
           #{poke SiteT, nneightiles} ptr r7
 
-cSiteToSite :: [[Double]] -> CSite -> IO (Int, Site)
+cSiteToSite :: [[Double]] -> CSite -> IO (Int, Site, [(Int,Int)])
 cSiteToSite sites csite = do
   let id'          = fromIntegral $ __id csite
       nneighsites  = fromIntegral $ __nneighsites csite
@@ -66,12 +68,14 @@ cSiteToSite sites csite = do
                         (peekArray nneighridges (__neighridgesids csite))
   neightiles <- (<$!>) (map fromIntegral)
                        (peekArray nneightiles (__neightiles csite))
-  return (id', Site {
-                      _point          = point
-                    , _neighsitesIds  = IS.fromAscList neighsites
-                    , _neighfacetsIds = IS.fromAscList neighridges
-                    , _neightilesIds  = IS.fromAscList neightiles
-                  })
+  return ( id'
+         , Site {
+                  _point          = point
+                , _neighsitesIds  = IS.fromAscList neighsites
+                , _neighfacetsIds = IS.fromAscList neighridges
+                , _neightilesIds  = IS.fromAscList neightiles
+                }
+         , map (\j -> (min id' j, max id' j)) neighsites )
 
 data CSimplex = CSimplex {
     __sitesids :: Ptr CUInt
@@ -110,7 +114,7 @@ cSimplexToSimplex sites simplexdim csimplex = do
   let points = fromAscList
                (zip sitesids (map ((!!) sites) sitesids))
   center <- (<$!>) (map cdbl2dbl) (peekArray dim (__center csimplex))
-  return Simplex { _points       = points
+  return Simplex { _vertices'    = points
                  , _circumcenter = center
                  , _circumradius = radius
                  , _volume       = volume }
@@ -165,8 +169,8 @@ cSubTiletoTileFacet points csubtile = do
   normal <- (<$!>) (map realToFrac) (peekArray dim (__normal csubtile))
   return (id', TileFacet { _subsimplex = simplex
                          , _facetOf    = IS.fromAscList ridgeOf
-                         , _normal     = normal
-                         , _offset     = offset })
+                         , _normal'    = normal
+                         , _offset'    = offset })
 
 data CTile = CTile {
     __id'' :: CUInt
@@ -228,7 +232,7 @@ cTileToTile points ctile = do
   return (id', Tile {  _simplex      = simplex
                      , _neighborsIds = IS.fromAscList neighbors
                      , _facetsIds    = IS.fromAscList ridgesids
-                     , _family       = if family == -1
+                     , _family'      = if family == -1
                                         then None
                                         else Family (fromIntegral family)
                      , _toporiented  = orient == 1 })
@@ -275,17 +279,23 @@ foreign import ccall unsafe "tesselation" c_tesselation
   -> IO (Ptr CTesselation)
 
 cTesselationToTesselation :: [[Double]] -> CTesselation -> IO Tesselation
-cTesselationToTesselation sites ctess = do
+cTesselationToTesselation vertices ctess = do
   let ntiles    = fromIntegral $ __ntiles ctess
       nsubtiles = fromIntegral $ __nsubtiles ctess
-      nsites    = length sites
+      nsites    = length vertices
   sites''    <- peekArray nsites (__sites ctess)
   tiles''    <- peekArray ntiles (__tiles ctess)
   subtiles'' <- peekArray nsubtiles (__subtiles ctess)
-  sites'     <- mapM (cSiteToSite sites) sites''
-  tiles'     <- mapM (cTileToTile sites) tiles''
-  subtiles'  <- mapM (cSubTiletoTileFacet sites) subtiles''
+  sites'     <- mapM (cSiteToSite vertices) sites''
+  let sites = fromAscList (map (fst3 &&& snd3) sites')
+      edgesIndices = foldl' union [] (map thd3 sites')
+      edges = map (toPair &&& both (_point . ((!) sites))) edgesIndices
+  tiles'     <- mapM (cTileToTile vertices) tiles''
+  subtiles'  <- mapM (cSubTiletoTileFacet vertices) subtiles''
   return Tesselation
-         { _sites      = fromAscList sites'
+         { _sites      = sites
          , _tiles      = fromAscList tiles'
-         , _tilefacets = fromAscList subtiles' }
+         , _tilefacets = fromAscList subtiles'
+         , _edges      = H.fromList edges }
+  where
+    toPair (i,j) = Pair i j

@@ -15,7 +15,7 @@ import           Data.Tuple.Extra           (both)
 import           Foreign
 import           Foreign.C.String
 import           Foreign.C.Types
-import           Qhull.Types                (Family (..))
+import           Qhull.Types
 
 data CVertex = CVertex {
     __id    :: CUInt
@@ -316,11 +316,11 @@ cFaceToFace dim cface = do
   return Facet { _fvertices = vertices
                , _fridges   = IM.fromAscList ridges
                , _centroid  = center
-               , _normal    = normal
-               , _offset    = offset
+               , _normal'    = normal
+               , _offset'    = offset
                , _area      = area
                , _neighbors = IS.fromAscList neighbors
-               , _family    = if family == -1 then None else Family family
+               , _family'    = if family == -1 then None else Family family
                , _fedges    = edges }
 
 data CConvexHull = CConvexHull {

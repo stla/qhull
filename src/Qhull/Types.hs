@@ -1,11 +1,23 @@
 module Qhull.Types
   where
-import           Data.IntMap.Strict  (IntMap)
-import           Data.IntSet         (IntSet)
+import           Data.Hashable
+import           Data.HashMap.Strict.InsOrd (InsOrdHashMap)
+import           Data.IntMap.Strict         (IntMap)
+import           Data.IntSet                (IntSet)
 
 type Index = Int
 type IndexMap = IntMap
 type IndexSet = IntSet
+
+data IndexPair = Pair Index Index
+  deriving (Show, Read)
+instance Eq IndexPair where
+    Pair i j == Pair i' j' = (i == i' && j == j') || (i == j' && j == i')
+
+instance Hashable IndexPair where
+  hashWithSalt _ (Pair i j) = (i+j)*(i+j+1) + 2 * min i j
+
+type EdgeMap = InsOrdHashMap IndexPair ([Double],[Double])
 
 data Family = Family Int | None
      deriving (Show, Read, Eq)
@@ -15,4 +27,11 @@ sameFamily (Family i) (Family j) = i == j
 sameFamily _ _ = False
 
 class HasFamily m where
-  family :: m -> Family
+  _family :: m -> Family
+
+class HasNormal m where
+  _normal :: m -> [Double]
+  _offset :: m -> Double
+
+class HasVertices m where
+  _vertices :: m -> IndexMap [Double]

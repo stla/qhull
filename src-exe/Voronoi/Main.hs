@@ -28,6 +28,17 @@ import           Voronoi3D
 -- connectedVertices cell [x1,x2] [y1,y2] =
 --   (Edge2 ((x1,x2),(y1,y2)) `elem` cell) || (Edge2 ((y1,y2),(x1,x2)) `elem` cell)
 
+-- distance :: [Double] -> [Double] -> Double
+-- distance p1 p2 = sum (zipWith (\x y -> (subtract x y)^2) p1 p2)
+--
+-- checkTile :: Tile -> [Double]
+-- checkTile tile = map (distance center) vertices
+--   where
+--     simplex = _simplex tile
+--     center = _circumcenter simplex
+--     vertices = IM.elems (_points simplex)
+
+
 main :: IO ()
 main = do
 
@@ -40,7 +51,7 @@ main = do
 --  let code = delaunay3rgl tess False True True (Just 0.5)
   pPrint $ IM.filter (isNaN . head) (IM.map (_circumcenter . _simplex) (_tiles tess))
   -- pPrint $ IM.filterWithKey (\k _ -> k `elem` [459, 460, 464]) (_tiles tess)
-  -- pPrint $ IM.filter (\tile -> family tile == Family 460) (_tiles tess)
+  -- pPrint $ IM.map checkTile (IM.filter (\tile -> _volume (_simplex tile) == 0) (_tiles tess))
   let v = voronoi3 tess
       v' = filter (\(_,cell) -> not (null cell)) v
 --      v' = restrictVoronoi3box' ((-2,2),(-2,2),(-2,2)) v

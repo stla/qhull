@@ -9,7 +9,7 @@ import           Delaunay
 delaunay2ForR :: Tesselation -> Bool -> String
 delaunay2ForR tess colors =
   let tiles = IM.elems (_tiles tess) in
-  "plot(0, 0, type=\"n\", xlim=c(0,5), ylim=c(0,5)) # please set the limits\n" ++ 
+  "plot(0, 0, type=\"n\", xlim=c(0,5), ylim=c(0,5)) # please set the limits\n" ++
   (if colors
     then "colors <- heat.colors(" ++ show (length tiles + 1) ++ ", alpha=0.5)\n"
     else "\n") ++
@@ -18,7 +18,7 @@ delaunay2ForR tess colors =
     triangle :: (Int, Tile) -> String
     triangle (i, tile) =
       let pts = map (\p -> [p!!0,p!!1,p!!2])
-                (IM.elems $ _points $ _simplex tile)
+                (IM.elems $ _vertices $ _simplex tile)
       in
       "polygon(c(" ++ show (pts!!0!!0) ++ ", " ++ show (pts!!1!!0) ++
                       ", " ++ show (pts!!2!!0) ++ "), "
@@ -70,4 +70,4 @@ delaunay3rgl tess onlyexterior segments colors alpha =
         else "\n"
       where
         pts = map (\p -> (p!!0,p!!1,p!!2))
-                  (IM.elems $ _points $ _subsimplex ridge)
+                  (IM.elems $ _vertices $ _subsimplex ridge)

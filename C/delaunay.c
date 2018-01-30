@@ -62,7 +62,7 @@ TesselationT* tesselation(
     /* Initialize the tiles */
     TileT* allfacets = malloc(nfacets * sizeof(TileT));
 
-    { /* tiles families, and centers of the owners */
+    { /* tiles families and volumes, and centers of tiles with >0 volume */
       facetT* facet;
       unsigned i_facet = 0;
       FORALLfacets{
@@ -90,7 +90,7 @@ TesselationT* tesselation(
         if(facet->degenerate){
           allfacets[i_facet].simplex.volume = 0;
         }else{
-          allfacets[i_facet].simplex.volume = qh_facetarea(qh, facet);
+          allfacets[i_facet].simplex.volume = fmax(0, qh_facetarea(qh, facet));
         }
         if(allfacets[i_facet].simplex.volume > 0){
           allfacets[i_facet].simplex.center = qh_facetcenter(qh, facet->vertices);
@@ -99,15 +99,14 @@ TesselationT* tesselation(
       }
     }
 
-  	{ /* facets ids, orientations, centers, normals, offsets, sites ids, neighbors */
-      qh_vertexneighbors(qh);
+  	{ /* facets ids, orientations, centers, sites ids, neighbors */
       facetT* facet;
       unsigned i_facet = 0; /* facet counter */
       FORALLfacets {
         allfacets[i_facet].id             = facet->id;
         allfacets[i_facet].orientation    = facet->toporient ? 1 : -1;
         /* center and circumradius */
-        if(allfacets[i_facet].simplex.volume <= 0){
+        if(allfacets[i_facet].simplex.volume == 0){
           if(facet->tricoplanar){
             unsigned ok = 0;
             vertexT* apex = (vertexT*)facet->vertices->e[0].p;
@@ -122,12 +121,10 @@ TesselationT* tesselation(
                 break;
               }
             }
-            if(!ok){
-              printf("notok - facet %u - volume %f\n", i_facet, allfacets[i_facet].simplex.volume);
+            if(!ok){ /* should not happen */
               allfacets[i_facet].simplex.center = nanvector(dim);
             }
-          }else{
-            printf("not tricoplanar - facet %u - volume %f\n", i_facet, allfacets[i_facet].simplex.volume);
+          }else{ /* should not happen */
             allfacets[i_facet].simplex.center = nanvector(dim);
           }
         }
