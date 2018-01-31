@@ -48,7 +48,7 @@ main = do
   -- pPrint $ map (\(_,cell) -> length cell) (restrictVoronoi3 v)
   summaryVoronoi3 (roundVoronoi3 10 (restrictVoronoi3 v))
   code <- voronoi3ForRgl' v (Just 10) Nothing
-  writeFile "rgl/voronoi_truncatedTesseract01.R" code
+  writeFile "rgl/voronoi_truncatedTesseract02.R" code
 
 --   let x1 = let b=0 in
 --             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]

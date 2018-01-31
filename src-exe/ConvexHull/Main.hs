@@ -16,13 +16,18 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull truncatedTesseract False False Nothing
+  h <- convexHull nonConvexPolyhedron False False Nothing
   putStrLn $ hullSummary h
-  let edges = H.keys (_edges h)
-  let f (Pair i j) = printf "coolsegment3d(rbind(x[%d,],x[%d,]))\n" (i+1) (j+1)
-  let code = map f edges
-  pPrint $ verticesCoordinates h
-  putStrLn $ concat code
+  --code <- convexHull3DrglCode nonConvexPolyhedron True (Just "rgl/convexhull_nonConvexPolyhedron.R")
+  putStrLn "done"
+
+  -- h <- convexHull truncatedTesseract False False Nothing
+  -- putStrLn $ hullSummary h
+  -- let edges = H.keys (_edges h)
+  -- let f (Pair i j) = printf "coolsegment3d(rbind(x[%d,],x[%d,]))\n" (i+1) (j+1)
+  -- let code = map f edges
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn $ concat code
 
   -- points <- randomInCube 100
   -- hull <- convexHull points False False Nothing

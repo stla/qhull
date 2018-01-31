@@ -138,6 +138,16 @@ projectedTruncatedTesseract =
       x5 = 2*(1 + sqrt 2) / (sqrt(1 + 3*(1 + sqrt 2)^2) - 1) -- 1.46
       x6 = 2*(1 + sqrt 2) / (sqrt(1 + 3*(1 + sqrt 2)^2) + 1) -- 0.91
 
+nonConvexPolyhedron :: [[Double]]
+nonConvexPolyhedron =
+  [[i*x, j*x, k*x] | i <- [-1,1], j <- [-1,1], k <- [-1,1]] ++
+  [[i*y, 0, 0] | i <- [-1,1]] ++
+  [[0, j*y, 0] | j <- [-1,1]] ++
+  [[0, 0, k*y] | k <- [-1,1]]
+  where x = 2.1806973249
+        y = 3.5617820682
+-- tetrehdra: (i 2.18, j 2.18, k 2.18), (i 3.56, 0, 0), (0, j 3.56, 0), (0, 0, k 3.56)
+
 dodecahedron :: [[Double]]
 dodecahedron = let phi = (1 + sqrt 5)/2 in
                [[0,i,j] | i <- [-1,1], j <- [-phi, phi]] ++

@@ -6,17 +6,13 @@ import           Delaunay
 import           Delaunay.R
 import           System.IO
 import           Text.Show.Pretty
-import ConvexHull
 
 main :: IO ()
 main = do
 
-  tess <- delaunay rgg False False Nothing
-  let f1 = _tiles tess IM.! 1
-  hull <- convexHull rgg False False Nothing
-  let f2 = _hfacets hull IM.! 1
-  pPrint $ _family f1
-  pPrint $ _family f2
+  tess <- delaunay nonConvexPolyhedron False False Nothing
+  let code = delaunaySpheres tess
+  writeFile "rgl/delaunay_spheres_nonConvexPolyhedron.R" code
 
   -- x <- randomInSphere 100
   -- tess <- delaunay x False

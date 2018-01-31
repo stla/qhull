@@ -25,6 +25,7 @@ The `delaunay` function splits the polyhedron into simplices, the tiles of the
 tesselation:
 
 ```haskell
+> import Delaunay
 > d <- delaunay vertices False False
 > _tiles d
 fromList
@@ -427,3 +428,31 @@ fromList
 ```
 
 [![convexhull02.gif](https://s17.postimg.org/zbl78b1bz/convexhull02.gif)](https://postimg.org/image/80zw0dyez/)
+
+
+## Halfspaces intersections
+
+![equation](http://latex.codecogs.com/gif.latex?0%5Cleq%20x%5Cleq%203,%5Cquad%20%200%5Cleq%20y%5Cleq%202-%5Cfrac%7B2%7D%7B3%7Dx,%5Cquad%200%5Cleq%20z%5Cleq%206-2x-3y)
+
+```haskell
+import HalfSpaces
+import Data.Ratio ((%))
+x = newVar 1
+y = newVar 2
+z = newVar 3
+constraints =
+  [ x .>=  0 -- shortcut for x .>=. cst 0
+  , x .<=  3
+  , y .>=  0
+  , y .<=. cst 2 ^-^ (2%3)*^x
+  , z .>=  0
+  , z .<=. cst 6 ^-^ 2*^x ^-^ 3*^y ]
+```
+
+```haskell
+> hsintersections constraints False
+[ [ -1.1102230246251565e-16 , -1.1102230246251565e-16 , 6.0 ]
+, [ 0.0 , 2.0 , 0.0 ]
+, [ 0.0 , 0.0 , 0.0 ]
+, [ 3.0 , 0.0 , 0.0 ] ]
+```

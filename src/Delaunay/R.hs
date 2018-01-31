@@ -1,12 +1,13 @@
 module Delaunay.R
   where
-import qualified Data.IntMap.Strict as IM
-import qualified Data.IntSet        as IS
 import qualified Data.HashMap.Strict.InsOrd as H
+import qualified Data.IntMap.Strict         as IM
+import qualified Data.IntSet                as IS
 import           Data.List
+import           Data.List.Index            (iconcatMap)
 import           Data.Maybe
 import           Delaunay
-import           Qhull.Shared
+import           Text.Printf
 
 -- | R code to plot a 2D Delaunay tesselation
 delaunay2ForR :: Tesselation -> Bool -> String
@@ -32,6 +33,7 @@ delaunay2ForR tess colors =
                      else "col=\"lightblue\")\n")
 
 -- | R code to plot a 3D Delaunay tesselation
+-- TODO: exterior interior
 delaunay3rgl :: Tesselation -> Bool -> Bool -> Bool -> Maybe Double -> String
 delaunay3rgl tess onlyexterior segments colors alpha =
   let allridges = IM.elems (_tilefacets tess) in
@@ -79,3 +81,18 @@ delaunay3rgl tess onlyexterior segments colors alpha =
         tilefacetEdges tilefacet = [(v!!0,v!!1),(v!!1,v!!2),(v!!2,v!!0)]
           where
             v = verticesCoordinates tilefacet
+
+delaunaySpheres :: Tesselation -> String
+delaunaySpheres tess =
+  let tiles = IM.elems (_tiles tess) in
+  "library(rgl)\n" ++
+  printf "colors <- rainbow(%d)\n" (length tiles) ++
+  iconcatMap rglSphere tiles
+  where
+    rglSphere :: Int -> Tile -> String
+    rglSphere i tile =
+      printf "spheres3d(%f, %f, %f, radius=%f, color=colors[%d], alpha=0.75)\n"
+             (c!!0) (c!!1) (c!!2) r (i+1)
+      where
+        c = _center tile
+        r = _circumradius (_simplex tile)
