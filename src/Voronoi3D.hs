@@ -12,7 +12,9 @@ module Voronoi3D
  , restrictVoronoi3
  , restrictVoronoi3'
  , restrictVoronoi3box
- , restrictVoronoi3box')
+ , restrictVoronoi3box'
+ , roundVoronoi3
+ , module Voronoi.Shared)
   where
 import           Control.Arrow    (second)
 import           Control.Monad    (liftM2)
@@ -22,13 +24,21 @@ import           Data.Tuple.Extra (both)
 import           Delaunay.Types
 import           Qhull.Types
 import           Text.Show.Pretty (ppShow)
+import           Voronoi.Shared
 import           Voronoi.Voronoi
 
 type Point3 = (Double, Double, Double)
 type Vector3 = (Double, Double, Double)
+
 data Edge3 = Edge3 (Point3, Point3) | IEdge3 (Point3, Vector3)
              | TIEdge3 (Point3, Point3)
-              deriving (Show, Eq)
+              deriving (Show)
+instance Eq Edge3 where
+  Edge3 (x,y) == Edge3 (x',y') = (x == x' && y == y') || (x == y') && (y == x')
+  IEdge3 (x,v) == IEdge3 (x',v') = x == x' && v == v'
+  TIEdge3 (x,y) == TIEdge3 (x',y') = x == x' && y == y'
+  _ == _ = False
+
 type Cell3 = [Edge3]
 type Voronoi3 = [([Double], Cell3)]
 type Box3 = ((Double, Double), (Double, Double), (Double, Double))
@@ -39,7 +49,7 @@ prettyShowVoronoi3 v m = do
   let ntotal = show $ length v
   let boundedDiagram = restrictVoronoi3 v
   let nbounded = show $ length boundedDiagram
-  let ndegenerate = show $ length $ filterVoronoi3 null boundedDiagram
+  let ndegenerate = show $ length $ filterVoronoi null boundedDiagram
   let string = intercalate "\n---\n" (map (prettyShowCell3 m) v)
   let footer = "Voronoi diagram with " ++ ntotal ++ " cells, including " ++
                nbounded ++ " bounded and " ++ ndegenerate ++ " degenerate."
@@ -90,6 +100,21 @@ voronoiCell3 = voronoiCell (nubBy equalFacets) edgeToEdge3
 voronoi3 :: Tesselation -> Voronoi3
 voronoi3 = voronoi voronoiCell3
 
+-- |
+roundVoronoi3 :: Int -> Voronoi3 -> Voronoi3
+roundVoronoi3 n = map (second roundCell3)
+  where
+    roundCell3 :: Cell3 -> Cell3
+    roundCell3 cell = nub $ map roundEdge3 cell
+    roundEdge3 :: Edge3 -> Edge3
+    roundEdge3 (Edge3 (x,y)) = Edge3 (approx n x, approx n y)
+    roundEdge3 (IEdge3 (x,v)) = IEdge3 (approx n x, approx n v)
+    roundEdge3 (TIEdge3 (x,y)) = TIEdge3 (approx n x, y)
+    approx :: Int -> (Double, Double, Double) -> (Double, Double, Double)
+    approx m (a,b,c) =
+      asTriplet $ map (\x -> fromInteger (round $ x*(10^m)) / (10.0^^m)) [a,b,c]
+
+
 -- | whether a 3D Voronoi cell is bounded
 boundedCell3 :: Cell3 -> Bool
 boundedCell3 = all isFiniteEdge
@@ -107,26 +132,23 @@ cell3inBox ((xmin,xmax), (ymin, ymax), (zmin,zmax)) cell =
     edgeInBox (Edge3 (p1,p2)) = tripletInBox p1 && tripletInBox p2
     edgeInBox _               = False
 
-filterVoronoi3 :: (Cell3 -> Bool) -> Voronoi3 -> Voronoi3
-filterVoronoi3 cellTester = filter (\(_, cell) -> cellTester cell)
-
 -- | restrict a 3D Voronoi diagram to its bounded cells
 restrictVoronoi3 :: Voronoi3 -> Voronoi3
-restrictVoronoi3 = filterVoronoi3 boundedCell3
+restrictVoronoi3 = filterVoronoi boundedCell3
 
 -- | restrict a 3D Voronoi diagram to its nondegenerate bounded cells
 restrictVoronoi3' :: Voronoi3 -> Voronoi3
-restrictVoronoi3' = filterVoronoi3 (liftM2 (&&) boundedCell3 (not . null))
+restrictVoronoi3' = filterVoronoi (liftM2 (&&) boundedCell3 (not . null))
 --                    (\cell -> boundedCell3 cell && not (null cell))
 
 -- | restrict a 3D Voronoi diagram to the cells contained in a box
 restrictVoronoi3box :: Box3 -> Voronoi3 -> Voronoi3
-restrictVoronoi3box box = filterVoronoi3 (cell3inBox box)
+restrictVoronoi3box box = filterVoronoi (cell3inBox box)
 
 -- | restrict a 3D Voronoi diagram to the nondegenerate cells contained in a box
 restrictVoronoi3box' :: Box3 -> Voronoi3 -> Voronoi3
 restrictVoronoi3box' box =
-  filterVoronoi3 (not . null) . restrictVoronoi3box box
+  filterVoronoi (not . null) . restrictVoronoi3box box
 
 -- | vertices of a bounded 3D cell
 cell3Vertices :: Cell3 -> [[Double]]

@@ -87,13 +87,14 @@ TesselationT* tesselation(
         }else{
           allfacets[i_facet].family = -1;
         }
-        if(facet->degenerate){
+        if(facet->degenerate){ // ?
           allfacets[i_facet].simplex.volume = 0;
         }else{
           allfacets[i_facet].simplex.volume = fmax(0, qh_facetarea(qh, facet));
         }
-        if(allfacets[i_facet].simplex.volume > 0){
-          allfacets[i_facet].simplex.center = qh_facetcenter(qh, facet->vertices);
+        if(allfacets[i_facet].simplex.volume > 1e-16){
+          allfacets[i_facet].simplex.center =
+            qh_facetcenter(qh, facet->vertices);
         }
         i_facet++;
       }
@@ -106,7 +107,7 @@ TesselationT* tesselation(
         allfacets[i_facet].id             = facet->id;
         allfacets[i_facet].orientation    = facet->toporient ? 1 : -1;
         /* center and circumradius */
-        if(allfacets[i_facet].simplex.volume == 0){
+        if(allfacets[i_facet].simplex.volume < 1e-16){
           if(facet->tricoplanar){
             unsigned ok = 0;
             vertexT* apex = (vertexT*)facet->vertices->e[0].p;
@@ -114,9 +115,10 @@ TesselationT* tesselation(
             FOREACHneighbor_(apex){
               if(facetOK_(neighbor,degenerate) &&
                  allfacets[neighbor->id].family == allfacets[i_facet].family &&
-                 allfacets[neighbor->id].simplex.volume > 0)
+                 allfacets[neighbor->id].simplex.volume > 1e-16)
               {
-                allfacets[i_facet].simplex.center = allfacets[neighbor->id].simplex.center;
+                allfacets[i_facet].simplex.center =
+                  allfacets[neighbor->id].simplex.center;
                 ok = 1;
                 break;
               }

@@ -3,9 +3,11 @@ module Main
 import           ConvexHull
 import           ConvexHull.Examples
 import           ConvexHull.R
+import qualified Data.HashMap.Strict.InsOrd as H
 import           Data.List
-import qualified Data.Set            as S
+import qualified Data.Set                   as S
 import           System.IO
+import           Text.Printf
 import           Text.Show.Pretty
 
 approx :: RealFrac a => Int -> a -> a
@@ -14,11 +16,19 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  points <- randomInCube 100
-  hull <- convexHull points False False Nothing
-  pPrint $ _hfacets hull
-  pPrint $ _hedges hull
-  pPrint $ _hvertices hull
+  h <- convexHull truncatedTesseract False False Nothing
+  putStrLn $ hullSummary h
+  let edges = H.keys (_edges h)
+  let f (Pair i j) = printf "coolsegment3d(rbind(x[%d,],x[%d,]))\n" (i+1) (j+1)
+  let code = map f edges
+  pPrint $ verticesCoordinates h
+  putStrLn $ concat code
+
+  -- points <- randomInCube 100
+  -- hull <- convexHull points False False Nothing
+  -- pPrint $ _hfacets hull
+  -- pPrint $ _hedges hull
+  -- pPrint $ _hvertices hull
 
   -- code <- convexHull3DrglCode teapot True (Just "rgl/convexhull_teapot.R")
   -- putStrLn "done"

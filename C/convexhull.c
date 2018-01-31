@@ -80,6 +80,10 @@ void appendv(VertexT x, VertexT** array, unsigned length, unsigned* flag){
   }
   if(*flag == 1){
     *array = realloc(*array, (length+1) * sizeof(VertexT));
+    if(*array == NULL){
+      printf("realloc failure - exiting\n");
+      exit(1);
+    }
     *(*array + length) = x;
   }
 }
@@ -159,6 +163,10 @@ RidgeT* allRidges(FaceT *faces, unsigned nfaces, unsigned dim, unsigned* length)
       }
       if(count == n){
         out          = realloc(out, (*length+1) * sizeof(RidgeT));
+        if(out == NULL){
+          printf("realloc failure - exiting\n");
+          exit(1);
+        }
         out[*length] = copyRidge(faces[f].ridges[j], dim);
         out[*length].id = *length;
         // RidgeT out[*length];
@@ -265,6 +273,10 @@ unsigned* neighRidges(unsigned id, RidgeT* allridges, unsigned nridges,
     }
     if(flag){
       neighs = realloc(neighs, (*length+1)*sizeof(unsigned));
+      if(neighs == NULL){
+        printf("realloc failure - exiting\n");
+        exit(1);
+      }
       neighs[*length] = e;
       (*length)++;
     }

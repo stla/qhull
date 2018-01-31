@@ -9,7 +9,8 @@ module Voronoi2D
  , boundedCell2
  , restrictVoronoi2
  , cell2Vertices
- , cell2Vertices')
+ , cell2Vertices'
+ , module Voronoi.Shared)
   where
 import           Control.Arrow    (second)
 import           Data.Graph       (flattenSCCs, stronglyConnComp)
@@ -19,6 +20,7 @@ import           Data.Tuple.Extra (both)
 import           Delaunay.Types
 import           Qhull.Types
 import           Text.Show.Pretty (ppShow)
+import           Voronoi.Shared
 import           Voronoi.Voronoi
 
 type Point2 = (Double, Double)
@@ -72,14 +74,14 @@ voronoi2 = voronoi voronoiCell2
 
 -- | whether a 2D Voronoi cell is bounded
 boundedCell2 :: Cell2 -> Bool
-boundedCell2 = all isEdge
+boundedCell2 = all isFiniteEdge
   where
-    isEdge (Edge2 _) = True
-    isEdge _         = False
+    isFiniteEdge (Edge2 _) = True
+    isFiniteEdge _         = False
 
 -- | restrict a 2D Voronoi diagram to its bounded cells
 restrictVoronoi2 :: Voronoi2 -> Voronoi2
-restrictVoronoi2 = filter (\(_, cell) -> boundedCell2 cell)
+restrictVoronoi2 = filterVoronoi boundedCell2
 
 -- | vertices of a bounded 2D cell
 cell2Vertices :: Cell2 -> [[Double]]

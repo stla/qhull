@@ -29,6 +29,7 @@ library
                      , Voronoi3D
                      , Voronoi.Voronoi
                      , Voronoi.R
+                     , Voronoi.Shared
                      , ConvexHull
                      , ConvexHull.ConvexHull
                      , ConvexHull.CConvexHull
@@ -83,18 +84,18 @@ library
                      , C/halfspaces.c
   ghc-options:         -O0 -Wall
 
-executable test_delaunay
-  if flag(exe)
-    buildable:         True
-  else
-    buildable:         False
-  hs-source-dirs:      src-exe/Delaunay
-  main-is:             Main.hs
-  default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5
-                     , qhull
-                     , pretty-show
-                     , containers
+-- executable test_delaunay
+--   if flag(exe)
+--     buildable:         True
+--   else
+--     buildable:         False
+--   hs-source-dirs:      src-exe/Delaunay
+--   main-is:             Main.hs
+--   default-language:    Haskell2010
+--   build-depends:       base >= 4.7 && < 5
+--                      , qhull
+--                      , pretty-show
+--                      , containers
 
 executable test_voronoi
   if flag(exe)
@@ -110,18 +111,19 @@ executable test_voronoi
                      , containers
                      , ilist
 
-executable test_convexhull
-  if flag(exe)
-    buildable:         True
-  else
-    buildable:         False
-  hs-source-dirs:      src-exe/ConvexHull
-  main-is:             Main.hs
-  default-language:    Haskell2010
-  build-depends:       base >= 4.7 && < 5
-                     , qhull
-                     , pretty-show
-                     , containers
+-- executable test_convexhull
+--   if flag(exe)
+--     buildable:         True
+--   else
+--     buildable:         False
+--   hs-source-dirs:      src-exe/ConvexHull
+--   main-is:             Main.hs
+--   default-language:    Haskell2010
+--   build-depends:       base >= 4.7 && < 5
+--                      , qhull
+--                      , pretty-show
+--                      , containers
+--                      , insert-ordered-containers
 
 source-repository head
   type:     git

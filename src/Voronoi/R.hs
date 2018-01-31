@@ -2,7 +2,7 @@ module Voronoi.R
   where
 import           ConvexHull         (convexHull, ConvexHull (..))
 import qualified Data.IntMap.Strict as IM
-import           Data.List          (intercalate, transpose)
+import           Data.List          (intercalate, transpose, nub)
 import           Data.List.Index    (imap, iconcatMap)
 import           Data.Maybe
 import           Delaunay.R
@@ -46,9 +46,10 @@ voronoi2ForR v d =
         [x, y] = transpose (cell2Vertices' cell)
 
 
-voronoi3ForRgl :: Voronoi3 -> Maybe Tesselation -> String
-voronoi3ForRgl v d =
-  let code = unlines $ map cellForRgl v in
+voronoi3ForRgl :: Voronoi3 -> Maybe Int -> Maybe Tesselation -> String
+voronoi3ForRgl v n d =
+  let v' = if isJust n then roundVoronoi3 (fromJust n) v else v in
+  let code = unlines $ map cellForRgl v' in
   "library(rgl)\n" ++
   if isJust d
     then code ++ "\n" ++ "# Delaunay:\n" ++
@@ -62,29 +63,34 @@ voronoi3ForRgl v d =
         f :: Edge3 -> String
         f edge = case edge of
           Edge3 (x,y) ->
-            "segments3d(rbind(c" ++ show x ++ ", c" ++ show y ++ "))"
+            "segments3d(rbind(c" ++ show x ++ ", \n\tc" ++ show y ++ "))"
           TIEdge3 (x,y) ->
-            "segments3d(rbind(c" ++ show x ++ ", c" ++ show y ++ "), col=c(\"red\",\"red\"))"
+            "segments3d(rbind(c" ++ show x ++ ", \n\tc" ++ show y ++ "), col=c(\"red\",\"red\"))"
           IEdge3 (x,y) ->
-            "segments3d(rbind(c" ++ show x ++ ", c" ++ show (sumTriplet x y) ++ "), col=c(\"red\",\"red\"))"
+            "segments3d(rbind(c" ++ show x ++ ", \n\tc" ++ show (sumTriplet x y) ++ "), col=c(\"red\",\"red\"))"
         sumTriplet (a,b,c) (a',b',c') = (a+a',b+b',c+c')
 
 -- | plot with facets
-voronoi3ForRgl' :: Voronoi3 -> Maybe Tesselation -> IO String
-voronoi3ForRgl' v d = do
-  let code1 = voronoi3ForRgl v d
-      boundedCells = map (cell3Vertices . snd) (restrictVoronoi3 v)
-  hulls <- mapM (\cell -> convexHull cell True False Nothing) boundedCells
+voronoi3ForRgl' :: Voronoi3 -> Maybe Int -> Maybe Tesselation -> IO String
+voronoi3ForRgl' v n d = do -- faudrait un argument approx
+  let code1 = voronoi3ForRgl v n d
+      v' = restrictVoronoi3' v
+      v'' = if isJust n then roundVoronoi3 (fromJust n) v' else v'
+      boundedCells = map (cell3Vertices . snd) (restrictVoronoi3' v'')
+--      boundedCells' = map (nub . map (map (approx 13))) boundedCells
+  hulls <- mapM (\cell -> convexHull cell True True Nothing) boundedCells
   let triangles = map (map verticesCoordinates . IM.elems . _hfacets) hulls
       code_colors = "colors <- rainbow(" ++ show (length triangles +1) ++ ")\n"
       code2 = iconcatMap (\i x -> concatMap (rglTriangle i) x ++ "\n") triangles
   return $ code_colors ++ code1 ++ code2
   where
+    -- approx :: RealFrac a => Int -> a -> a
+    -- approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
     asTriplet p = (p!!0, p!!1, p!!2)
     rglTriangle :: Int -> [[Double]] -> String
     rglTriangle i threepoints =
-      "triangles3d(rbind(c" ++ show p1 ++ ", c" ++ show p2 ++
-      ", c" ++ show p3 ++ "), color=colors[" ++ show (i+1) ++ "]" ++
+      "triangles3d(rbind(c" ++ show p1 ++ ", \n\tc" ++ show p2 ++
+      ", \n\tc" ++ show p3 ++ "), color=colors[" ++ show (i+1) ++ "]" ++
       ", alpha=0.75)\n"
       where
         p1 = asTriplet $ threepoints!!0

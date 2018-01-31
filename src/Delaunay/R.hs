@@ -6,6 +6,7 @@ import qualified Data.HashMap.Strict.InsOrd as H
 import           Data.List
 import           Data.Maybe
 import           Delaunay
+import           Qhull.Shared
 
 -- | R code to plot a 2D Delaunay tesselation
 delaunay2ForR :: Tesselation -> Bool -> String
@@ -19,8 +20,7 @@ delaunay2ForR tess colors =
   where
     triangle :: (Int, Tile) -> String
     triangle (i, tile) =
-      let pts = map (\p -> [p!!0,p!!1,p!!2])
-                (IM.elems $ _vertices $ _simplex tile)
+      let pts = map (\p -> [p!!0,p!!1,p!!2]) (verticesCoordinates tile)
       in
       "polygon(c(" ++ show (pts!!0!!0) ++ ", " ++ show (pts!!1!!0) ++
                       ", " ++ show (pts!!2!!0) ++ "), "
@@ -64,8 +64,7 @@ delaunay3rgl tess onlyexterior segments colors alpha =
         then ", alpha=" ++ show (fromJust alpha) ++ ")\n"
         else ")\n")
       where
-        pts = map (\p -> (p!!0,p!!1,p!!2))
-                  (IM.elems $ _vertices $ _subsimplex ridge)
+        pts = map (\p -> (p!!0,p!!1,p!!2)) (verticesCoordinates ridge)
     rglSegment :: ([Double], [Double]) -> String
     rglSegment (p1, p2) =
       "segments3d(rbind(c" ++ show p1' ++ ", c" ++ show p2' ++
@@ -79,4 +78,4 @@ delaunay3rgl tess onlyexterior segments colors alpha =
         tilefacetEdges :: TileFacet -> [([Double], [Double])]
         tilefacetEdges tilefacet = [(v!!0,v!!1),(v!!1,v!!2),(v!!2,v!!0)]
           where
-            v = IM.elems $ _vertices $ _subsimplex tilefacet
+            v = verticesCoordinates tilefacet

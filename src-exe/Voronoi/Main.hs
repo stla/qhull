@@ -1,12 +1,12 @@
 module Main
   where
 import           ConvexHull
-import           Delaunay.Examples
 import           ConvexHull.R
-import qualified Data.IntMap.Strict  as IM
+import qualified Data.IntMap.Strict as IM
 import qualified Data.IntSet        as IS
-import Data.List
+import           Data.List
 import           Delaunay
+import           Delaunay.Examples
 import           Delaunay.R
 import           System.IO
 import           Text.Show.Pretty
@@ -42,23 +42,31 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  let x1 = let b=0 in
-            [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
-      x2 = let b=pi/2 in
-            [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
-      x3 = [[cos (a*2*pi/100), sin (a*2*pi/100), 0] | a <- [0 .. 99]]
-  tess <- delaunay (nub $ x1 ++ x2 ++ x3 ++ map (map (/5)) cube3) False True
---  let code = delaunay3rgl tess False True True (Just 0.5)
-  pPrint $ IM.filter (isNaN . head) (IM.map (_circumcenter . _simplex) (_tiles tess))
-  -- pPrint $ IM.filterWithKey (\k _ -> k `elem` [459, 460, 464]) (_tiles tess)
-  -- pPrint $ IM.map checkTile (IM.filter (\tile -> _volume (_simplex tile) == 0) (_tiles tess))
+  tess <- delaunay projectedTruncatedTesseract False True
+  pPrint $ IM.filter (\tile -> _volume tile < 1e-16 && _volume tile > 0) (_tiles tess)
   let v = voronoi3 tess
-      v' = filter (\(_,cell) -> not (null cell)) v
---      v' = restrictVoronoi3box' ((-2,2),(-2,2),(-2,2)) v
-      v'' = clipVoronoi3 ((-1,1),(-1,1),(-1,1)) v'
-  code <- voronoi3ForRgl' v'' Nothing
-  writeFile "rgl/voronoi_twoCircles04.R" code
-  putStrLn "done"
+  -- pPrint $ map (\(_,cell) -> length cell) (restrictVoronoi3 v)
+  prettyShowVoronoi3 (roundVoronoi3 10 (restrictVoronoi3 v)) Nothing
+  code <- voronoi3ForRgl' v (Just 10) Nothing
+  writeFile "rgl/voronoi_truncatedTesseract01.R" code
+
+--   let x1 = let b=0 in
+--             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+--       x2 = let b=pi/2 in
+--             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+--       x3 = [[cos (a*2*pi/100), sin (a*2*pi/100), 0] | a <- [0 .. 99]]
+--   tess <- delaunay (nub $ x1 ++ x2 ++ x3 ++ map (map (/5)) cube3) False True
+-- --  let code = delaunay3rgl tess False True True (Just 0.5)
+--   pPrint $ IM.filter (isNaN . head) (IM.map (_circumcenter . _simplex) (_tiles tess))
+--   -- pPrint $ IM.filterWithKey (\k _ -> k `elem` [459, 460, 464]) (_tiles tess)
+--   -- pPrint $ IM.map checkTile (IM.filter (\tile -> _volume (_simplex tile) == 0) (_tiles tess))
+--   let v = voronoi3 tess
+--       v' = filter (\(_,cell) -> not (null cell)) v
+-- --      v' = restrictVoronoi3box' ((-2,2),(-2,2),(-2,2)) v
+--       v'' = clipVoronoi3 ((-1,1),(-1,1),(-1,1)) v'
+--   code <- voronoi3ForRgl' v'' Nothing
+--   writeFile "rgl/voronoi_twoCircles04.R" code
+--   putStrLn "done"
 
 --   let x1 = let b=0 in
 --             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
