@@ -23,6 +23,7 @@ TesselationT* tesselation(
 	unsigned  n,
   unsigned  atinfinity,
   unsigned  degenerate,
+  double    vthreshold,
 	unsigned* exitcode
 )
 {
@@ -92,7 +93,7 @@ TesselationT* tesselation(
         }else{
           allfacets[i_facet].simplex.volume = fmax(0, qh_facetarea(qh, facet));
         }
-        if(allfacets[i_facet].simplex.volume > 1e-16){
+        if(allfacets[i_facet].simplex.volume > vthreshold){
           allfacets[i_facet].simplex.center =
             qh_facetcenter(qh, facet->vertices);
         }
@@ -107,7 +108,7 @@ TesselationT* tesselation(
         allfacets[i_facet].id             = facet->id;
         allfacets[i_facet].orientation    = facet->toporient ? 1 : -1;
         /* center and circumradius */
-        if(allfacets[i_facet].simplex.volume < 1e-16){
+        if(allfacets[i_facet].simplex.volume <= vthreshold){
           if(facet->tricoplanar){
             unsigned ok = 0;
             vertexT* apex = (vertexT*)facet->vertices->e[0].p;
@@ -115,7 +116,7 @@ TesselationT* tesselation(
             FOREACHneighbor_(apex){
               if(facetOK_(neighbor,degenerate) &&
                  allfacets[neighbor->id].family == allfacets[i_facet].family &&
-                 allfacets[neighbor->id].simplex.volume > 1e-16)
+                 allfacets[neighbor->id].simplex.volume > vthreshold)
               {
                 allfacets[i_facet].simplex.center =
                   allfacets[neighbor->id].simplex.center;
@@ -540,7 +541,7 @@ void testdel2(){
   double sites[27] = {0,0,0, 0,0,1, 0,1,0, 0,1,1, 1,0,0, 1,0,1, 1,1,0, 1,1,1, 0.5,0.5,0.5};
   unsigned exitcode;
   unsigned dim = 3;
-  TesselationT* x = tesselation(sites, dim, 9, 0, 0, &exitcode);
+  TesselationT* x = tesselation(sites, dim, 9, 0, 0, 0, &exitcode);
   printf("TESTDEL2 - nfacets:%u\n", x->ntiles);
   for(unsigned f=0; f < x->ntiles; f++){
     printf("facet %u - sites:\n", f);

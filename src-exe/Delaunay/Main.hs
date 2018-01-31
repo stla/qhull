@@ -11,7 +11,7 @@ import ConvexHull
 main :: IO ()
 main = do
 
-  tess <- delaunay rgg False False
+  tess <- delaunay rgg False False Nothing
   let f1 = _tiles tess IM.! 1
   hull <- convexHull rgg False False Nothing
   let f2 = _hfacets hull IM.! 1

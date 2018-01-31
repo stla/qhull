@@ -14,12 +14,14 @@ module Voronoi3D
  , restrictVoronoi3box
  , restrictVoronoi3box'
  , roundVoronoi3
+ , summaryVoronoi3
  , module Voronoi.Shared)
   where
 import           Control.Arrow    (second)
 import           Control.Monad    (liftM2)
 import qualified Data.IntSet      as IS
 import           Data.List
+import           Data.List.Unique (count_)
 import           Data.Tuple.Extra (both)
 import           Delaunay.Types
 import           Qhull.Types
@@ -43,17 +45,23 @@ type Cell3 = [Edge3]
 type Voronoi3 = [([Double], Cell3)]
 type Box3 = ((Double, Double), (Double, Double), (Double, Double))
 
--- | pretty print a 3D Voronoi diagram
-prettyShowVoronoi3 :: Voronoi3 -> Maybe Int -> IO ()
-prettyShowVoronoi3 v m = do
+-- | summary of a 3D Voronoi diagram
+summaryVoronoi3 :: Voronoi3 -> IO ()
+summaryVoronoi3 v = do
   let ntotal = show $ length v
   let boundedDiagram = restrictVoronoi3 v
   let nbounded = show $ length boundedDiagram
   let ndegenerate = show $ length $ filterVoronoi null boundedDiagram
+  let lengths = map (\(_,cell) -> length cell) boundedDiagram
+  putStrLn $ "Voronoi diagram with " ++ ntotal ++ " cells, including " ++
+             nbounded ++ " bounded and " ++ ndegenerate ++ " degenerate.\n" ++
+             "Number of edges for bounded cells: " ++ show (count_ lengths)
+
+-- | pretty print a 3D Voronoi diagram
+prettyShowVoronoi3 :: Voronoi3 -> Maybe Int -> IO ()
+prettyShowVoronoi3 v m = do
   let string = intercalate "\n---\n" (map (prettyShowCell3 m) v)
-  let footer = "Voronoi diagram with " ++ ntotal ++ " cells, including " ++
-               nbounded ++ " bounded and " ++ ndegenerate ++ " degenerate."
-  putStrLn $ string ++ "\n------\n" ++ footer
+  putStrLn $ string ++ "\n------\n"
   where
     approx :: RealFrac a => Int -> a -> a
     approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)

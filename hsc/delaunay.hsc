@@ -282,6 +282,7 @@ foreign import ccall unsafe "tesselation" c_tesselation
   -> CUInt       -- nsites
   -> CUInt       -- 0/1, point at infinity
   -> CUInt       -- 0/1, include degenerate
+  -> CDouble     -- volume threshold
   -> Ptr CUInt   -- exitcode
   -> IO (Ptr CTesselation)
 

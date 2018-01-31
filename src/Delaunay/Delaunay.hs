@@ -5,6 +5,7 @@ import           Data.IntMap.Strict    (IntMap)
 import qualified Data.IntMap.Strict    as IM
 import qualified Data.IntSet           as IS
 import           Data.List.Unique      (allUnique)
+import           Data.Maybe
 import           Delaunay.CDelaunay
 import           Delaunay.Types
 import           Foreign.C.Types
@@ -13,22 +14,23 @@ import           Foreign.Marshal.Array (pokeArray)
 import           Foreign.Storable      (peek, sizeOf)
 import           Qhull.Types
 
-delaunay :: [[Double]] -- sites (vertices)
-         -> Bool       -- add a point at infinity
-         -> Bool       -- include degenerate tiles
+delaunay :: [[Double]]   -- sites (vertices)
+         -> Bool         -- add a point at infinity
+         -> Bool         -- include degenerate tiles
+         -> Maybe Double -- volume threshold
          -> IO Tesselation
-delaunay sites atinfinity degenerate = do
+delaunay sites atinfinity degenerate vthreshold = do
   let n     = length sites
       dim   = length (head sites)
-      check = all (== dim) (map length (tail sites))
   when (dim < 2) $
     error "dimension must be at least 2"
   when (n <= dim+1) $
     error "insufficient number of points"
-  unless check $
+  unless (all (== dim) (map length (tail sites))) $
     error "the points must have the same dimension"
   unless (allUnique sites) $
     error "some points are duplicated"
+  let vthreshold' = fromMaybe 0 vthreshold 
   sitesPtr <- mallocBytes (n * dim * sizeOf (undefined :: CDouble))
   pokeArray sitesPtr (concatMap (map realToFrac) sites)
   exitcodePtr <- mallocBytes (sizeOf (undefined :: CUInt))
@@ -36,7 +38,7 @@ delaunay sites atinfinity degenerate = do
                (fromIntegral dim) (fromIntegral n)
                (fromIntegral $ fromEnum atinfinity)
                (fromIntegral $ fromEnum degenerate)
-               exitcodePtr
+               (realToFrac vthreshold') exitcodePtr
   exitcode <- peek exitcodePtr
   free exitcodePtr
   free sitesPtr

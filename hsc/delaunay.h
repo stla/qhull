@@ -46,5 +46,5 @@ typedef struct Tesselation {
   unsigned  nsubtiles;
 } TesselationT;
 
-TesselationT* tesselation(double*, unsigned, unsigned, unsigned, unsigned, unsigned*);
+TesselationT* tesselation(double*, unsigned, unsigned, unsigned, unsigned, double, unsigned*);
 void testdel2();

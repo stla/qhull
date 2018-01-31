@@ -42,11 +42,11 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  tess <- delaunay projectedTruncatedTesseract False True
+  tess <- delaunay projectedTruncatedTesseract False True Nothing
   pPrint $ IM.filter (\tile -> _volume tile < 1e-16 && _volume tile > 0) (_tiles tess)
   let v = voronoi3 tess
   -- pPrint $ map (\(_,cell) -> length cell) (restrictVoronoi3 v)
-  prettyShowVoronoi3 (roundVoronoi3 10 (restrictVoronoi3 v)) Nothing
+  summaryVoronoi3 (roundVoronoi3 10 (restrictVoronoi3 v))
   code <- voronoi3ForRgl' v (Just 10) Nothing
   writeFile "rgl/voronoi_truncatedTesseract01.R" code
 

@@ -2,7 +2,7 @@ module Voronoi.R
   where
 import           ConvexHull         (convexHull, ConvexHull (..))
 import qualified Data.IntMap.Strict as IM
-import           Data.List          (intercalate, transpose, nub)
+import           Data.List          (intercalate, transpose)
 import           Data.List.Index    (imap, iconcatMap)
 import           Data.Maybe
 import           Delaunay.R
@@ -78,7 +78,7 @@ voronoi3ForRgl' v n d = do -- faudrait un argument approx
       v'' = if isJust n then roundVoronoi3 (fromJust n) v' else v'
       boundedCells = map (cell3Vertices . snd) (restrictVoronoi3' v'')
 --      boundedCells' = map (nub . map (map (approx 13))) boundedCells
-  hulls <- mapM (\cell -> convexHull cell True True Nothing) boundedCells
+  hulls <- mapM (\cell -> convexHull cell True False Nothing) boundedCells
   let triangles = map (map verticesCoordinates . IM.elems . _hfacets) hulls
       code_colors = "colors <- rainbow(" ++ show (length triangles +1) ++ ")\n"
       code2 = iconcatMap (\i x -> concatMap (rglTriangle i) x ++ "\n") triangles
