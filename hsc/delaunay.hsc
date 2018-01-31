@@ -124,7 +124,7 @@ cSimplexToSimplex sites simplexdim csimplex = do
   return Simplex { _vertices'    = points
                  , _circumcenter = center
                  , _circumradius = radius
-                 , _volume       = volume }
+                 , _volume'      = volume }
   where
     cdbl2dbl :: CDouble -> Double
     cdbl2dbl x = if isNaN x then 0/0 else realToFrac x

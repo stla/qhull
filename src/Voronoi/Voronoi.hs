@@ -5,6 +5,7 @@ import qualified Data.IntSet        as IS
 import           Data.Maybe
 import           Delaunay.Delaunay (vertexNeighborFacets)
 import           Delaunay.Types
+import           Qhull.Shared
 import           Qhull.Types
 
 type Point = [Double]
@@ -36,8 +37,8 @@ edgesFromTileFacet tess tilefacet
     tiles = _tiles tess
     tile1 = tiles IM.! head tileindices
     tile2 = tiles IM.! last tileindices
-    c1 = _circumcenter $ _simplex tile1
-    c2 = _circumcenter $ _simplex tile2
+    c1 = _center tile1
+    c2 = _center tile2
 
 voronoiCell :: ([TileFacet] -> [TileFacet]) -> (Edge -> a) -> Tesselation
             -> Index -> [a]
@@ -48,7 +49,7 @@ voronoiCell facetsQuotienter edgeTransformer tess i =
 
 voronoi :: (Tesselation -> Index -> a) -> Tesselation -> [([Double], a)]
 voronoi cellGetter tess =
-  let sites = IM.elems $ IM.map _point (_sites tess) in
+  let sites = IM.elems $ _vertices tess in
     zip sites (map (cellGetter tess) [0 .. length sites -1])
 
 voronoi' :: Tesselation -> [([Double], Cell)]
@@ -56,7 +57,7 @@ voronoi' = voronoi (voronoiCell id id)
 
 -- | whether a Voronoi cell is bounded
 boundedCell :: Cell -> Bool
-boundedCell = all isEdge
+boundedCell = all isFiniteEdge
   where
-    isEdge (Edge _) = True
-    isEdge _        = False
+    isFiniteEdge (Edge _) = True
+    isFiniteEdge _        = False

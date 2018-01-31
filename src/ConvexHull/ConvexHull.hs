@@ -14,6 +14,7 @@ import           Foreign.C.Types
 import           Foreign.Marshal.Alloc      (free, mallocBytes)
 import           Foreign.Marshal.Array      (pokeArray)
 import           Foreign.Storable           (peek, sizeOf)
+import           Qhull.Shared
 import           Qhull.Types
 
 convexHull :: [[Double]]     -- vertices
@@ -75,14 +76,6 @@ hullSummary hull =
                           (nubBy sameFamily (map _family $ IM.elems facets))
     families = show nf1 ++ " single, " ++
                show nf2 ++ if nf2>1 then " families" else " family"
-
--- | vertices of a convex hull
-hullVertices :: ConvexHull -> [[Double]]
-hullVertices hull = map _point (IM.elems (_hvertices hull))
-
--- | vertices of a facet
-facetVertices :: Facet -> [[Double]]
-facetVertices = IM.elems . _fvertices
 
 -- | facets ids an edge belongs to
 edgeOf :: ConvexHull -> (Index, Index) -> [Int]

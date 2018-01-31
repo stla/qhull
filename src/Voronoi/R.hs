@@ -1,12 +1,13 @@
 module Voronoi.R
   where
-import           ConvexHull
+import           ConvexHull         (convexHull, ConvexHull (..))
 import qualified Data.IntMap.Strict as IM
 import           Data.List          (intercalate, transpose)
 import           Data.List.Index    (imap, iconcatMap)
 import           Data.Maybe
 import           Delaunay.R
 import           Delaunay.Types     (Tesselation)
+import           Qhull.Shared
 import           Voronoi2D
 import           Voronoi3D
 
@@ -74,7 +75,7 @@ voronoi3ForRgl' v d = do
   let code1 = voronoi3ForRgl v d
       boundedCells = map (cell3Vertices . snd) (restrictVoronoi3 v)
   hulls <- mapM (\cell -> convexHull cell True False Nothing) boundedCells
-  let triangles = map (map facetVertices . IM.elems . _hfacets) hulls
+  let triangles = map (map verticesCoordinates . IM.elems . _hfacets) hulls
       code_colors = "colors <- rainbow(" ++ show (length triangles +1) ++ ")\n"
       code2 = iconcatMap (\i x -> concatMap (rglTriangle i) x ++ "\n") triangles
   return $ code_colors ++ code1 ++ code2

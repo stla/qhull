@@ -22,10 +22,6 @@ type EdgeMap = InsOrdHashMap IndexPair ([Double],[Double])
 data Family = Family Int | None
      deriving (Show, Read, Eq)
 
-sameFamily :: Family -> Family -> Bool
-sameFamily (Family i) (Family j) = i == j
-sameFamily _ _ = False
-
 class HasFamily m where
   _family :: m -> Family
 
@@ -38,3 +34,9 @@ class HasVertices m where
 
 class HasEdges m where
   _edges :: m -> EdgeMap
+
+class HasVolume m where
+  _volume :: m -> Double
+
+class HasCenter m where
+  _center :: m -> [Double]

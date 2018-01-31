@@ -50,10 +50,6 @@ delaunay sites atinfinity degenerate = do
       free resultPtr
       return out
 
--- | vertices ids of a tile facet
-facetVertices :: TileFacet -> IndexSet
-facetVertices = IS.fromAscList . IM.keys . _vertices . _subsimplex
-
 -- | tile facets a vertex belongs to, vertex given by its index;
 -- the output is the empty map if the index is not valid
 vertexNeighborFacets :: Tesselation -> Index -> IntMap TileFacet
@@ -76,7 +72,7 @@ facetFamilies tess tilefacet = IM.map _family (facetOf tess tilefacet)
 -- | the circumcenters of the tiles a facet belongs to
 facetCenters :: Tesselation -> TileFacet -> IntMap [Double]
 facetCenters tess tilefacet =
-  IM.map (_circumcenter . _simplex) (facetOf tess tilefacet)
+  IM.map _center (facetOf tess tilefacet)
 
 funofFacetToFunofInt :: (Tesselation -> TileFacet -> IntMap a)
                      -> (Tesselation -> Int -> IntMap a)

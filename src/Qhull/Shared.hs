@@ -1,8 +1,19 @@
 module Qhull.Shared
   where
 import qualified Data.HashMap.Strict.InsOrd as H
+import qualified Data.IntMap.Strict         as IM
 import           Data.Maybe
 import           Qhull.Types
+
+sameFamily :: Family -> Family -> Bool
+sameFamily (Family i) (Family j) = i == j
+sameFamily _ _ = False
+
+verticesIds :: HasVertices a => a -> [Index]
+verticesIds x = IM.keys (_vertices x)
+
+verticesCoordinates :: HasVertices a => a -> [[Double]]
+verticesCoordinates x = IM.elems (_vertices x)
 
 -- | whether a pair of vertices indices form an edge
 isEdge :: HasEdges a => a -> (Index, Index) -> Bool

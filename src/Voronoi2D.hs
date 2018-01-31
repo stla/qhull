@@ -21,7 +21,6 @@ import           Qhull.Types
 import           Text.Show.Pretty (ppShow)
 import           Voronoi.Voronoi
 
-
 type Point2 = (Double, Double)
 type Vector2 = (Double, Double)
 data Edge2 = Edge2 (Point2, Point2) | IEdge2 (Point2, Vector2)

@@ -76,12 +76,10 @@ edgeToEdge3 (IEdge (x, v)) = IEdge3 (both asTriplet (x, v))
 equalFacets :: TileFacet -> TileFacet -> Bool
 equalFacets tfacet1 tfacet2 =
   IS.size f1 == 1 && IS.size f2 == 1 &&
-  _circumcenter p1 == _circumcenter p2 &&
+  _center tfacet1 == _center tfacet2 &&
   _normal tfacet1 == _normal tfacet2
   where
-    p1 = _subsimplex tfacet1
     f1 = _facetOf tfacet1
-    p2 = _subsimplex tfacet2
     f2 = _facetOf tfacet2
 
 -- | Voronoi cell of a vertex given by its index
@@ -94,10 +92,10 @@ voronoi3 = voronoi voronoiCell3
 
 -- | whether a 3D Voronoi cell is bounded
 boundedCell3 :: Cell3 -> Bool
-boundedCell3 = all isEdge
+boundedCell3 = all isFiniteEdge
   where
-    isEdge (Edge3 _) = True
-    isEdge _         = False
+    isFiniteEdge (Edge3 _) = True
+    isFiniteEdge _         = False
 
 -- | whether a 3D Voronoi cell is inside a given box
 cell3inBox :: Box3 -> Cell3 -> Bool
