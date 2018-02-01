@@ -315,7 +315,7 @@ TesselationT* tesselation(
               }
             }
           }
-          if(done == 0){ /* => do ridge */
+          if(done == 0){ /* => then do the ridge */
             allridges_dup[i_ridge_dup].flag = 1;
             allridges_dup[i_ridge_dup].id   = n_ridges;
             allfacets[i_facet].ridgesids[m] = n_ridges;
@@ -328,8 +328,8 @@ TesselationT* tesselation(
             { /* loop on facet neighbors to find ridgeOf2 */
               facetT *neighbor, **neighborp;
               FOREACHneighbor_(facet){
-                unsigned fnid = neighbor->id;
                 if(facetOK_(neighbor, degenerate)){
+                  unsigned fnid = neighbor->id;
                   unsigned ok;
                   for(unsigned mm=0; mm < dim+1; mm++){
                     ok = 0;
@@ -523,8 +523,8 @@ TesselationT* tesselation(
 
 	/* Do cleanup regardless of whether there is an error */
   int curlong, totlong;
-	qh_freeqhull(qh, !qh_ALL);                  /* free long memory */
-	qh_memfreeshort(qh, &curlong, &totlong);   /* free short memory and memory allocator */
+	qh_freeqhull(qh, !qh_ALL);                /* free long memory */
+	qh_memfreeshort(qh, &curlong, &totlong);  /* free short memory and memory allocator */
 
   printf("RETURN\n");
   if(*exitcode){

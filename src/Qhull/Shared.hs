@@ -12,11 +12,27 @@ sameFamily _ _ = False
 
 -- | vertices ids
 verticesIds :: HasVertices a => a -> [Index]
-verticesIds x = IM.keys (_vertices x)
+verticesIds = IM.keys . _vertices
 
 -- | vertices coordinates
 verticesCoordinates :: HasVertices a => a -> [[Double]]
-verticesCoordinates x = IM.elems (_vertices x)
+verticesCoordinates = IM.elems . _vertices
+
+-- | number of vertices
+nVertices :: HasVertices a => a -> Int
+nVertices = IM.size . _vertices
+
+-- | edges ids
+edgesIds :: HasEdges a => a -> [IndexPair]
+edgesIds = H.keys . _edges
+
+-- | edges coordinates
+edgesCoordinates :: HasEdges a => a -> [([Double],[Double])]
+edgesCoordinates = H.elems . _edges
+
+-- | number of edges
+nEdges :: HasEdges a => a -> Int
+nEdges = H.size . _edges
 
 -- | whether a pair of vertices indices form an edge;
 -- the order of the indices has no importance

@@ -42,13 +42,20 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  tess <- delaunay projectedTruncatedTesseract False True Nothing
-  pPrint $ IM.filter (\tile -> _volume tile < 1e-16 && _volume tile > 0) (_tiles tess)
+  tess <- delaunay spheresPack False True Nothing
   let v = voronoi3 tess
-  -- pPrint $ map (\(_,cell) -> length cell) (restrictVoronoi3 v)
-  summaryVoronoi3 (roundVoronoi3 10 (restrictVoronoi3 v))
-  code <- voronoi3ForRgl' v (Just 10) Nothing
-  writeFile "rgl/voronoi_truncatedTesseract02.R" code
+  prettyShowVoronoi3 v Nothing
+  summaryVoronoi3 v 
+  code <- voronoi3ForRgl' v Nothing Nothing
+  writeFile "rgl/voronoi_spheresPacking01.R" code
+
+  -- tess <- delaunay projectedTruncatedTesseract False True Nothing
+  -- pPrint $ IM.filter (\tile -> _volume tile < 1e-16 && _volume tile > 0) (_tiles tess)
+  -- let v = voronoi3 tess
+  -- -- pPrint $ map (\(_,cell) -> length cell) (restrictVoronoi3 v)
+  -- summaryVoronoi3 (roundVoronoi3 10 (restrictVoronoi3 v))
+  -- code <- voronoi3ForRgl' v (Just 10) Nothing
+  -- writeFile "rgl/voronoi_truncatedTesseract02.R" code
 
 --   let x1 = let b=0 in
 --             [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]

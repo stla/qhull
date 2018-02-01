@@ -1,7 +1,7 @@
 module Main
   where
-import HalfSpaces
-import Text.Show.Pretty
+import           HalfSpaces
+import           Text.Show.Pretty
 
 main :: IO ()
 main = do

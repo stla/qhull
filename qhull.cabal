@@ -16,6 +16,14 @@ flag exe
   description:
     Build the executables.
   default: False
+flag exe-delaunay
+  default: False
+flag exe-voronoi
+  default: False
+flag exe-hull
+  default: False
+flag exe-hs
+  default: False
 
 library
   hs-source-dirs:      src
@@ -85,7 +93,7 @@ library
   ghc-options:         -O0 -Wall
 
 executable test_delaunay
-  if flag(exe)
+  if flag(exe) || flag(exe-delaunay)
     buildable:         True
   else
     buildable:         False
@@ -98,7 +106,7 @@ executable test_delaunay
                      , containers
 
 executable test_voronoi
-  if flag(exe)
+  if flag(exe) || flag(exe-voronoi)
     buildable:         True
   else
     buildable:         False
@@ -112,7 +120,7 @@ executable test_voronoi
                      , ilist
 
 executable test_convexhull
-  if flag(exe)
+  if flag(exe) || flag(exe-hull)
     buildable:         True
   else
     buildable:         False
@@ -126,7 +134,7 @@ executable test_convexhull
                      , insert-ordered-containers
 
 executable test_halfspaces
-  if flag(exe)
+  if flag(exe) || flag(exe-hs)
     buildable:         True
   else
     buildable:         False

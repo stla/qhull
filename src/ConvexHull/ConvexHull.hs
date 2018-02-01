@@ -7,7 +7,7 @@ import           Data.Function              (on)
 import qualified Data.HashMap.Strict.InsOrd as H
 import qualified Data.IntMap.Strict         as IM
 import           Data.List
-import           Data.List.Unique           (allUnique)
+import           Data.List.Unique           (allUnique, count_)
 import           Data.Tuple.Extra           (both)
 import           Foreign.C.String
 import           Foreign.C.Types
@@ -16,6 +16,7 @@ import           Foreign.Marshal.Array      (pokeArray)
 import           Foreign.Storable           (peek, sizeOf)
 import           Qhull.Shared
 import           Qhull.Types
+import           Text.Printf
 
 convexHull :: [[Double]]     -- vertices
            -> Bool           -- triangulate
@@ -25,11 +26,10 @@ convexHull :: [[Double]]     -- vertices
 convexHull points triangulate stdout file = do
   let n     = length points
       dim   = length (head points)
-      check = all (== dim) (map length (tail points))
-  unless check $
-    error "the points must have the same dimension"
   when (dim < 2) $
     error "dimension must be at least 2"
+  unless (all (== dim) (map length (tail points))) $
+    error "the points must have the same dimension"
   when (n <= dim) $
     error "insufficient number of points"
   unless (allUnique points) $
@@ -61,27 +61,38 @@ xxx chull = map (IM.keys . _rvertices) (IM.elems (_hridges chull))
 hullSummary :: ConvexHull -> String
 hullSummary hull =
   "Convex hull:\n" ++
-  show nvertices ++ " vertices\n" ++
-  show nfacets ++ " facets (" ++ families ++ ")\n" ++
-  show nridges ++ " ridges\n" ++
-  show nedges ++ " edges\n"
+  printf "%d vertices\n" (IM.size vertices) ++
+  printf "%d facets (%s)\n" nfacets families ++
+  printf "%d ridges\n" nridges ++
+  printf "%d edges\n" nedges ++
+  (if dim > 2
+    then printf "number of vertices per facet: %s\n" (show counts_vertices) ++
+         (if dim > 3
+           then printf "number of edges per facet: %s\n" (show counts_edges) ++
+                printf "number of ridges per facet: %s\n" (show counts_ridges)
+           else "")
+    else "")
   where
-    nvertices = IM.size (_hvertices hull)
-    nedges = H.size (_hedges hull)
+    vertices = _vertices hull
+    nedges = nEdges hull
     nridges = IM.size (_hridges hull)
     facets = _hfacets hull
+    facets' = IM.elems facets
     nfacets = IM.size facets
     (nf1,nf2) = both length $
-                partition (None ==)
-                          (nubBy sameFamily (map _family $ IM.elems facets))
+                partition (None ==) (nubBy sameFamily (map _family facets'))
     families = show nf1 ++ " single, " ++
-               show nf2 ++ if nf2>1 then " families" else " family"
+               show nf2 ++ if nf2 > 1 then " families" else " family"
+    dim = length $ head (IM.elems vertices)
+    counts_vertices = count_ (map nVertices facets')
+    counts_edges = count_ (map nEdges facets')
+    counts_ridges = count_ (map (IM.size . _fridges) facets')
 
 -- | facets ids an edge belongs to
 edgeOf :: ConvexHull -> (Index, Index) -> [Int]
-edgeOf hull (v1,v2) = IM.keys (IM.filter (elem (Pair v1 v2)) facesEdges)
+edgeOf hull (v1,v2) = IM.keys $ IM.filter (elem (Pair v1 v2)) facetsEdges
   where
-    facesEdges = IM.map (H.keys . _fedges) (_hfacets hull)
+    facetsEdges = IM.map edgesIds (_hfacets hull)
 
 -- | group facets of the same family
 groupedFacets :: ConvexHull -> [(Family, [IndexMap [Double]], [EdgeMap])]
@@ -89,21 +100,23 @@ groupedFacets hull =
   zip3 (map head families) verticesGroups edgesGroups
   where
     facets         = IM.elems (_hfacets hull)
-    facesGroups    = groupBy (sameFamily `on` _family) facets
-    edgesGroups    = map (map _fedges) facesGroups
-    verticesGroups = map (map _fvertices) facesGroups
-    families       = map (map _family) facesGroups
+    facetsGroups   = groupBy (sameFamily `on` _family) facets
+    edgesGroups    = map (map _fedges) facetsGroups
+    verticesGroups = map (map _fvertices) facetsGroups
+    families       = map (map _family) facetsGroups
 
 -- | group facets of the same family and merge vertices and edges
 groupedFacets' :: ConvexHull -> [(Family, IndexMap [Double], EdgeMap)]
 groupedFacets' hull =
-  zip3 (map head families) (map (foldr IM.union IM.empty) verticesGroups)
-       (map (foldr delta H.empty) edgesGroups)
+  map (\(f,v,e) -> (f, foldr IM.union IM.empty v, foldr delta H.empty e))
+      (groupedFacets hull)
+  -- zip3 (map head families) (map (foldr IM.union IM.empty) verticesGroups)
+  --      (map (foldr delta H.empty) edgesGroups)
   where
-    facets         = IM.elems (_hfacets hull)
-    facesGroups    = groupBy (sameFamily `on` _family) facets
-    edgesGroups    = map (map _fedges) facesGroups
-    verticesGroups = map (map _fvertices) facesGroups
-    families       = map (map _family) facesGroups
+    -- facets         = IM.elems (_hfacets hull)
+    -- facetsGroups   = groupBy (sameFamily `on` _family) facets
+    -- edgesGroups    = map (map _fedges) facetsGroups
+    -- verticesGroups = map (map _fvertices) facetsGroups
+    -- families       = map (map _family) facetsGroups
     delta :: EdgeMap -> EdgeMap -> EdgeMap
     delta e1 e2 = H.difference (H.union e1 e2) (H.intersection e1 e2)

@@ -146,13 +146,25 @@ nonConvexPolyhedron =
   [[0, 0, k*y] | k <- [-1,1]]
   where x = 2.1806973249
         y = 3.5617820682
--- tetrehdra: (i 2.18, j 2.18, k 2.18), (i 3.56, 0, 0), (0, j 3.56, 0), (0, 0, k 3.56)
+  -- tetrahedra: (i 2.18, j 2.18, k 2.18), (i 3.56, 0, 0), (0, j 3.56, 0), (0, 0, k 3.56)
 
 dodecahedron :: [[Double]]
 dodecahedron = let phi = (1 + sqrt 5)/2 in
                [[0,i,j] | i <- [-1,1], j <- [-phi, phi]] ++
                [[j,0,i] | i <- [-1,1], j <- [-phi, phi]] ++
                [[i,j,0] | i <- [-1,1], j <- [-phi, phi]]
+
+spheresPack :: [[Double]]
+spheresPack = [ [2,1,1], [4,1,1]
+              , [1, 1 + sqrt 3, 1], [3, 1 + sqrt 3, 1], [5, 1 + sqrt 3, 1]
+              , [2, 1 + 2*sqrt 3, 1], [4, 1 + 2*sqrt 3, 1]
+              , [3, 1 + sqrt 3 / 3, 1 + 2*sqrt 6 / 3]
+              , [2, 1 + 4*sqrt 3 / 3, 1 + 2*sqrt 6 / 3], [4, 1 + 4*sqrt 3 / 3, 1 + 2*sqrt 6 / 3]
+              , [3, 1 + sqrt 3, 1 + 4*sqrt 6 /3]
+              , [3, 1 + sqrt 3 / 3, 1 - 2*sqrt 6 / 3]
+              , [2, 1 + 4*sqrt 3 / 3, 1 - 2*sqrt 6 / 3], [4, 1 + 4*sqrt 3 / 3, 1 - 2*sqrt 6 / 3]
+              , [3, 1 + sqrt 3, 1 - 4*sqrt 6 /3] ]
+
 
 randomInCircle :: Int -> IO [[Double]]
 randomInCircle n = do

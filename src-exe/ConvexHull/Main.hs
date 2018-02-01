@@ -16,10 +16,13 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull nonConvexPolyhedron False False Nothing
+  h <- convexHull truncatedTesseract False False Nothing
   putStrLn $ hullSummary h
-  --code <- convexHull3DrglCode nonConvexPolyhedron True (Just "rgl/convexhull_nonConvexPolyhedron.R")
-  putStrLn "done"
+
+  -- h <- convexHull nonConvexPolyhedron False False Nothing
+  -- putStrLn $ hullSummary h
+  -- --code <- convexHull3DrglCode nonConvexPolyhedron True (Just "rgl/convexhull_nonConvexPolyhedron.R")
+  -- putStrLn "done"
 
   -- h <- convexHull truncatedTesseract False False Nothing
   -- putStrLn $ hullSummary h

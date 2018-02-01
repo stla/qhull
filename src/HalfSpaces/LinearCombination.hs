@@ -59,4 +59,5 @@ constant :: Rational -> LinearCombination
 constant x = LinearCombination (IM.singleton 0 x)
 
 -- | alias for `constant`
+cst :: Rational -> LinearCombination
 cst = constant
