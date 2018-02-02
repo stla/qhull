@@ -4,6 +4,7 @@ import           ConvexHull
 import           ConvexHull.Examples
 import           ConvexHull.R
 import qualified Data.HashMap.Strict.InsOrd as H
+import qualified Data.IntMap.Strict         as IM
 import           Data.List
 import qualified Data.Set                   as S
 import           System.IO
@@ -16,8 +17,22 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull truncatedTesseract False False Nothing
-  putStrLn $ hullSummary h
+  code <- convexHull3DrglCode truncatedCuboctahedron False (Just "rgl/truncatedCuboctahedron.R")
+  putStrLn "done"
+
+  -- h <- convexHull cube4 False False Nothing
+  -- pPrint $ IM.map facetToPolygon' (_hfacets h)
+  -- putStrLn $ hullSummary h
+
+  -- h <- convexHull truncatedCuboctahedron False False Nothing
+  -- pPrint $ IM.elems $ IM.map facetToPolygon (_hfacets h)
+  -- putStrLn $ hullSummary h
+
+  -- code <- convexHull3DrglCode spheresPack True (Just "rgl/convexhull_spheresPack.R")
+  -- putStrLn "done"
+
+  -- h <- convexHull truncatedTesseract False False Nothing
+  -- putStrLn $ hullSummary h
 
   -- h <- convexHull nonConvexPolyhedron False False Nothing
   -- putStrLn $ hullSummary h

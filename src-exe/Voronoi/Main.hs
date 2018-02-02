@@ -42,12 +42,18 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  tess <- delaunay spheresPack False True Nothing
+  tess <- delaunay (truncatedCuboctahedron ++ [[0,0,0]]) False True Nothing
   let v = voronoi3 tess
-  prettyShowVoronoi3 v Nothing
-  summaryVoronoi3 v 
+  summaryVoronoi3 v
   code <- voronoi3ForRgl' v Nothing Nothing
-  writeFile "rgl/voronoi_spheresPacking01.R" code
+  writeFile "rgl/voronoi_truncatedCuboctahedron01.R" code
+
+  -- tess <- delaunay spheresPack False True Nothing
+  -- let v = voronoi3 tess
+  -- prettyShowVoronoi3 v Nothing
+  -- summaryVoronoi3 v
+  -- code <- voronoi3ForRgl' v Nothing Nothing
+  -- writeFile "rgl/voronoi_spheresPacking01.R" code
 
   -- tess <- delaunay projectedTruncatedTesseract False True Nothing
   -- pPrint $ IM.filter (\tile -> _volume tile < 1e-16 && _volume tile > 0) (_tiles tess)

@@ -26,11 +26,21 @@ squareLattice = [[0,0],[0,1],[0,2]
 centricSquare :: [[Double]]
 centricSquare = [[0,0],[0,2],[2,0],[2,2],[1,1]]
 
-centricCuboctahedron :: [[Double]]
-centricCuboctahedron = [[i,j,0] | i <- [-1,1], j <- [-1,1]] ++
-                       [[i,0,j] | i <- [-1,1], j <- [-1,1]] ++
-                       [[0,i,j] | i <- [-1,1], j <- [-1,1]] ++
-                       [[0,0,0]]
+cuboctahedron :: [[Double]]
+cuboctahedron = [[i,j,0] | i <- [-1,1], j <- [-1,1]] ++
+                [[i,0,j] | i <- [-1,1], j <- [-1,1]] ++
+                [[0,i,j] | i <- [-1,1], j <- [-1,1]]
+
+truncatedCuboctahedron :: [[Double]]
+truncatedCuboctahedron =
+  [[i, j * (1 + sqrt 2), k * (1 + 2*sqrt 2)] | i <- pm, j <- pm, k <- pm] ++
+  [[j * (1 + sqrt 2), i, k * (1 + 2*sqrt 2)] | i <- pm, j <- pm, k <- pm] ++
+  [[j * (1 + sqrt 2), k * (1 + 2*sqrt 2), i] | i <- pm, j <- pm, k <- pm] ++
+  [[i, k * (1 + 2*sqrt 2), j * (1 + sqrt 2)] | i <- pm, j <- pm, k <- pm] ++
+  [[k * (1 + 2*sqrt 2), i, j * (1 + sqrt 2)] | i <- pm, j <- pm, k <- pm] ++
+  [[k * (1 + 2*sqrt 2), j * (1 + sqrt 2), i] | i <- pm, j <- pm, k <- pm]
+  where
+    pm = [-1,1]
 
 rhombicDodecahedron :: [[Double]]
 rhombicDodecahedron = [[-1.0, 0.0, 0.0], [-0.5,-0.5,-0.5], [-0.5,-0.5, 0.5],

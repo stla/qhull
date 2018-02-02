@@ -4,9 +4,11 @@ import           Control.Monad              (unless, when)
 import           ConvexHull.CConvexHull
 import           ConvexHull.Types
 import           Data.Function              (on)
+import           Data.Graph                 (flattenSCCs, stronglyConnComp)
 import qualified Data.HashMap.Strict.InsOrd as H
 import qualified Data.IntMap.Strict         as IM
 import           Data.List
+import           Data.List.Index            (imap)
 import           Data.List.Unique           (allUnique, count_)
 import           Data.Tuple.Extra           (both)
 import           Foreign.C.String
@@ -120,3 +122,25 @@ groupedFacets' hull =
     -- families       = map (map _family) facetsGroups
     delta :: EdgeMap -> EdgeMap -> EdgeMap
     delta e1 e2 = H.difference (H.union e1 e2) (H.intersection e1 e2)
+
+data Vertex3 = Vertex3 Double Double Double
+  deriving Show
+
+-- | for 3D only, orders the vertices of the facet
+facetToPolygon :: Facet -> [Vertex3]
+facetToPolygon facet = map (toVertex3. snd) $ flattenSCCs (stronglyConnComp x)
+  where
+    vs = IM.toList $ _vertices facet
+    x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
+    connectedVertices :: (Index, [Double]) -> (Index, [Double]) -> Bool
+    connectedVertices (i,_) (j,_) = Pair i j `H.member` _edges facet
+    toVertex3 :: [Double] -> Vertex3
+    toVertex3 xs = Vertex3 (xs!!0) (xs!!1) (xs!!2)
+
+facetToPolygon' :: Facet -> [[Double]]
+facetToPolygon' facet = map snd $ flattenSCCs (stronglyConnComp x)
+  where
+    vs = IM.toList $ _vertices facet
+    x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
+    connectedVertices :: (Index, [Double]) -> (Index, [Double]) -> Bool
+    connectedVertices (i,_) (j,_) = Pair i j `H.member` _edges facet
