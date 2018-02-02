@@ -17,12 +17,13 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  code <- convexHull3DrglCode truncatedCuboctahedron False (Just "rgl/truncatedCuboctahedron.R")
-  putStrLn "done"
+  -- code <- convexHull3DrglCode truncatedCuboctahedron False (Just "rgl/truncatedCuboctahedron.R")
+  -- putStrLn "done"
 
-  -- h <- convexHull cube4 False False Nothing
-  -- pPrint $ IM.map facetToPolygon' (_hfacets h)
-  -- putStrLn $ hullSummary h
+  h <- convexHull truncatedCuboctahedron False False Nothing
+  pPrint $ IM.map toVertex3 (_vertices h)
+  pPrint $ IM.elems $ IM.map facetToPolygon' (_hfacets h)
+  pPrint $ edgesIds' h
 
   -- h <- convexHull truncatedCuboctahedron False False Nothing
   -- pPrint $ IM.elems $ IM.map facetToPolygon (_hfacets h)

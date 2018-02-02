@@ -26,6 +26,12 @@ nVertices = IM.size . _vertices
 edgesIds :: HasEdges a => a -> [IndexPair]
 edgesIds = H.keys . _edges
 
+-- | edges ids as pairs of integers
+edgesIds' :: HasEdges a => a -> [(Index,Index)]
+edgesIds' x = map fromPair (edgesIds x)
+  where
+    fromPair (Pair i j) = (i,j)
+
 -- | edges coordinates
 edgesCoordinates :: HasEdges a => a -> [([Double],[Double])]
 edgesCoordinates = H.elems . _edges
