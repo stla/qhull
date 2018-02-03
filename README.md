@@ -456,3 +456,21 @@ constraints =
 , [ 0.0 , 0.0 , 0.0 ]
 , [ 3.0 , 0.0 , 0.0 ] ]
 ```
+
+## Gallery
+
+The convex hull of a curve on the sphere:
+
+![Imgur](https://i.imgur.com/kaS78HG.png)
+
+The Voronoi cell of a point inside the Utah teapot:
+
+![Imgur](https://i.imgur.com/gmgKDrE.png)
+
+The Voronoi diagram of a projection of the truncated tesseract:
+
+![Imgur](https://i.imgur.com/mocwfy6.png)
+
+The Voronoi diagram of a cube surrounded by three perpendicular circles:
+
+![Imgur](https://i.imgur.com/tK4rjhL.png)
