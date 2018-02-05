@@ -94,8 +94,11 @@ TesselationT* tesselation(
           allfacets[i_facet].simplex.volume = fmax(0, qh_facetarea(qh, facet));
         }
         if(allfacets[i_facet].simplex.volume > vthreshold){
-          allfacets[i_facet].simplex.center =
-            qh_facetcenter(qh, facet->vertices);
+          allfacets[i_facet].simplex.center = malloc(dim * sizeof(double));
+          double* center = qh_facetcenter(qh, facet->vertices);
+          for(unsigned i=0; i < dim; i++){
+            allfacets[i_facet].simplex.center[i] = center[i];
+          }
         }
         i_facet++;
       }
@@ -131,6 +134,7 @@ TesselationT* tesselation(
             allfacets[i_facet].simplex.center = nanvector(dim);
           }
         }
+//        printf("center facet %u: %f %f %f\n", i_facet, allfacets[i_facet].simplex.center[0], allfacets[i_facet].simplex.center[1], allfacets[i_facet].simplex.center[2]);
         allfacets[i_facet].simplex.radius =
           sqrt(squaredDistance(((vertexT*)facet->vertices->e[0].p)->point,
                                 allfacets[i_facet].simplex.center, dim));

@@ -42,11 +42,25 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  tess <- delaunay (truncatedCuboctahedron ++ [[0,0,0]]) False True Nothing
+  let x1 = let b=0 in
+            [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+      x2 = let b=pi/2 in
+            [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]
+      x3 = [[cos (a*2*pi/100), sin (a*2*pi/100), 0] | a <- [0 .. 99]]
+  tess <- delaunay (nub $ x1 ++ x2 ++ x3 ++ map (map (/5)) cube3) False False Nothing
+  putStrLn "done delaunay"
   let v = voronoi3 tess
-  summaryVoronoi3 v
-  code <- voronoi3ForRgl' v Nothing Nothing
-  writeFile "rgl/voronoi_truncatedCuboctahedron01.R" code
+      (_,cell) = last (restrictVoronoi3' v)
+  h <- convexHull (cell3Vertices cell) False False Nothing
+  putStrLn $ hullSummary h
+  code <- convexHull3DrglCode (cell3Vertices cell) True (Just "rgl/convexhull_voronoiCell.R")
+  putStrLn "done"
+
+  -- tess <- delaunay (truncatedCuboctahedron ++ [[0,0,0]]) False True Nothing
+  -- let v = voronoi3 tess
+  -- summaryVoronoi3 v
+  -- code <- voronoi3ForRgl' v Nothing Nothing
+  -- writeFile "rgl/voronoi_truncatedCuboctahedron01.R" code
 
   -- tess <- delaunay spheresPack False True Nothing
   -- let v = voronoi3 tess

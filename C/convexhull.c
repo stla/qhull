@@ -420,12 +420,20 @@ ConvexHullT* convexHull(
     {
       facetT *facet; unsigned i_facet = 0;
       FORALLfacets{
-        facet->id                = i_facet; /* for neighbors and ridgeOf */
-        faces[i_facet].area      = qh_facetarea(qh, facet);
-        faces[i_facet].center    = qh_getcenter(qh, facet->vertices);
-        faces[i_facet].normal    = facet->normal;
-        faces[i_facet].offset    = facet->offset;
-        faces[i_facet].nvertices = (unsigned) qh_setsize(qh, facet->vertices);
+        facet->id                  = i_facet; /* for neighbors and ridgeOf */
+        faces[i_facet].area        = qh_facetarea(qh, facet);
+        double* center             = qh_getcenter(qh, facet->vertices);
+        faces[i_facet].center      = malloc(dim * sizeof(double));
+        for(unsigned i=0; i < dim; i++){
+          faces[i_facet].center[i] = center[i];
+        }
+        double* normal = facet->normal;
+        faces[i_facet].normal      = malloc(dim * sizeof(double));
+        for(unsigned i=0; i < dim; i++){
+          faces[i_facet].normal[i] = normal[i];
+        }
+        faces[i_facet].offset      = facet->offset;
+        faces[i_facet].nvertices   = (unsigned) qh_setsize(qh, facet->vertices);
         { /* face vertices */
           faces[i_facet].vertices =
             (VertexT*) malloc(faces[i_facet].nvertices * sizeof(VertexT));
@@ -443,6 +451,27 @@ ConvexHullT* convexHull(
           }
           qsort(faces[i_facet].vertices, faces[i_facet].nvertices,
                 sizeof(VertexT), cmpvertices);
+        }
+        if(dim == 3){ /* orientation of the normals */
+          pointT* onepoint = ((vertexT*)facet->vertices->e[0].p)->point;
+          double thepoint[dim]; /* onepoint+normal */
+          for(unsigned i=0; i < dim; i++){
+            thepoint[i] = onepoint[i] + faces[i_facet].normal[i];
+          }
+          /* we check that these two points are on the same side of the ridge */
+          double h1 = dotproduct(qh->interior_point,
+                                 faces[i_facet].normal, dim) +
+                      faces[i_facet].offset;
+          double h2 = dotproduct(thepoint, faces[i_facet].normal, dim) +
+                      faces[i_facet].offset;
+          if(h1*h2 > 0){
+            for(unsigned i=0; i < dim; i++){
+              faces[i_facet].normal[i] *= -1;
+            }
+            printf("change sign\n");
+          }else{
+            printf("not change sign\n");
+          }
         }
         /**/
         i_facet++;

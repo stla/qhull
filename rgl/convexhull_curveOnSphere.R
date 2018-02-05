@@ -998,25 +998,25 @@ triangles3d(rbind(c(0.2718664391597224,0.2895083527193449,0.9177546256839811), c
 triangles3d(rbind(c(0.0,0.0,1.0), c(0.2718664391597224,0.2895083527193449,0.9177546256839811), c(0.2721393280966107,0.30868147570157073,0.9114032766354453)), color=colors[397], alpha=1)
 triangles3d(rbind(c(0.0,0.0,1.0), c(0.2705980500730985,0.27059805007309845,0.9238795325112867), c(0.2718664391597224,0.2895083527193449,0.9177546256839811)), color=colors[398], alpha=1)
 
-M <- par3d("userMatrix")
-movie3d(
-  par3dinterp(
-    time = seq(0, 1, len = 9),
-    userMatrix = list(
-      M,
-      rotate3d(M, pi, 1, 0, 0),
-      rotate3d(M, pi, 1, 1, 0),
-      rotate3d(M, pi, 1, 1, 1),
-      rotate3d(M, pi, 0, 1, 1),
-      rotate3d(M, pi, 0, 1, 0),
-      rotate3d(M, pi, 1, 0, 1),
-      rotate3d(M, pi, 0, 0, 1),
-      M
-    )
-  ),
-  fps = 100,
-  duration = 1,
-  dir = ".",
-  movie = "convexhull_curveOnSphere",
-  convert = "C:/PortableApps/ImageMagick/convert -loop 0 -delay 1x%d %s*.png %s.%s"
-)
+# M <- par3d("userMatrix")
+# movie3d(
+#   par3dinterp(
+#     time = seq(0, 1, len = 9),
+#     userMatrix = list(
+#       M,
+#       rotate3d(M, pi, 1, 0, 0),
+#       rotate3d(M, pi, 1, 1, 0),
+#       rotate3d(M, pi, 1, 1, 1),
+#       rotate3d(M, pi, 0, 1, 1),
+#       rotate3d(M, pi, 0, 1, 0),
+#       rotate3d(M, pi, 1, 0, 1),
+#       rotate3d(M, pi, 0, 0, 1),
+#       M
+#     )
+#   ),
+#   fps = 100,
+#   duration = 1,
+#   dir = ".",
+#   movie = "convexhull_curveOnSphere",
+#   convert = "C:/PortableApps/ImageMagick/convert -loop 0 -delay 1x%d %s*.png %s.%s"
+# )

@@ -144,9 +144,11 @@ cSimplexToSimplex sites simplexdim csimplex = do
       dim         = length (head sites)
   sitesids <- (<$!>) (map fromIntegral)
                      (peekArray simplexdim (__sitesids csimplex))
+  -- putStrLn "cSimplexToSimplex - peek sitesids"
   let points = fromAscList
                (zip sitesids (map ((!!) sites) sitesids))
   center <- (<$!>) (map cdbl2dbl) (peekArray dim (__center csimplex))
+  -- putStrLn "cSimplexToSimplex - peek center"
   return Simplex { _vertices'       = points
                  , _circumcenter = center
                  , _circumradius = radius
@@ -214,6 +216,7 @@ cSubTiletoTileFacet points csubtile = do
       offset     = realToFrac $ __offset csubtile
   simplex <- cSimplexToSimplex points dim subsimplex
   normal <- (<$!>) (map realToFrac) (peekArray dim (__normal csubtile))
+  -- putStrLn "cSubTiletoTileFacet - peek normal"
   return (id', TileFacet { _subsimplex = simplex
                          , _facetOf    = IS.fromAscList ridgeOf
                          , _normal'     = normal
@@ -289,11 +292,14 @@ cTileToTile points ctile = do
       family     = __family ctile
       orient     = __orientation ctile
       dim        = length (head points)
+  -- putStrLn $ "tile id: " ++ show id'
   simplex <- cSimplexToSimplex points (dim+1) csimplex
   neighbors <- (<$!>) (map fromIntegral)
                       (peekArray nneighbors (__neighbors ctile))
+  -- putStrLn "cTileToTile - peek neighbors"
   ridgesids <- (<$!>) (map fromIntegral)
                       (peekArray nridges (__ridgesids ctile))
+  -- putStrLn "cTileToTile - peek ridges"
   return (id', Tile {  _simplex      = simplex
                      , _neighborsIds = IS.fromAscList neighbors
                      , _facetsIds    = IS.fromAscList ridgesids
@@ -362,14 +368,19 @@ cTesselationToTesselation vertices ctess = do
       nsubtiles = fromIntegral $ __nsubtiles ctess
       nsites    = length vertices
   sites''    <- peekArray nsites (__sites ctess)
+  -- putStrLn "peek sites"
   tiles''    <- peekArray ntiles (__tiles ctess)
+  -- putStrLn "peek tiles"
   subtiles'' <- peekArray nsubtiles (__subtiles ctess)
+  -- putStrLn "peek ridges"
   sites'     <- mapM (cSiteToSite vertices) sites''
   let sites = fromAscList (map (fst3 &&& snd3) sites')
       edgesIndices = concatMap thd3 sites'
       edges = map (toPair &&& both (_point . ((!) sites))) edgesIndices
   tiles'     <- mapM (cTileToTile vertices) tiles''
+  -- putStrLn "mapped cTileToTile"
   subtiles'  <- mapM (cSubTiletoTileFacet vertices) subtiles''
+  -- putStrLn "mapped cSubTiletoTileFacet"
   return Tesselation
          { _sites      = sites
          , _tiles      = fromAscList tiles'
