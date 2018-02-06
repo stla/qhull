@@ -213,6 +213,9 @@ dodecahedron = let phi = (1 + sqrt 5)/2 in
                [[j,0,i] | i <- [-1,1], j <- [-phi, phi]] ++
                [[i,j,0] | i <- [-1,1], j <- [-phi, phi]]
 
+icosahedron :: [[Double]]
+icosahedron = dodecahedron
+
 spheresPack :: [[Double]]
 spheresPack = [ [2,1,1], [4,1,1]
               , [1, 1 + sqrt 3, 1], [3, 1 + sqrt 3, 1], [5, 1 + sqrt 3, 1]

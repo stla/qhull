@@ -17,13 +17,18 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  -- code <- convexHull3DrglCode irregularPolyhedron True (Just "rgl/irregularPolyhedron.R")
-  h <- convexHull truncatedCuboctahedron False False Nothing
-  putStrLn $ hullSummary h
-  pPrint $ _vertices h
-  pPrint $ IM.elems $ IM.map facetToPolygon' (_hfacets h)
-  pPrint $ edgesIds' h
-  pPrint $ IM.elems $ IM.map _normal (_hfacets h)
+  h <- convexHull icosahedron False False Nothing
+  pPrint $ IM.map facetToPolygon (_hfacets h)
+  -- putStrLn $ hullSummary h
+  -- pPrint $ IM.elems $ IM.map (IM.elems . _vertices) (_hfacets h)
+
+  -- -- code <- convexHull3DrglCode irregularPolyhedron True (Just "rgl/irregularPolyhedron.R")
+  -- h <- convexHull truncatedCuboctahedron False False Nothing
+  -- putStrLn $ hullSummary h
+  -- pPrint $ _vertices h
+  -- pPrint $ IM.elems $ IM.map facetToPolygon' (_hfacets h)
+  -- pPrint $ edgesIds' h
+  -- pPrint $ IM.elems $ IM.map _normal (_hfacets h)
 
   -- code <- convexHull3DrglCode mobiusStrip True (Just "rgl/mobiusHull02.R")
   -- h <- convexHull mobiusStrip False False Nothing

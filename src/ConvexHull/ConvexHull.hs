@@ -123,32 +123,37 @@ groupedFacets' hull =
     delta :: EdgeMap -> EdgeMap -> EdgeMap
     delta e1 e2 = H.difference (H.union e1 e2) (H.intersection e1 e2)
 
-data Vertex3 = Vertex3 Double Double Double
-  deriving Show
+-- data Vertex3 = Vertex3 Double Double Double
+--   deriving Show
+--
+-- toVertex3 :: [Double] -> Vertex3
+-- toVertex3 xs = Vertex3 (xs!!0) (xs!!1) (xs!!2)
 
--- | for 3D only, orders the vertices of the facet (a polygon)
-facetToPolygon :: Facet -> [Vertex3]
-facetToPolygon facet = map (toVertex3. snd) $ flattenSCCs (stronglyConnComp x)
+-- | for 3D only, orders the vertices of the facet (a polygon) ;
+-- also returns a Boolean indicating the orientation of the vertices
+facetToPolygon :: Facet -> ([(Index, [Double])], Bool)
+facetToPolygon facet = (polygon, dotProduct > 0)
   where
-    vs = IM.toList $ _vertices facet
-    x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
+  vs = IM.toList $ _vertices facet
+  x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
+    where
     connectedVertices :: (Index, [Double]) -> (Index, [Double]) -> Bool
     connectedVertices (i,_) (j,_) = Pair i j `H.member` _edges facet
+  polygon = flattenSCCs (stronglyConnComp x)
+  vertices = map snd polygon
+  v1 = vertices!!0
+  v2 = vertices!!1
+  v3 = vertices!!2
+  normal = crossProd (zipWith subtract v1 v2) (zipWith subtract v1 v3)
+    where
+    crossProd u v = [ u!!1 * v!!2 - u!!2 * v!!1
+                    , u!!2 * v!!0 - u!!0 * v!!2
+                    , u!!0 * v!!1 - u!!1 * v!!0 ]
+  dotProduct = sum $ zipWith (*) normal (_normal facet)
 
-toVertex3 :: [Double] -> Vertex3
-toVertex3 xs = Vertex3 (xs!!0) (xs!!1) (xs!!2)
-
--- | like `facetToPolygon`, but returns the vertices indices
-facetToPolygon' :: Facet -> [Index]
-facetToPolygon' facet = map fst $ flattenSCCs (stronglyConnComp x)
-  where
-    vs = IM.toList $ _vertices facet
-    x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
-    connectedVertices :: (Index, [Double]) -> (Index, [Double]) -> Bool
-    connectedVertices (i,_) (j,_) = Pair i j `H.member` _edges facet
-
--- facetToPolygon' :: Facet -> [[Double]]
--- facetToPolygon' facet = map snd $ flattenSCCs (stronglyConnComp x)
+-- -- | like `facetToPolygon`, but returns the vertices indices
+-- facetToPolygon' :: Facet -> [Index]
+-- facetToPolygon' facet = map fst $ flattenSCCs (stronglyConnComp x)
 --   where
 --     vs = IM.toList $ _vertices facet
 --     x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
