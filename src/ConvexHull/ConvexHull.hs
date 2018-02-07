@@ -129,7 +129,7 @@ groupedFacets' hull =
 -- toVertex3 :: [Double] -> Vertex3
 -- toVertex3 xs = Vertex3 (xs!!0) (xs!!1) (xs!!2)
 
--- | for 3D only, orders the vertices of the facet (a polygon) ;
+-- | for 3D only, orders the vertices of the facet (i.e. provides a polygon) ;
 -- also returns a Boolean indicating the orientation of the vertices
 facetToPolygon :: Facet -> ([(Index, [Double])], Bool)
 facetToPolygon facet = (polygon, dotProduct > 0)
@@ -150,6 +150,14 @@ facetToPolygon facet = (polygon, dotProduct > 0)
                     , u!!2 * v!!0 - u!!0 * v!!2
                     , u!!0 * v!!1 - u!!1 * v!!0 ]
   dotProduct = sum $ zipWith (*) normal (_normal facet)
+
+-- | for 3D only, orders the vertices of the facet (i.e. provides a polygon)
+-- in anticlockwise orientation
+facetToPolygon' :: Facet -> [(Index, [Double])]
+facetToPolygon' facet = if test then polygon else reverse polygon
+  where
+  (polygon, test) = facetToPolygon facet
+
 
 -- -- | like `facetToPolygon`, but returns the vertices indices
 -- facetToPolygon' :: Facet -> [Index]
