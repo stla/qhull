@@ -15,14 +15,18 @@ data Vertex = Vertex {
 data Ridge = Ridge {
     _rvertices :: IndexMap [Double]
   , _ridgeOf   :: IntSet
+  , _redges    :: EdgeMap
 } deriving Show
 
 instance HasVertices Ridge where
   _vertices = _rvertices
 
+instance HasEdges Ridge where
+  _edges = _redges
+
 data Facet = Facet {
     _fvertices :: IndexMap [Double]
-  , _fridges   :: IntMap Ridge
+  , _fridges   :: IntSet
   , _centroid  :: [Double]
   , _normal'   :: [Double]
   , _offset'   :: Double

@@ -115,6 +115,13 @@ irregularPolyhedron =
   , [ 0.248355 , -9.5223e-2 , 0.535651 ]
   ]
 
+truncatedCube :: [[Double]]
+truncatedCube =
+  let x = 1 + sqrt 2 in
+  [[i, j*x, k*x] | i <- [-1,1], j <- [-1,1], k <- [-1,1]] ++
+  [[i*x, j, k*x] | i <- [-1,1], j <- [-1,1], k <- [-1,1]] ++
+  [[i*x, j*x, k] | i <- [-1,1], j <- [-1,1], k <- [-1,1]]
+
 truncatedTesseract :: [[Double]]
 truncatedTesseract =
   let x = 1 + sqrt 2 in

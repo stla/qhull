@@ -42,6 +42,15 @@ unsigned* map_vertexid(VertexT* vertices, unsigned nvertices){
   return ids;
 }
 
+/* return ids of a vector of RidgeT */
+unsigned* map_ridgeid(RidgeT* ridges, unsigned nridges){
+  unsigned* ids = malloc(nridges * sizeof(unsigned));
+  for(unsigned r=0; r < nridges; r++){
+    ids[r] = ridges[r].id;
+  }
+  return ids;
+}
+
 // void deepCopyRidge(RidgeT* src, RidgeT* dest) { et dim !
 //     dest = malloc(sizeof(RidgeT));
 //     *dest = *src;
@@ -58,6 +67,7 @@ RidgeT copyRidge(RidgeT ridge, unsigned dim){
   out.ridgeOf1  = ridge.ridgeOf1;
   out.ridgeOf2  = ridge.ridgeOf2;
   out.nvertices = ridge.nvertices;
+  out.nedges    = ridge.nedges;
   out.vertices  = malloc(out.nvertices * sizeof(VertexT));
   for(unsigned v=0; v < out.nvertices; v++){
     out.vertices[v].id    = ridge.vertices[v].id;
@@ -66,6 +76,12 @@ RidgeT copyRidge(RidgeT ridge, unsigned dim){
       out.vertices[v].point[i] = ridge.vertices[v].point[i];
     }
   }
+  // out.edges = malloc(out.nedges * sizeof(unsigned*));
+  // for(unsigned e=0; e < out.nedges; e++){
+  //   out.edges[e] = malloc(2 * sizeof(unsigned));
+  //   out.edges[e][0] = ridge.edges[e][0];
+  //   out.edges[e][1] = ridge.edges[e][1];
+  // }
   return out;
 }
 
@@ -139,6 +155,7 @@ RidgeT* allRidges(FaceT *faces, unsigned nfaces, unsigned dim, unsigned* length)
   for(unsigned i=0; i < faces[0].nridges; i++){
     out[i] = copyRidge(faces[0].ridges[i], dim);
     out[i].id = i;
+    out[i].nedges = 0;
     // RidgeT out[i];
     // deepCopyRidge(&(faces[0].ridges[i]), &(out[i]));
   }
@@ -169,6 +186,7 @@ RidgeT* allRidges(FaceT *faces, unsigned nfaces, unsigned dim, unsigned* length)
         }
         out[*length] = copyRidge(faces[f].ridges[j], dim);
         out[*length].id = *length;
+        out[*length].nedges = 0;
         // RidgeT out[*length];
         // deepCopyRidge(&(faces[f].ridges[j]), &(out[*length]));
         (*length)++;
@@ -297,9 +315,9 @@ unsigned areElementsOf(unsigned x1, unsigned x2, unsigned* array,
   return count==2;
 }
 
-/* make face edges from all edges */
-unsigned** faceEdges(FaceT face, unsigned** alledges, unsigned nalledges,
-                      unsigned* lengthout)
+/* make face/ridge edges from all edges */
+unsigned** makeEdges(SetOfVerticesT face, unsigned** alledges,
+                     unsigned nalledges, unsigned* lengthout)
 {
   *lengthout = 0;
   unsigned* faceverticesids = map_vertexid(face.vertices, face.nvertices);
@@ -468,7 +486,7 @@ ConvexHullT* convexHull(
             for(unsigned i=0; i < dim; i++){
               faces[i_facet].normal[i] *= -1;
             }
-            printf("change sign\n");
+            printf("change sign\n"); // seems to never occur
           }else{
             printf("not change sign\n");
           }
@@ -508,6 +526,7 @@ ConvexHullT* convexHull(
           ridgeT *ridge, **ridgep;
           unsigned i_ridge = 0;
           FOREACHridge_(facet->ridges){
+            ridges[i_ridge].nedges = 0;
             unsigned ridgeSize = qh_setsize(qh, ridge->vertices); // dim-1
 //            printf("ridge size: %u\n", ridgeSize);
             ridges[i_ridge].nvertices = ridgeSize;
@@ -633,16 +652,36 @@ ConvexHullT* convexHull(
     unsigned** alledges = allEdges(vertices, nvertices, nalledges);
     qsort(alledges, nalledges, sizeof(unsigned*), cmpedges);
 
-    { /* faces edges */
+    { /* faces edges and ridges ids */
       facetT *facet; unsigned i_facet=0;
       FORALLfacets{
+        /* facet ridges ids */
+        faces[i_facet].ridgesids =
+          map_ridgeid(faces[i_facet].ridges, faces[i_facet].nridges);
+        qsortu(faces[i_facet].ridgesids, faces[i_facet].nridges);
+        /* facet edges */
+        SetOfVerticesT facet_vset = {.vertices = faces[i_facet].vertices,
+                                     .nvertices = faces[i_facet].nvertices};
         unsigned nfaceedges;
-        faces[i_facet].edges  =
-          faceEdges(faces[i_facet], alledges, nalledges, &nfaceedges);
+        faces[i_facet].edges =
+          makeEdges(facet_vset, alledges, nalledges, &nfaceedges);
         //qsort(faces[i_facet].edges, nfaceedges, sizeof(unsigned*), cmpedges); useless, I think
         faces[i_facet].nedges = nfaceedges;
         /**/
         i_facet++;
+      }
+    }
+
+    /* ridges edges */
+    if(dim > 3){
+      for(unsigned r=0; r < n_allridges; r++){
+        unsigned facetid = allridges[r].ridgeOf1;
+        SetOfVerticesT vset = {.vertices = allridges[r].vertices,
+                               .nvertices = allridges[r].nvertices};
+        unsigned nedges;
+        allridges[r].edges =
+          makeEdges(vset, faces[facetid].edges, faces[facetid].nedges, &nedges);
+        allridges[r].nedges = nedges;
       }
     }
 

@@ -6,7 +6,9 @@ import           ConvexHull.Types
 import           Data.Function              (on)
 import           Data.Graph                 (flattenSCCs, stronglyConnComp)
 import qualified Data.HashMap.Strict.InsOrd as H
+import           Data.IntMap.Strict         (IntMap)
 import qualified Data.IntMap.Strict         as IM
+import qualified Data.IntSet                as IS
 import           Data.List
 import           Data.List.Index            (imap)
 import           Data.List.Unique           (allUnique, count_)
@@ -88,13 +90,17 @@ hullSummary hull =
     dim = length $ head (IM.elems vertices)
     counts_vertices = count_ (map nVertices facets')
     counts_edges = count_ (map nEdges facets')
-    counts_ridges = count_ (map (IM.size . _fridges) facets')
+    counts_ridges = count_ (map (IS.size . _fridges) facets')
 
 -- | facets ids an edge belongs to
 edgeOf :: ConvexHull -> (Index, Index) -> [Int]
 edgeOf hull (v1,v2) = IM.keys $ IM.filter (elem (Pair v1 v2)) facetsEdges
   where
     facetsEdges = IM.map edgesIds (_hfacets hull)
+
+-- | ridges of a facet
+facetRidges :: ConvexHull -> Facet -> IntMap Ridge
+facetRidges hull facet = IM.restrictKeys (_hridges hull) (_fridges facet)
 
 -- | group facets of the same family
 groupedFacets :: ConvexHull -> [(Family, [IndexMap [Double]], [EdgeMap])]
@@ -158,7 +164,6 @@ facetToPolygon' facet = if test then polygon else reverse polygon
   where
   (polygon, test) = facetToPolygon facet
 
-
 -- -- | like `facetToPolygon`, but returns the vertices indices
 -- facetToPolygon' :: Facet -> [Index]
 -- facetToPolygon' facet = map fst $ flattenSCCs (stronglyConnComp x)
@@ -167,3 +172,13 @@ facetToPolygon' facet = if test then polygon else reverse polygon
 --     x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
 --     connectedVertices :: (Index, [Double]) -> (Index, [Double]) -> Bool
 --     connectedVertices (i,_) (j,_) = Pair i j `H.member` _edges facet
+
+-- | for 4D only, orders the vertices of a ridge (i.e. provides a polygon)
+ridgeToPolygon :: Ridge -> [(Index, [Double])]
+ridgeToPolygon ridge = flattenSCCs (stronglyConnComp x)
+  where
+  vs = IM.toList $ _vertices ridge
+  x = imap (\i v -> (v, i, findIndices (connectedVertices v) vs)) vs
+    where
+    connectedVertices :: (Index, [Double]) -> (Index, [Double]) -> Bool
+    connectedVertices (i,_) (j,_) = Pair i j `H.member` _edges ridge

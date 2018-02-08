@@ -14,7 +14,7 @@ import           Data.Tuple.Extra    (both)
 import           Foreign
 import           Foreign.C.Types
 import           Foreign.C.String
-import           Qhull.Types 
+import           Qhull.Types
 
 #include "convexhull.h"
 
@@ -124,6 +124,8 @@ data CRidge = CRidge {
   , __ridgeOf2 :: CUInt
   , __ridgeSize :: CUInt
   , __ridgeid   :: CUInt
+  , __redges :: Ptr (Ptr CUInt)
+  , __nredges :: CUInt
 }
 
 instance Storable CRidge where
@@ -135,34 +137,51 @@ instance Storable CRidge where
       ridgeOf2' <- #{peek RidgeT, ridgeOf2} ptr
       ridgeSize <- #{peek RidgeT, nvertices} ptr
       ridgeid   <- #{peek RidgeT, id} ptr
+      edges'    <- #{peek RidgeT, edges} ptr
+      nedges'   <- #{peek RidgeT, nedges} ptr
       return CRidge { __rvertices = rvertices
                     , __ridgeOf1  = ridgeOf1'
                     , __ridgeOf2  = ridgeOf2'
                     , __ridgeSize = ridgeSize
-                    , __ridgeid   = ridgeid }
-    poke ptr (CRidge r1 r2 r3 r4 r5)
+                    , __ridgeid   = ridgeid
+                    , __redges    = edges'
+                    , __nredges   = nedges' }
+    poke ptr (CRidge r1 r2 r3 r4 r5 r6 r7)
       = do
           #{poke RidgeT, vertices} ptr r1
           #{poke RidgeT, ridgeOf1} ptr r2
           #{poke RidgeT, ridgeOf2} ptr r3
           #{poke RidgeT, nvertices} ptr r4
           #{poke RidgeT, id} ptr r5
+          #{poke RidgeT, edges} ptr r6
+          #{poke RidgeT, nedges} ptr r7
 
 cRidgeToRidge :: Int -> CRidge -> IO (Int, Ridge)
 cRidgeToRidge dim cridge = do
-  let f1  = fromIntegral $ __ridgeOf1 cridge
-      f2  = fromIntegral $ __ridgeOf2 cridge
-      n   = fromIntegral $ __ridgeSize cridge
-      rid = fromIntegral $ __ridgeid cridge
+  let f1     = fromIntegral $ __ridgeOf1 cridge
+      f2     = fromIntegral $ __ridgeOf2 cridge
+      n      = fromIntegral $ __ridgeSize cridge
+      rid    = fromIntegral $ __ridgeid cridge
+      nedges = fromIntegral $ __nredges cridge
   vertices <- peekArray n (__rvertices cridge)
   rvertices <- cVerticesToMap dim vertices
+  edges' <- if dim > 3
+            then (<$!>) (map (\x -> (fromIntegral (x!!0), fromIntegral (x!!1))))
+                        ((=<<) (mapM (peekArray 2))
+                               (peekArray nedges (__redges cridge)))
+            else return []
+  let edges = if dim > 3
+              then H.fromList (zip (map (\(i,j) -> Pair i j) edges')
+                                   (map (both ((IM.!) rvertices)) edges'))
+              else H.empty
   return (rid, Ridge { _rvertices = rvertices
-                     , _ridgeOf   = IS.fromAscList [f1,f2] })
+                     , _ridgeOf   = IS.fromAscList [f1,f2]
+                     , _redges    = edges })
 
 data CFace = CFace {
     __fvertices :: Ptr CVertex
   , __nvertices' :: CUInt
-  , __ridges :: Ptr CRidge
+  , __ridges :: Ptr CUInt
   , __nridges' :: CUInt
   , __center :: Ptr CDouble
   , __normal :: Ptr CDouble
@@ -181,7 +200,7 @@ instance Storable CFace where
     peek ptr = do
       fvertices' <- #{peek FaceT, vertices} ptr
       nvertices' <- #{peek FaceT, nvertices} ptr
-      ridges'    <- #{peek FaceT, ridges} ptr
+      ridges'    <- #{peek FaceT, ridgesids} ptr
       nridges'   <- #{peek FaceT, nridges} ptr
       center'    <- #{peek FaceT, center} ptr
       normal'    <- #{peek FaceT, normal} ptr
@@ -210,7 +229,7 @@ instance Storable CFace where
       = do
           #{poke FaceT, vertices} ptr r1
           #{poke FaceT, nvertices} ptr r2
-          #{poke FaceT, ridges} ptr r3
+          #{poke FaceT, ridgesids} ptr r3
           #{poke FaceT, nridges} ptr r4
           #{poke FaceT, center} ptr r5
           #{poke FaceT, normal} ptr r6
@@ -235,8 +254,8 @@ cFaceToFacet dim cface = do
   normal    <- (<$!>) (map realToFrac) (peekArray dim (__normal cface))
   vertices  <- (=<<) (cVerticesToMap dim)
                      (peekArray nvertices (__fvertices cface))
-  ridges  <- (=<<) (mapM (cRidgeToRidge dim))
-                  (peekArray nridges (__ridges cface))
+  ridges  <- (<$!>) (map fromIntegral)
+                    (peekArray nridges (__ridges cface))
   neighbors <- (<$!>) (map fromIntegral)
                       (peekArray neighsize (__neighbors cface))
   edges' <- (<$!>) (map (\x -> (fromIntegral (x!!0), fromIntegral (x!!1))))
@@ -246,7 +265,7 @@ cFaceToFacet dim cface = do
               (zip (map (\(i,j) -> Pair i j) edges')
                    (map (both ((IM.!) vertices)) edges'))
   return Facet { _fvertices = vertices
-               , _fridges   = IM.fromAscList ridges
+               , _fridges   = IS.fromAscList ridges
                , _centroid  = center
                , _normal'   = normal
                , _offset'   = offset
@@ -321,7 +340,7 @@ cConvexHullToConvexHull cconvexhull = do
       nedges    = fromIntegral (__nalledges cconvexhull)
   vertices <- (=<<) (cVerticesToVertexMap dim)
                     (peekArray nvertices (__allvertices cconvexhull))
-  faces <- (=<<) (mapM (cFaceToFace dim))
+  faces <- (=<<) (mapM (cFaceToFacet dim))
                        (peekArray nfaces (__faces cconvexhull))
   allridges <- (=<<) (mapM (cRidgeToRidge dim))
                           (peekArray nridges (__allridges cconvexhull))

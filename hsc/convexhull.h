@@ -14,18 +14,26 @@ typedef struct FullVertex {
   unsigned  nneighridges;
 } FullVertexT;
 
+typedef struct SetOfVertices {
+    VertexT*   vertices;
+    unsigned   nvertices;
+} SetOfVerticesT;
+
 typedef struct Ridge {
-    VertexT* vertices;
-    unsigned ridgeOf1;
-    unsigned ridgeOf2;
-    unsigned nvertices;
-    unsigned id;
+    VertexT*   vertices;
+    unsigned   ridgeOf1;
+    unsigned   ridgeOf2;
+    unsigned   nvertices;
+    unsigned   id;
+    unsigned** edges;
+    unsigned   nedges;
 } RidgeT;
 
 typedef struct Face {
   VertexT*   vertices;
   unsigned   nvertices;
   RidgeT*    ridges;
+  unsigned*  ridgesids;
   unsigned   nridges;
   double*    center;
   double*    normal;

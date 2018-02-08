@@ -17,8 +17,27 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull icosahedron False False Nothing
-  pPrint $ IM.map facetToPolygon (_hfacets h)
+  h <- convexHull truncatedTesseract False False Nothing
+  putStrLn $ hullSummary h
+  putStrLn "edges:"
+  pPrint $ edgesIds' h
+  putStrLn "original vertices:"
+  pPrint $ take 2 truncatedTesseract
+  putStrLn "vertices:"
+  pPrint $ take 2 $ verticesCoordinates h
+  putStrLn "all vertices:"
+  pPrint $ verticesCoordinates h
+  putStrLn "facets:"
+  pPrint $ IM.map verticesIds (_hfacets h)
+  putStrLn "ridges of facet 9:"
+  let facet = _hfacets h IM.! 9
+      ridges = facetRidges h facet
+  pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
+  putStrLn "vertices of facet 9:"
+  pPrint $ _vertices facet
+
+  -- h <- convexHull icosahedron False False Nothing
+  -- pPrint $ IM.map facetToPolygon (_hfacets h)
   -- putStrLn $ hullSummary h
   -- pPrint $ IM.elems $ IM.map (IM.elems . _vertices) (_hfacets h)
 
