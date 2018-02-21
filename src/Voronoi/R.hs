@@ -53,7 +53,7 @@ voronoi3ForRgl v n d =
   "library(rgl)\n" ++
   if isJust d
     then code ++ "\n" ++ "# Delaunay:\n" ++
-         delaunay3rgl (fromJust d) True True True (Just 0.9)
+         delaunay3rgl (fromJust d) True True True True (Just 0.9)
     else code
   where
     cellForRgl :: ([Double], Cell3) -> String

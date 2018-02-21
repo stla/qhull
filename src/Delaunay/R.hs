@@ -36,49 +36,41 @@ delaunay2ForR tess colors =
         else "col=\"lightblue\")\n")
 
 -- | R code to plot a 3D Delaunay tesselation
--- TODO: exterior interior
-delaunay3rgl :: Tesselation -> Bool -> Bool -> Bool -> Maybe Double -> String
-delaunay3rgl tess onlyexterior segments colors alpha =
+delaunay3rgl :: Tesselation -> Bool -> Bool -> Bool -> Bool -> Maybe Double -> String
+delaunay3rgl tess interior exterior segments colors alpha =
   let allridges = IM.elems (_tilefacets tess) in
-  let ridges = (if onlyexterior
-                  then filter (not . sandwichedFacet) allridges
-                  else allridges) in
+  let ridges | exterior && interior = allridges
+             | interior = filter sandwichedFacet allridges
+             | exterior = filter (not . sandwichedFacet) allridges
+  in
   "library(rgl)\n" ++
   (if colors
     then printf "colors <- topo.colors(%d, alpha=0.5)\n" (length ridges + 1)
     else "\n") ++
   concatMap rglRidge ridges ++
   (if segments
-    then if onlyexterior
-      then concatMap rglSegment (tilefacetsEdges ridges)
-      else concatMap rglSegment (edgesCoordinates tess)
+    then if exterior && interior
+      then concatMap rglSegment (edgesCoordinates tess)
+      else concatMap rglSegment (tilefacetsEdges ridges)
     else "")
   where
     rglRidge :: TileFacet -> String
     rglRidge ridge =
       let i = 1 + head (IS.elems $ _facetOf ridge) in
-      printf "triangles3d(rbind(c%s,c%s,c%s"
+      printf "\ntriangles3d(rbind(c%s,c%s,c%s"
              (show (pts!!0)) (show (pts!!1)) (show (pts!!2)) ++
-      -- "triangles3d(rbind(c" ++ show (pts!!0) ++
-      -- ", c" ++ show (pts!!1) ++
-      -- ", c" ++ show (pts!!2) ++
       (if colors
         then
           printf "), color=colors[%d]" i
         else
           "), color=\"blue\"") ++
       maybe ")\n" (printf "alpha=%f)\n") alpha
-      -- (if isJust alpha
-      --   then printf "alpha=%f)\n" (fromJust alpha)
-      --   else ")\n")
       where
         pts = map (\p -> (p!!0,p!!1,p!!2)) (verticesCoordinates ridge)
     rglSegment :: ([Double], [Double]) -> String
     rglSegment (p1, p2) =
       printf "segments3d(rbind(c%s,c%s), color=\"black\")\n"
              (show p1') (show p2')
-      -- "segments3d(rbind(c" ++ show p1' ++ ", c" ++ show p2' ++
-      -- "), color=\"black\")\n"
       where
         p1' = (p1!!0, p1!!1, p1!!2)
         p2' = (p2!!0, p2!!1, p2!!2)

@@ -197,12 +197,49 @@ projectedTruncatedTesseract =
     [ x6, x6, x6],
     [ x5, x5, x5]]
     where
-      x1 = 2 / (sqrt(1 + 3*(1 + sqrt 2)^2) + 1 + sqrt 2) -- 0.29
-      x2 = 2*(1 + sqrt 2) / (sqrt(1 + 3*(1 + sqrt 2)^2) + 1 + sqrt 2) -- 0.71
-      x3 = 2*(1 + sqrt 2) / (sqrt(1 + 3*(1 + sqrt 2)^2) - 1 - sqrt 2) -- 2.56
-      x4 = 2 / (sqrt(1 + 3*(1 + sqrt 2)^2) - 1 - sqrt 2) -- 1.06
-      x5 = 2*(1 + sqrt 2) / (sqrt(1 + 3*(1 + sqrt 2)^2) - 1) -- 1.46
-      x6 = 2*(1 + sqrt 2) / (sqrt(1 + 3*(1 + sqrt 2)^2) + 1) -- 0.91
+      a = 1 + sqrt 2
+      x1 = 2 / (sqrt(1 + 3*a*a) + a) -- 0.29
+      x2 = 2*a / (sqrt(1 + 3*a*a) + a) -- 0.71
+      x3 = 2*a / (sqrt(1 + 3*a*a) - a) -- 2.56
+      x4 = 2 / (sqrt(1 + 3*a*a) - a) -- 1.06
+      x5 = 2*a / (sqrt(1 + 3*a*a) - 1) -- 1.46
+      x6 = 2*a / (sqrt(1 + 3*a*a) + 1) -- 0.91
+
+rectifiedTesseract :: [[Double]]
+rectifiedTesseract =
+  let x = sqrt 2 in
+  [[0, j*x, k*x, l*x] | j <- [-1,1], k <- [-1,1], l <- [-1,1]] ++
+  [[i*x, 0, k*x, l*x] | i <- [-1,1], k <- [-1,1], l <- [-1,1]] ++
+  [[i*x, j*x, 0, l*x] | i <- [-1,1], j <- [-1,1], l <- [-1,1]] ++
+  [[i*x, j*x, k*x, 0] | i <- [-1,1], j <- [-1,1], k <- [-1,1]]
+
+cantellatedTesseract :: [[Double]]
+cantellatedTesseract =
+  let x = 1 + sqrt 2 in
+  map (map (/ sqrt(2 + 2*x*x))) $
+    [[i, j, k*x, l*x] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1]] ++
+    [[i*x, j, k, l*x] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1]] ++
+    [[i*x, j*x, k, l] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1]] ++
+    [[i, j*x, k, l*x] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1]] ++
+    [[i, j*x, k*x, l] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1]] ++
+    [[i*x, j, k*x, l] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1]]
+
+projectedCantellatedTesseract :: [[Double]]
+projectedCantellatedTesseract = map stereographic cantellatedTesseract
+  where
+    stereographic x = map (/(1-x!!3)) [2 * x!!0, 2 * x!!1, 2 * x!!2]
+
+octaplex :: [[Double]]
+octaplex = map (map (/ sqrt 2)) $
+  [[i,j,0,0] | i <- pm, j <- pm] ++
+  [[i,0,j,0] | i <- pm, j <- pm] ++
+  [[i,0,0,j] | i <- pm, j <- pm] ++
+  [[0,0,i,j] | i <- pm, j <- pm] ++
+  [[0,i,0,j] | i <- pm, j <- pm] ++
+  [[0,i,j,0] | i <- pm, j <- pm]
+  where
+    pm = [-1,1]
+
 
 nonConvexPolyhedron :: [[Double]]
 nonConvexPolyhedron =
@@ -214,7 +251,7 @@ nonConvexPolyhedron =
         y = 3.5617820682
   -- tetrahedra: (i 2.18, j 2.18, k 2.18), (i 3.56, 0, 0), (0, j 3.56, 0), (0, 0, k 3.56)
 
-dodecahedron :: [[Double]]
+dodecahedron :: [[Double]] -- it's icosahedron !
 dodecahedron = let phi = (1 + sqrt 5)/2 in
                [[0,i,j] | i <- [-1,1], j <- [-phi, phi]] ++
                [[j,0,i] | i <- [-1,1], j <- [-phi, phi]] ++
@@ -222,6 +259,98 @@ dodecahedron = let phi = (1 + sqrt 5)/2 in
 
 icosahedron :: [[Double]]
 icosahedron = dodecahedron
+
+hexagonalDuoprism :: [[Double]]
+hexagonalDuoprism = [a ++ b | a <- hexagon, b <- hexagon]
+  where
+    hexagon = [ [sqrt 3 / 2,   0.5]
+              , [0         ,   1  ]
+              , [-sqrt 3 / 2,  0.5]
+              , [-sqrt 3 / 2, -0.5]
+              , [0          , -1  ]
+              , [sqrt 3 / 2 , -0.5] ]
+
+projectedHexagonalDuoprims :: [[Double]]
+projectedHexagonalDuoprims =
+    [ [ 1.8945800837529239 , 1.0938363213560542 , 1.8945800837529239 ]
+    , [ 4.181540550352056 , 2.414213562373096 , 0.0 ]
+    , [ 1.8945800837529239 , 1.0938363213560542 , -1.8945800837529239 ]
+    , [ 0.904836765142137 , 0.522407749927483 , -0.904836765142137 ]
+    , [ 0.7174389352143009 , 0.4142135623730951 , 0.0 ]
+    , [ 0.904836765142137 , 0.522407749927483 , 0.904836765142137 ]
+    , [ 0.0 , 2.1876726427121085 , 1.8945800837529239 ]
+    , [ 0.0 , 4.828427124746192 , 0.0 ]
+    , [ 0.0 , 2.1876726427121085 , -1.8945800837529239 ]
+    , [ 0.0 , 1.044815499854966 , -0.904836765142137 ]
+    , [ 0.0 , 0.8284271247461902 , 0.0 ]
+    , [ 0.0 , 1.044815499854966 , 0.904836765142137 ]
+    , [ -1.8945800837529239 , 1.0938363213560542 , 1.8945800837529239 ]
+    , [ -4.181540550352056 , 2.414213562373096 , 0.0 ]
+    , [ -1.8945800837529239
+      , 1.0938363213560542
+      , -1.8945800837529239
+      ]
+    , [ -0.904836765142137 , 0.522407749927483 , -0.904836765142137 ]
+    , [ -0.7174389352143009 , 0.4142135623730951 , 0.0 ]
+    , [ -0.904836765142137 , 0.522407749927483 , 0.904836765142137 ]
+    , [ -1.8945800837529239
+      , -1.0938363213560542
+      , 1.8945800837529239
+      ]
+    , [ -4.181540550352056 , -2.414213562373096 , 0.0 ]
+    , [ -1.8945800837529239
+      , -1.0938363213560542
+      , -1.8945800837529239
+      ]
+    , [ -0.904836765142137 , -0.522407749927483 , -0.904836765142137 ]
+    , [ -0.7174389352143009 , -0.4142135623730951 , 0.0 ]
+    , [ -0.904836765142137 , -0.522407749927483 , 0.904836765142137 ]
+    , [ 0.0 , -2.1876726427121085 , 1.8945800837529239 ]
+    , [ 0.0 , -4.828427124746192 , 0.0 ]
+    , [ 0.0 , -2.1876726427121085 , -1.8945800837529239 ]
+    , [ 0.0 , -1.044815499854966 , -0.904836765142137 ]
+    , [ 0.0 , -0.8284271247461902 , 0.0 ]
+    , [ 0.0 , -1.044815499854966 , 0.904836765142137 ]
+    , [ 1.8945800837529239 , -1.0938363213560542 , 1.8945800837529239 ]
+    , [ 4.181540550352056 , -2.414213562373096 , 0.0 ]
+    , [ 1.8945800837529239
+      , -1.0938363213560542
+      , -1.8945800837529239
+      ]
+    , [ 0.904836765142137 , -0.522407749927483 , -0.904836765142137 ]
+    , [ 0.7174389352143009 , -0.4142135623730951 , 0.0 ]
+    , [ 0.904836765142137 , -0.522407749927483 , 0.904836765142137 ]
+    ]
+
+hexaSquare :: [[Double]]
+hexaSquare = [a ++ b | a <- hexagon, b <- square]
+  where
+    hexagon = [ [sqrt 3 / 2,   0.5]
+              , [0         ,   1  ]
+              , [-sqrt 3 / 2,  0.5]
+              , [-sqrt 3 / 2, -0.5]
+              , [0          , -1  ]
+              , [sqrt 3 / 2 , -0.5] ]
+    square = [[i * sqrt 2 / 2, j * sqrt 2 / 2] | i <- [-1,1], j <- [-1,1]]
+
+cubinder :: [[Double]]
+cubinder = [a ++ b | a <- circle, b <- square]
+  where
+    circle = [[cos (realToFrac i * 2*pi/30), sin (realToFrac i * 2*pi/30)] | i <- [0 .. 29]]
+    square = [[i * sqrt 2 / 2, j * sqrt 2 / 2] | i <- [-1,1], j <- [-1,1]]
+
+duocylinder :: [[Double]]
+duocylinder = [a ++ b | a <- circle, b <- circle]
+  where
+    circle = [[cos (realToFrac i * 2*pi/30), sin (realToFrac i * 2*pi/30)] | i <- [0 .. 29]]
+
+regularTetrahedron :: [[Double]]
+regularTetrahedron = 
+  [ [0.5 / sqrt 3, -0.5, 0.5 / sqrt 6]
+  , [sqrt 3 / 3, 0, -0.5 / sqrt 6]
+  , [0.5 / sqrt 3, 0.5, -0.5 / sqrt 6]
+  , [0, 0, 0.5 * sqrt 3 / sqrt 2] ]
+
 
 spheresPack :: [[Double]]
 spheresPack = [ [2,1,1], [4,1,1]
@@ -257,10 +386,21 @@ randomInSphere n = do
   let phi   = map (*pi) (take n (randoms g2 :: [Double]))
   g3 <- newStdGen
   let rho   = take n (randoms g3 :: [Double])
-  return $ zipWith3 (\r a b -> [r * sin a * cos b,
+  return $ zipWith3 (\r a b -> [r * cos a * sin b,
                                 r * sin a * sin b,
-                                r * cos a         ])
+                                r * cos b         ])
                      rho theta phi
+
+regularSphere :: Int -> [[Double]]
+regularSphere n =
+  concatMap (\a -> map (s2c a) phi) theta
+  where
+  theta = map (*(2*pi)) [frac i n | i <- [0 .. n-1]]
+  phi = map (*pi) [frac i n | i <- [1 .. n-1]]
+  frac :: Int -> Int -> Double
+  frac p q = realToFrac p / realToFrac q
+  s2c :: Double -> Double -> [Double]
+  s2c th ph = [cos th * sin ph, sin th * sin ph, cos ph]
 
 randomOnSphere :: Int -> Double -> IO [[Double]]
 randomOnSphere n r = do
@@ -268,9 +408,9 @@ randomOnSphere n r = do
   let x = take (2*n) (randoms g :: [Double])
   let u_ = map (*(2*pi)) (take n x)
   let v_ = drop n x
-  return $ zipWith (\u v -> [r * sin u * cos (acos (2*v-1)),
+  return $ zipWith (\u v -> [r * cos u * sin (acos (2*v-1)),
                              r * sin u * sin (acos (2*v-1)),
-                             r * cos u                     ]) u_ v_
+                             r * (2*v-1)                  ]) u_ v_
 
 randomInCube :: Int -> IO [[Double]]
 randomInCube n = do

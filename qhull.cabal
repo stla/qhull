@@ -132,6 +132,7 @@ executable test_convexhull
                      , pretty-show
                      , containers
                      , insert-ordered-containers
+  ghc-options:         -O0
 
 executable test_halfspaces
   if flag(exe) || flag(exe-hs)

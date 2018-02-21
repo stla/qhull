@@ -10,6 +10,7 @@ import qualified Data.Set                   as S
 import           System.IO
 import           Text.Printf
 import           Text.Show.Pretty
+import Data.Function (on)
 
 approx :: RealFrac a => Int -> a -> a
 approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
@@ -17,24 +18,156 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull truncatedTesseract False False Nothing
+  h <- convexHull regularTetrahedron False False Nothing
   putStrLn $ hullSummary h
-  putStrLn "edges:"
-  pPrint $ edgesIds' h
-  putStrLn "original vertices:"
-  pPrint $ take 2 truncatedTesseract
-  putStrLn "vertices:"
-  pPrint $ take 2 $ verticesCoordinates h
   putStrLn "all vertices:"
   pPrint $ verticesCoordinates h
   putStrLn "facets:"
-  pPrint $ IM.map verticesIds (_hfacets h)
-  putStrLn "ridges of facet 9:"
-  let facet = _hfacets h IM.! 9
-      ridges = facetRidges h facet
-  pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
-  putStrLn "vertices of facet 9:"
-  pPrint $ _vertices facet
+  let facets = IM.elems (_hfacets h)
+  let polygons = map (map fst . facetToPolygon') facets
+  pPrint polygons
+  code <- convexHull3DrglCode regularTetrahedron False (Just "rgl/regularTetrahedron.R")
+  putStrLn "done"
+
+  -- let points = regularSphere 30
+  -- h <- convexHull points True False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- writeFile "Data/sphere.txt" (show (verticesCoordinates h, polygons))
+
+  -- h <- convexHull octaplex False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "ridges:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let ridges = map (IM.elems . facetRidges h) facets
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull icosahedron False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+
+  -- let cube = [[-1,-1,-1],
+  --             [-1,-1, 1],
+  --             [-1, 1,-1],
+  --             [-1, 1, 1],
+  --             [ 1,-1,-1],
+  --             [ 1,-1, 1],
+  --             [ 1, 1,-1],
+  --             [ 1, 1, 1]]
+  -- h <- convexHull cube False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "same vertices:"
+  -- print $ cube == verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+
+  -- points <- randomOnSphere 50 1
+  -- h <- convexHull points True False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+
+  -- h <- convexHull duocylinder False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "ridges:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let ridges = map (IM.elems . facetRidges h) facets
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull hexaSquare False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+
+  -- h <- convexHull hexagonalDuoprism False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "same vertices:"
+  -- print $ verticesCoordinates h == hexagonalDuoprism
+  -- putStrLn "one hexagonal prism:"
+  -- let facet = head $ IM.elems (_hfacets h)
+  -- let ridges = IM.elems $ facetRidges h facet
+  -- pPrint $ map (map fst . ridgeToPolygon) ridges
+  -- putStrLn "edges of this facet:"
+  -- pPrint $ edgesIds' facet
+
+  -- h <- convexHull cantellatedTesseract False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "good ridges:"
+  -- let goodfacets = IM.elems $ IM.filter (\f -> nEdges f `elem` [9,12]) (_hfacets h)
+  -- let ridges = nubBy ((==) `on` verticesIds) $ concatMap (IM.elems . facetRidges h) goodfacets
+  -- pPrint $ map (map fst . ridgeToPolygon) ridges
+
+  -- h <- convexHull rectifiedTesseract False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- pPrint $ IM.map verticesIds (_hfacets h)
+  -- putStrLn "tetrahedral facets:"
+  -- pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- putStrLn "ridges of facet 0:"
+  -- let facet = _hfacets h IM.! 0
+  --     ridges = facetRidges h facet
+  -- pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
+
+  -- h <- convexHull truncatedTesseract False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "original vertices:"
+  -- pPrint $ take 2 truncatedTesseract
+  -- putStrLn "vertices:"
+  -- pPrint $ take 2 $ verticesCoordinates h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- pPrint $ IM.map verticesIds (_hfacets h)
+  -- putStrLn "tetrahedral facets:"
+  -- pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- putStrLn "ridges of facet 9:"
+  -- let facet = _hfacets h IM.! 9
+  --     ridges = facetRidges h facet
+  -- pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
+  -- putStrLn "vertices of facet 9:"
+  -- pPrint $ _vertices facet
 
   -- h <- convexHull icosahedron False False Nothing
   -- pPrint $ IM.map facetToPolygon (_hfacets h)
