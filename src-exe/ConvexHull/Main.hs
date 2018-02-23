@@ -18,16 +18,56 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull regularTetrahedron False False Nothing
-  putStrLn $ hullSummary h
-  putStrLn "all vertices:"
-  pPrint $ verticesCoordinates h
-  putStrLn "facets:"
+  h <- convexHull qcube1 True False Nothing
+  putStrLn "same vertices:"
+  pPrint $ qcube1 == verticesCoordinates h
+  putStrLn "facets cube1:"
   let facets = IM.elems (_hfacets h)
   let polygons = map (map fst . facetToPolygon') facets
   pPrint polygons
-  code <- convexHull3DrglCode regularTetrahedron False (Just "rgl/regularTetrahedron.R")
-  putStrLn "done"
+
+  h <- convexHull qcube2 True False Nothing
+  putStrLn "same vertices:"
+  pPrint $ qcube2 == verticesCoordinates h
+  putStrLn "facets cube2:"
+  let facets = IM.elems (_hfacets h)
+  let polygons = map (map fst . facetToPolygon') facets
+  pPrint polygons
+
+  h <- convexHull qcube3 True False Nothing
+  putStrLn "same vertices:"
+  pPrint $ qcube3 == verticesCoordinates h
+  putStrLn "facets cube3:"
+  let facets = IM.elems (_hfacets h)
+  let polygons = map (map fst . facetToPolygon') facets
+  pPrint polygons
+
+  h <- convexHull qcube4 True False Nothing
+  putStrLn "same vertices:"
+  pPrint $ qcube4 == verticesCoordinates h
+  putStrLn "facets cube4:"
+  let facets = IM.elems (_hfacets h)
+  let polygons = map (map fst . facetToPolygon') facets
+  pPrint polygons
+
+  h <- convexHull qcube5 True False Nothing
+  putStrLn "same vertices:"
+  pPrint $ qcube5 == verticesCoordinates h
+  putStrLn "facets cube5:"
+  let facets = IM.elems (_hfacets h)
+  let polygons = map (map fst . facetToPolygon') facets
+  pPrint polygons
+
+  -- h <- convexHull regularTetrahedron False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- code <- convexHull3DrglCode regularTetrahedron False (Just "rgl/regularTetrahedron.R")
+  -- putStrLn "done"
 
   -- let points = regularSphere 30
   -- h <- convexHull points True False Nothing
