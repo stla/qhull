@@ -14,7 +14,7 @@ main = do
   -- let code = delaunaySpheres tess
   -- writeFile "rgl/delaunay_spheres_nonConvexPolyhedron.R" code
 
-  x <- randomOnSphere 100 3
-  tess <- delaunay ([0,0,0] : x) False False Nothing
+  x <- [0,0,0] : randomOnSphere 100 3
+  tess <- delaunay x False False Nothing
   let code = delaunay3rgl tess True False True True Nothing
   writeFile "rgl/delaunay_sphere_interior.R" code

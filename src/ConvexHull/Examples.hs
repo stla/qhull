@@ -1,7 +1,8 @@
 module ConvexHull.Examples
   where
-import           Data.List
-import           Data.List.Split (chunksOf)
+import           Data.List                  hiding (permutations)
+import           Data.List.Split            (chunksOf)
+import           Math.Combinat.Permutations
 import           System.Random
 
 translate3 :: [[Double]] -> [Double] -> [[Double]]
@@ -351,6 +352,47 @@ regularTetrahedron =
   , [0.5 / sqrt 3, 0.5, -0.5 / sqrt 6]
   , [0, 0, 0.5 * sqrt 3 / sqrt 2] ]
 
+
+hexacosichoron :: [[Double]]
+hexacosichoron =
+  [[i*0.5, j*0.5, k*0.5, l*0.5] | i <- pm, j <- pm, k <- pm, l <-pm] ++
+  [[0, 0, 0, i] | i <- pm] ++
+  [[0, 0, i, 0] | i <- pm] ++
+  [[0, i, 0, 0] | i <- pm] ++
+  [[i, 0, 0, 0] | i <- pm] ++
+  [ permuteList p [phi/2, 1/2, 1/2/phi, 0]    | p <- permutations4, isEvenPermutation p] ++
+  [ permuteList p [phi/2, 1/2, -1/2/phi, 0]   |  p <- permutations4, isEvenPermutation p] ++
+  [ permuteList p [phi/2, -1/2, 1/2/phi, 0]   |  p <- permutations4, isEvenPermutation p] ++
+  [ permuteList p [phi/2, -1/2, -1/2/phi, 0]  |  p <- permutations4, isEvenPermutation p] ++
+  [ permuteList p [-phi/2, 1/2, 1/2/phi, 0]  |  p <- permutations4, isEvenPermutation p] ++
+  [ permuteList p [-phi/2, 1/2, -1/2/phi, 0] |  p <- permutations4, isEvenPermutation p] ++
+  [ permuteList p [-phi/2, -1/2, 1/2/phi, 0]  |  p <- permutations4, isEvenPermutation p] ++
+  [ permuteList p [-phi/2, -1/2, -1/2/phi, 0]   |  p <- permutations4, isEvenPermutation p]
+  where
+    permutations4 = permutations 4
+    phi = (1 + sqrt 5) / 2
+    pm = [-1,1]
+
+dodecaplex :: [[Double]]
+dodecaplex = nub $
+  [permuteList p [0.0, 0.0, i, j] | i <- pm2 , j <- pm2,  p <- perms4] ++
+  [permuteList p [i, j, k, l] | i <- pm, j <- pm, k <-pm, l <- pmsqrt5, p <- perms4] ++
+  [permuteList p [i ,j ,k ,l] | i <- pmphipowminus2, j <- pmphi, k <- pmphi, l <- pmphi, p <- perms4] ++
+  [permuteList p [i ,j ,k ,l] | i <- pmphipowminus1, j <- pmphipowminus1, k <- pmphipowminus1, l <- pmphipow2, p <- perms4] ++
+  [permuteList p [0, i, j, k] | i <- pmphipowminus2, j <- pm, k <- pmphipow2, p <- perms4, isEvenPermutation p] ++
+  [permuteList p [0, i, j, k] | i <- pmphipowminus1, j <- pmphi, k <- pmsqrt5, p <- perms4, isEvenPermutation p] ++
+  [permuteList p [i, j, k, l] | i <- pmphipowminus1, j <- pm, k <- pmphi, l <- pm2, p <- perms4, isEvenPermutation p]
+  where
+    pm = [-1.0,1.0]
+    pm2 = [-2, 2]
+    perms4 = permutations 4
+    pmsqrt5 = [-sqrt 5, sqrt 5]
+    pmphipowminus2 = [-1/phi/phi, 1/phi/phi]
+    pmphipow2 = [-phi*phi, phi*phi]
+    phi = (1 + sqrt 5) / 2
+    pmphiminus1 = phi-1
+    pmphi = [phi, -phi]
+    pmphipowminus1 = [-1/phi, 1/phi]
 
 spheresPack :: [[Double]]
 spheresPack = [ [2,1,1], [4,1,1]

@@ -1,62 +1,227 @@
 module Main
   where
 import           ConvexHull
-import           ConvexHull.Examples
+import           ConvexHull.Examples hiding (regularTetrahedron, regularSphere)
 import           ConvexHull.R
 import qualified Data.HashMap.Strict.InsOrd as H
-import qualified Data.IntMap.Strict         as IM
-import           Data.List
 import qualified Data.Set                   as S
 import           System.IO
 import           Text.Printf
 import           Text.Show.Pretty
 import Data.Function (on)
 
+import qualified Data.IntMap.Strict as IM
+import           Data.List             (union, nub, intersect)
+import           Data.Permute          (elems, rank)
+
 approx :: RealFrac a => Int -> a -> a
 approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
+
+
+
+-- fixIndices :: [[Double]] -> [[Int]] -> ([[Double]], [[Int]])
+-- fixIndices allVertices faces = (newvertices, newfaces)
+--   where
+--   faceselems = nub $ foldr union [] faces
+--   l = length faceselems
+--   permute = elems $ rank l faceselems
+--   mapper = IM.fromList $ zip permute faceselems
+--   mapper' = IM.fromList $ zip faceselems permute
+--   newfaces = map (map ((IM.!) mapper')) faces
+--   --newvertices =
+-- --    (fromJust <$> (filter isJust $ (map atMay ([allVertices !! (mapper IM.! i) | i <- IM.keys mapper])))) `intersect` IM.keys mapper
+--   -- newvertices = [allVertices !! (mapper IM.! i) | i <- IM.keys mapper]
+--   newvertices = [allVertices !! i | i <- [0 .. length allVertices-1] `intersect` IM.keys mapper]
+-- --
+-- -- regularTetrahedron' :: [[Double]]
+-- -- regularTetrahedron' =
+-- --   [ [0.5 / sqrt 3, -0.5, 0.5 / sqrt 6]
+-- --   , [sqrt 3 / 3, 0, -0.5 / sqrt 6]
+-- --   , [0.5 / sqrt 3, 0.5, -0.5 / sqrt 6]
+-- --   , [0, 0, 0.5 * sqrt 3 / sqrt 2] ]
+-- --
+-- regularSphere :: Int -> [Double] -> Double -> ([[Double]], [[Int]])
+-- regularSphere n center rho =
+--   (zipWith (s2c rho) theta phi, [[i,j] | i <- [0 .. n-1], j <- [1 .. n-1]])
+--   where
+--   gridtheta = [frac i n | i <- [0 .. n-1]]
+--   theta = map (*(2*pi)) gridtheta
+--   gridphi = [frac i n | i <- [1 .. n-1]]
+--   phi = map (*pi) gridphi
+--   frac :: Int -> Int -> Double
+--   frac p q = realToFrac p / realToFrac q
+--   s2c :: Double -> Double -> Double -> [Double]
+--   s2c r th ph = [r * cos th * sin ph + center!!0, r * sin th * sin ph + center!!1, r * cos ph + center!!2]
+--
+-- sphere1,sphere2,sphere3,sphere4 :: ([[Double]], [[Int]])
+-- sphere1 = regularSphere 40 (regularTetrahedron !! 0) (sqrt 6 / 4)
+-- sphere2 = regularSphere 40 (regularTetrahedron !! 1) (sqrt 6 / 4)
+-- sphere3 = regularSphere 40 (regularTetrahedron !! 2) (sqrt 6 / 4)
+-- sphere4 = regularSphere 40 (regularTetrahedron !! 3) (sqrt 6 / 4)
+--
+--
+-- -- regular tetrahederon -- --
+-- regularTetrahedron :: [[Double]]
+-- regularTetrahedron =
+--     -- [[i, 0, -1/sqrt 2] | i <- pm] ++ [[0, i , 1/sqrt 2] | i <- pm]
+--     -- where pm = [-1,1]
+--     [ [ -1.0 , 0.0 , -0.7071067811865475 ]
+--     , [ 0.0 , 1.0 , -0.7071067811865475 ]
+--     , [ 0.0 , -1.0 , 0.7071067811865475 ]
+--     , [ 1.0, 0.0 ,  0.7071067811865475 ]
+--     ]
+--
 
 main :: IO ()
 main = do
 
-  h <- convexHull qcube1 True False Nothing
-  putStrLn "same vertices:"
-  pPrint $ qcube1 == verticesCoordinates h
-  putStrLn "facets cube1:"
+  -- sphere1'
+  points <- randomOnSphere 100 1
+  h <- convexHull points True False Nothing
+  pPrint $ hullSummary h
+  putStrLn "vertices sphere 1:"
+  pPrint $ verticesCoordinates h
+  putStrLn "facets sphere 1:"
   let facets = IM.elems (_hfacets h)
   let polygons = map (map fst . facetToPolygon') facets
   pPrint polygons
 
-  h <- convexHull qcube2 True False Nothing
-  putStrLn "same vertices:"
-  pPrint $ qcube2 == verticesCoordinates h
-  putStrLn "facets cube2:"
+
+  let regularTetrahedron :: [[Double]]
+      regularTetrahedron =  [ [ -1.0 , 0.0 , -0.87071067811865475 ]
+                            , [ 0.0 , 1.0 , -0.7071067811865475 ]
+                            , [ 0.0 , -1.0 , 0.7071067811865475 ]
+                            , [ 1.0 , 0.0 , 0.7071067811865475 ]
+                            ]
+  h <- convexHull regularTetrahedron True False Nothing
   let facets = IM.elems (_hfacets h)
+  putStrLn "facets:"
+  pPrint facets
+  putStrLn "facets' (oriented):"
   let polygons = map (map fst . facetToPolygon') facets
   pPrint polygons
 
-  h <- convexHull qcube3 True False Nothing
-  putStrLn "same vertices:"
-  pPrint $ qcube3 == verticesCoordinates h
-  putStrLn "facets cube3:"
-  let facets = IM.elems (_hfacets h)
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
+  -- h <- convexHull qcube2 True False Nothing
+  -- putStrLn "same vertices:"
+  -- pPrint $ qcube2 == verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  --
+-- -- sphere1'
+--   let (vs1, fs1) = fixIndices (fst sphere1) (snd sphere1)
+--   h <- convexHull (vs1) True False Nothing
+--   putStrLn "vertices 1:"
+--   pPrint vs1
+--   putStrLn "facets:"
+--   let facets = IM.elems (_hfacets h)
+--   let polygons = map (map fst . facetToPolygon') facets
+--   pPrint polygons
+--
+-- --  sphere2' :: IO ([[Double]], [[Int]])
+--   let (vs2,fs2) =  fixIndices (fst sphere2) (snd sphere2)
+--   h <- convexHull (vs2) True False Nothing
+--   putStrLn "vertices 2:"
+--   pPrint vs2
+--   putStrLn "facets:"
+--   let facets = IM.elems (_hfacets h)
+--   let polygons = map (map fst . facetToPolygon') facets
+--   pPrint polygons
+--
+-- --  sphere3' :: IO ([[Double]], [[Int]])
+--   let (vs3, fs3) = fixIndices (fst sphere3) (snd sphere3)
+--   h <- convexHull (vs3) True False Nothing
+--   putStrLn "vertices 3:"
+--   pPrint vs3
+--   putStrLn "facets:"
+--   let facets = IM.elems (_hfacets h)
+--   let polygons = map (map fst . facetToPolygon') facets
+--   pPrint polygons
+--
+-- --  sphere4' :: IO ([[Double]], [[Int]])
+--   let (vs4, fs4) = fixIndices (fst sphere4) (snd sphere4)
+--   h <- convexHull (vs4) True False Nothing
+--   putStrLn "vertices 4:"
+--   pPrint vs4
+--   putStrLn "facets:"
+--   let facets = IM.elems (_hfacets h)
+--   let polygons = map (map fst . facetToPolygon') facets
+--   pPrint polygons
 
-  h <- convexHull qcube4 True False Nothing
-  putStrLn "same vertices:"
-  pPrint $ qcube4 == verticesCoordinates h
-  putStrLn "facets cube4:"
-  let facets = IM.elems (_hfacets h)
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
+  -- putStrLn "sphere1'"
+  -- pPrint sphere1'
+  -- let facets = IM.elems (_hfacets h)
+  --     polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- putStrLn "shpere2'"
+  -- pPrint sphere2'
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- putStrLn "shpere3'"
+  -- pPrint sphere3'
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- putStrLn "shpere4'"
+  -- pPrint sphere4'
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
 
-  h <- convexHull qcube5 True False Nothing
-  putStrLn "same vertices:"
-  pPrint $ qcube5 == verticesCoordinates h
-  putStrLn "facets cube5:"
-  let facets = IM.elems (_hfacets h)
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
+
+--
+--   h <- convexHull (dodecaplex) False False Nothing
+--   putStrLn $ hullSummary h
+--   putStrLn "edges:"
+--   pPrint $ edgesIds' h
+--   putStrLn "all vertices:"
+--   pPrint $ verticesCoordinates h
+--   putStrLn "ridges:"
+--   let facets = IM.elems (_hfacets h)
+--   let ridges = map (IM.elems . facetRidges h) facets
+--   pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull qcube1 True False Nothing
+  -- putStrLn "same vertices:"
+  -- pPrint $ qcube1 == verticesCoordinates h
+  -- putStrLn "facets cube1:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  --
+  -- h <- convexHull qcube2 True False Nothing
+  -- putStrLn "same vertices:"
+  -- pPrint $ qcube2 == verticesCoordinates h
+  -- putStrLn "facets cube2:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  --
+  -- h <- convexHull qcube3 True False Nothing
+  -- putStrLn "same vertices:"
+  -- pPrint $ qcube3 == verticesCoordinates h
+  -- putStrLn "facets cube3:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  --
+  -- h <- convexHull qcube4 True False Nothing
+  -- putStrLn "same vertices:"
+  -- pPrint $ qcube4 == verticesCoordinates h
+  -- putStrLn "facets cube4:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  --
+  -- h <- convexHull qcube5 True False Nothing
+  -- putStrLn "same vertices:"
+  -- pPrint $ qcube5 == verticesCoordinates h
+  -- putStrLn "facets cube5:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
 
   -- h <- convexHull regularTetrahedron False False Nothing
   -- putStrLn $ hullSummary h

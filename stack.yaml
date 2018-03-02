@@ -14,3 +14,5 @@ extra-deps:
 - pseudo-boolean-0.1.6.0
 - queue-0.1.2
 - sign-0.4.3
+- combinat-0.2.8.2
+- permutation-0.5.0.5
