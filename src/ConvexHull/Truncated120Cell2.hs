@@ -1,8 +1,9 @@
-module ConvexHull.Truncated120Cell
+module ConvexHull.Truncated120Cell2
   where
 import Math.Combinat.Permutations as P
 import Data.List
 -- http://eusebeia.dyndns.org/4d/trunc120cell
+-- http://mathworld.wolfram.com/120-Cell.html
 
 signs :: (Eq a, Num a) => [a] -> [[a]]
 --signs [] = [[]]
@@ -14,18 +15,18 @@ signsAll = concatMap signs
 vertices :: ([Double], Bool) -> [[Double]]
 vertices (coords, allperms) =
   signsAll $
-  nub $ zipWith (permuteList) perms ((replicate 24) coords)
-  where perms = filter (if allperms then (\p -> True) else isEvenPermutation) (P.permutations 4)
+  nub $ zipWith permuteList perms (replicate 24 coords)
+  where perms = filter (if allperms then const True else isEvenPermutation) (P.permutations 4)
 
 
--- vs = map vertices [([0,0,2,2], True)
---          , ([1,1,1,sqrt 5], True)
---          , ([1/phi/phi, phi, phi, phi], True)
---          , ([1/phi, 1/phi, 1/phi, phi*phi] ,True)
---          , ([0, 1/phi/phi, 1, phi*phi], False)
---          , ([0, 1/phi, phi, sqrt 5], False)
---          , ([1/phi, 1, phi, 2], False)
---          ]
+vs = map vertices [([0,0,2,2], True)
+         , ([1,1,1,sqrt 5], True)
+         , ([1/phi/phi, phi, phi, phi], True)
+         , ([1/phi, 1/phi, 1/phi, phi*phi] ,True)
+         , ([0, 1/phi/phi, 1, phi*phi], False)
+         , ([0, 1/phi, phi, sqrt 5], False)
+         , ([1/phi, 1, phi, 2], False)
+         ]
 
 phi :: Double
 phi = (1+ sqrt 5) / 2

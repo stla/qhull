@@ -20,7 +20,6 @@ vs1 =
      [[3+4*phi, 1, 3+4*phi, 3+4*phi]] ++
      [[3+4*phi, 3+4*phi, 1, 3+4*phi]] ++
      [[3+4*phi, 3+4*phi, 3+4*phi, 1]]
-     where phi = (1+sqrt 5) / 2
 
 vs2 :: [[Double]]
 vs2 =
@@ -29,8 +28,6 @@ vs2 =
   [[phi*phi*phi, phi*phi*phi, 5+6*phi, phi*phi*phi]] ++
   [[phi*phi*phi, 5+6*phi, phi*phi*phi, phi*phi*phi]] ++
   [[5+6*phi, phi*phi*phi, phi*phi*phi, phi*phi*phi]]
-  where phi3 = phi*phi*phi
-        phi = (1+sqrt 5) / 2
 
 vs3 :: [[Double]]
 vs3 =
@@ -39,15 +36,11 @@ vs3 =
   [[2*phi*phi, 2*phi*phi, 2*phi*phi*phi*phi, 2*phi*phi]] ++
   [[2*phi*phi, 2*phi*phi*phi*phi, 2*phi*phi, 2*phi*phi]] ++
   [[2*phi*phi*phi*phi, 2*phi*phi, 2*phi*phi, 2*phi*phi]]
-  where phi2 = phi*phi
-        phi4 = phi*phi*phi*phi
-        phi = (1 + sqrt 5) / 2
 
 vs4 :: [[Double]]
 vs4 =
   signsAll $
   zipWith permuteList perms (replicate 12 [0, 1, 4+5*phi, phi5])
-  where phi5 = phi*phi*phi*phi*phi
         phi = (1 + sqrt 5) / 2
         perms = filter isEvenPermutation (P.permutations 4)
 
