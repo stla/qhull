@@ -54,6 +54,7 @@ library
                      , HalfSpaces.HalfSpaces
                      , HalfSpaces.Examples
                      , HalfSpaces
+                     , ConvexHull.Truncated120Cell
   build-depends:       base >= 4.7 && < 5
                      , split
                      , containers

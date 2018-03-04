@@ -2,6 +2,7 @@ module Main
   where
 import           ConvexHull
 import           ConvexHull.Examples hiding (regularTetrahedron, regularSphere)
+import ConvexHull.Truncated120Cell
 import           ConvexHull.R
 import qualified Data.HashMap.Strict.InsOrd as H
 import qualified Data.Set                   as S
@@ -75,31 +76,27 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  -- sphere1'
-  points <- randomOnSphere 100 1
-  h <- convexHull points True False Nothing
+  -- -- sphere1'
+  -- points <- randomOnSphere 100 1
+  -- h <- convexHull points True False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices sphere 1:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets sphere 1:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+
+  h <- convexHull allVertices False False Nothing
   pPrint $ hullSummary h
-  putStrLn "vertices sphere 1:"
-  pPrint $ verticesCoordinates h
-  putStrLn "facets sphere 1:"
-  let facets = IM.elems (_hfacets h)
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
 
-
-  let regularTetrahedron :: [[Double]]
-      regularTetrahedron =  [ [ -1.0 , 0.0 , -0.87071067811865475 ]
-                            , [ 0.0 , 1.0 , -0.7071067811865475 ]
-                            , [ 0.0 , -1.0 , 0.7071067811865475 ]
-                            , [ 1.0 , 0.0 , 0.7071067811865475 ]
-                            ]
-  h <- convexHull regularTetrahedron True False Nothing
-  let facets = IM.elems (_hfacets h)
-  putStrLn "facets:"
-  pPrint facets
-  putStrLn "facets' (oriented):"
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
+  -- h <- convexHull reuleuxTetrahedron True False Nothing
+  -- let facets = IM.elems (_hfacets h)
+  -- putStrLn "facets:"
+  -- pPrint facets
+  -- putStrLn "facets' (oriented):"
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
 
   -- h <- convexHull qcube2 True False Nothing
   -- putStrLn "same vertices:"

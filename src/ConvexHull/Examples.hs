@@ -345,8 +345,8 @@ duocylinder = [a ++ b | a <- circle, b <- circle]
   where
     circle = [[cos (realToFrac i * 2*pi/30), sin (realToFrac i * 2*pi/30)] | i <- [0 .. 29]]
 
-regularTetrahedron :: [[Double]]
-regularTetrahedron =
+reuleuxTetrahedron :: [[Double]]
+reuleuxTetrahedron =
   [ [0.5 / sqrt 3, -0.5, 0.5 / sqrt 6]
   , [sqrt 3 / 3, 0, -0.5 / sqrt 6]
   , [0.5 / sqrt 3, 0.5, -0.5 / sqrt 6]
