@@ -57,6 +57,11 @@ faceCenteredCubic = [[-1,-1,-1],[-1,-1,1],[-1,1,-1],[-1,1,1]
                     ,[0,1,0],[0,-1,0]
                     ,[0,0,1],[0,0,-1]]
 
+type Vertex = [Double]
+ncube :: Int -> [Vertex]
+ncube n = concatMap (mapM (\x -> nub [x,-x])) [replicate n 1]
+
+
 cube3 :: [[Double]]
 cube3 = [[i,j,k] | i <- [-1,1], j <- [-1,1], k <- [-1,1]]
 
@@ -66,6 +71,11 @@ cube4 = [[i,j,k,l] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1]]
 cube5 :: [[Double]]
 cube5 = [[i,j,k,l,m] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1],
                        m <- [-1,1]]
+
+cube6 :: [[Double]]
+cube6 = [[i,j,k,l,m,n] | i <- [-1,1], j <- [-1,1], k <- [-1,1], l <- [-1,1],
+                         m <- [-1,1], n <- [-1,1]]
+
 
 mobiusStrip :: [[Double]]
 mobiusStrip = map (\(u,v) -> [ cos u * (1 + v/2 * cos(u/2))
@@ -390,7 +400,7 @@ dodecaplex = nub $
     pmphipowminus2 = [-1/phi/phi, 1/phi/phi]
     pmphipow2 = [-phi*phi, phi*phi]
     phi = (1 + sqrt 5) / 2
-    pmphiminus1 = phi-1
+--    pmphiminus1 = phi-1
     pmphi = [phi, -phi]
     pmphipowminus1 = [-1/phi, 1/phi]
 

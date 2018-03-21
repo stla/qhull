@@ -13,12 +13,11 @@ signsAll = concatMap signs
 
 vertices :: ([Double], Bool) -> [[Double]]
 vertices (coords, allperms) =
-  signsAll $
+  map (map (/ sqrt 270.1640786)) $ signsAll $
   nub $ zipWith permuteList perms (replicate 24 coords)
   where perms = filter (if allperms then const True else isEvenPermutation) (P.permutations 4)
 
-
-vs = map vertices [([1, 3+4*phi, 3+4*phi, 3+4*phi], True)
+vs120trunc = concatMap vertices [([1, 3+4*phi, 3+4*phi, 3+4*phi], True)
          , ([phi*phi*phi, phi*phi*phi, phi*phi*phi, 5+6*phi], True)
          , ([2*phi*phi, 2*phi*phi, 2*phi*phi, 2*phi4], True)
          , ([0, 1, 4+5*phi, phi5] ,False)

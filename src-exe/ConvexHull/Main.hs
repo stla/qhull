@@ -1,19 +1,26 @@
 module Main
   where
 import           ConvexHull
-import           ConvexHull.Examples hiding (regularTetrahedron, regularSphere)
-import ConvexHull.Truncated120Cell
+import           ConvexHull.BiTruncatedTesseract
+import           ConvexHull.CantiTrunc600Cell.Data
+import           ConvexHull.Examples                          hiding
+                                                               (regularSphere,
+                                                               regularTetrahedron)
 import           ConvexHull.R
-import qualified Data.HashMap.Strict.InsOrd as H
-import qualified Data.Set                   as S
+import           ConvexHull.SnubDodecahedron.SnubDodecahedron
+import           ConvexHull.Truncated120Cell3
+import           Data.Function                                (on)
+import qualified Data.HashMap.Strict.InsOrd                   as H
+import qualified Data.IntMap.Strict                           as IM
+import           Data.List
+import           Data.List.Index
+import           Data.Permute                                 (elems, rank)
+import qualified Data.Set                                     as S
+import           Data.Tuple.Extra
 import           System.IO
 import           Text.Printf
+import           Text.Regex
 import           Text.Show.Pretty
-import Data.Function (on)
-
-import qualified Data.IntMap.Strict as IM
-import           Data.List             (union, nub, intersect)
-import           Data.Permute          (elems, rank)
 
 approx :: RealFrac a => Int -> a -> a
 approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
@@ -73,8 +80,86 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 --     ]
 --
 
+stringify :: Show a => String -> [a] -> String
+stringify sep = intercalate sep . map show
+
+
 main :: IO ()
 main = do
+
+--  let "facet normal  " ++ sub3
+
+  h <- convexHull snubDodecahedron True False Nothing
+  pPrint $ hullSummary h
+  putStrLn "facets:"
+  let facets = IM.elems (_hfacets h)
+  let normals = map _normal facets
+  let facetNormals = map (\n -> "facet normal  " ++ stringify " " n ++ "\nouter loop")
+                     normals
+  pPrint facetNormals
+  putStrLn "facets normals done"
+  putStrLn "facets polygons:"
+  let polygons = map (\f -> "\nvertex " ++ (stringify "\nvertex " . map snd . facetToPolygon') f) facets
+  pPrint polygons
+  --let polygons = (map (map stringify . snd) . facetToPolygon') facets
+ -- let polygons = map (\f -> stringify ("vertex" ++ ((show . snd) $ facetToPolygon' f))) facets ++ "\nendloop\nendfacet"
+  let vertices = map (\v -> v ++ "\nendloop\nendfacet") polygons
+  let vertices' = map (\v -> subRegex (mkRegex "\\]") (subRegex (mkRegex "\\[") v "") "") vertices
+  putStrLn "vertices:"
+  pPrint vertices'
+  putStrLn "THE CONCATENATION:"
+  pPrint $ subRegex (mkRegex ",") (concat [x ++ y | x <- facetNormals, y <- vertices']) " "
+  putStrLn "concatenation 0:"
+  pPrint $ stringify " " $ concat [unlines [x,y] | x <- facetNormals, y <- vertices']
+  putStrLn "concatenation 1:"
+  pPrint $ [unlines [x,y] | x <- facetNormals, y <- vertices']
+  putStrLn "concatenation 2:"
+  pPrint $ [stringify " " [x,y] | x <- facetNormals, y <- vertices']
+  -- putStrLn "vertices:"
+--  pPrint $ verticesCoordinates h
+--  let polygons = map (map fst . facetToPolygon') facets
+--  pPrint polygons
+--  putStrLn "edges:"
+--  pPrint $ edgesIds' h
+
+--  h <- convexHull biTruncatedTesseract False False Nothing
+--  pPrint $ hullSummary h
+--  putStrLn "vertices:"
+--  pPrint $ verticesCoordinates h
+--  putStrLn "facets:"
+--  let facets = IM.elems (_hfacets h)
+--  let polygons = map (map fst . facetToPolygon') facets
+--  pPrint polygons
+--  putStrLn "edges:"
+--  pPrint $ edgesIds' h
+
+  -- let cube10 = ncube 10
+  -- putStrLn "cube10:"
+  -- let thecube = map swap $ indexed cube10
+  -- pPrint thecube
+  -- chull <- convexHull cube10 False False Nothing
+  -- putStrLn "done"
+  -- pPrint $ hullSummary chull
+  -- pPrint $ verticesCoordinates chull
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets chull)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' chull
+
+  -- h <- convexHull allVertices False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- -- putStrLn "tetrahedral facets:"
+  -- -- pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
 
   -- -- sphere1'
   -- points <- randomOnSphere 100 1
@@ -87,8 +172,8 @@ main = do
   -- let polygons = map (map fst . facetToPolygon') facets
   -- pPrint polygons
 
-  h <- convexHull allVertices False False Nothing
-  pPrint $ hullSummary h
+  -- h <- convexHull allVertices False False Nothing
+  -- pPrint $ hullSummary h
 
   -- h <- convexHull reuleuxTetrahedron True False Nothing
   -- let facets = IM.elems (_hfacets h)
@@ -490,3 +575,4 @@ main = do
   -- let square = [[0,0],[0,1],[1,0],[1,1]]
   -- chull <- convexHull square False
   -- pPrint chull
+

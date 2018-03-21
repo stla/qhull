@@ -20,7 +20,9 @@ import           Foreign.Marshal.Array      (pokeArray)
 import           Foreign.Storable           (peek, sizeOf)
 import           Qhull.Shared
 import           Qhull.Types
+import           System.IO
 import           Text.Printf
+import           Text.Regex
 
 convexHull :: [[Double]]     -- vertices
            -> Bool           -- triangulate
@@ -182,3 +184,20 @@ ridgeToPolygon ridge = flattenSCCs (stronglyConnComp x)
     where
     connectedVertices :: (Index, [Double]) -> (Index, [Double]) -> Bool
     connectedVertices (i,_) (j,_) = Pair i j `H.member` _edges ridge
+
+-- | for 3D only, convert the convex hull to STL format
+hullToSTL :: ConvexHull -> FilePath -> IO ()
+hullToSTL chull filename = do
+  let facets = IM.elems (_hfacets chull)
+      normals = map _normal facets
+      facetNormals = map (\n -> "facet normal  " ++ stringify " " n ++ "\nouter loop")
+                     normals
+      polygons = map (\f -> "\nvertex " ++
+                        (stringify "\nvertex " . map snd . facetToPolygon') f) facets
+      vertices = map (++ "\nendloop\nendfacet\n") polygons
+      vertices' = map (\v -> subRegex (mkRegex "\\]") (subRegex (mkRegex "\\[") v "") "") vertices
+      out = subRegex (mkRegex ",") (head [x ++ y | x <- facetNormals, y <- vertices']) " "
+  writeFile filename ("solid " ++ filename ++ " produced by QHULL\n" ++ out)
+  where
+    stringify :: Show a => String -> [a] -> String
+    stringify sep = intercalate sep . map show

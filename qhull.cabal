@@ -54,7 +54,10 @@ library
                      , HalfSpaces.HalfSpaces
                      , HalfSpaces.Examples
                      , HalfSpaces
-                     , ConvexHull.Truncated120Cell
+                     , ConvexHull.Truncated120Cell3
+                     , ConvexHull.CantiTrunc600Cell.Data
+                     , ConvexHull.BiTruncatedTesseract
+                     , ConvexHull.SnubDodecahedron.SnubDodecahedron
   build-depends:       base >= 4.7 && < 5
                      , split
                      , containers
@@ -70,6 +73,9 @@ library
                      , data-default-class
                      , combinat
                      , permutation
+                     , regex-compat
+                     , regex-base
+                     , regex-posix
   other-extensions:    ForeignFunctionInterface
                      , TypeFamilies
   default-language:    Haskell2010
@@ -137,6 +143,11 @@ executable test_convexhull
                      , insert-ordered-containers
                      , combinat
                      , permutation
+                     , ilist
+                     , extra
+                     , regex-compat
+                     , regex-base
+                     , regex-posix
   ghc-options:         -O0
 
 executable test_halfspaces
