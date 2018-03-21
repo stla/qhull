@@ -80,8 +80,8 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 --     ]
 --
 
-stringify :: Show a => String -> [a] -> String
-stringify sep = intercalate sep . map show
+-- stringify :: Show a => String -> [a] -> String
+-- stringify sep = intercalate sep . map show
 
 
 main :: IO ()
@@ -90,31 +90,32 @@ main = do
 --  let "facet normal  " ++ sub3
 
   h <- convexHull snubDodecahedron True False Nothing
-  pPrint $ hullSummary h
-  putStrLn "facets:"
-  let facets = IM.elems (_hfacets h)
-  let normals = map _normal facets
-  let facetNormals = map (\n -> "facet normal  " ++ stringify " " n ++ "\nouter loop")
-                     normals
-  pPrint facetNormals
-  putStrLn "facets normals done"
-  putStrLn "facets polygons:"
-  let polygons = map (\f -> "\nvertex " ++ (stringify "\nvertex " . map snd . facetToPolygon') f) facets
-  pPrint polygons
+  hullToSTL h "MYTEST.stl"
+--  pPrint $ hullSummary h
+--  putStrLn "facets:"
+--  let facets = IM.elems (_hfacets h)
+--  let normals = map _normal facets
+--  let facetNormals = map (\n -> "facet normal  " ++ stringify " " n ++ "\nouter loop")
+--                     normals
+--  pPrint facetNormals
+--  putStrLn "facets normals done"
+--  putStrLn "facets polygons:"
+--  let polygons = map (\f -> "\nvertex " ++ (stringify "\nvertex " . map snd . facetToPolygon') f) facets
+--  pPrint polygons
   --let polygons = (map (map stringify . snd) . facetToPolygon') facets
  -- let polygons = map (\f -> stringify ("vertex" ++ ((show . snd) $ facetToPolygon' f))) facets ++ "\nendloop\nendfacet"
-  let vertices = map (\v -> v ++ "\nendloop\nendfacet") polygons
-  let vertices' = map (\v -> subRegex (mkRegex "\\]") (subRegex (mkRegex "\\[") v "") "") vertices
-  putStrLn "vertices:"
-  pPrint vertices'
-  putStrLn "THE CONCATENATION:"
-  pPrint $ subRegex (mkRegex ",") (concat [x ++ y | x <- facetNormals, y <- vertices']) " "
-  putStrLn "concatenation 0:"
-  pPrint $ stringify " " $ concat [unlines [x,y] | x <- facetNormals, y <- vertices']
-  putStrLn "concatenation 1:"
-  pPrint $ [unlines [x,y] | x <- facetNormals, y <- vertices']
-  putStrLn "concatenation 2:"
-  pPrint $ [stringify " " [x,y] | x <- facetNormals, y <- vertices']
+--  let vertices = map (\v -> v ++ "\nendloop\nendfacet") polygons
+--  let vertices' = map (\v -> subRegex (mkRegex "\\]") (subRegex (mkRegex "\\[") v "") "") vertices
+--  putStrLn "vertices:"
+--  pPrint vertices'
+--  putStrLn "THE CONCATENATION:"
+--  pPrint $ subRegex (mkRegex ",") (concat [x ++ y | x <- facetNormals, y <- vertices']) " "
+--  putStrLn "concatenation 0:"
+--  pPrint $ stringify " " $ concat [unlines [x,y] | x <- facetNormals, y <- vertices']
+--  putStrLn "concatenation 1:"
+--  pPrint $ [unlines [x,y] | x <- facetNormals, y <- vertices']
+--  putStrLn "concatenation 2:"
+--  pPrint $ [stringify " " [x,y] | x <- facetNormals, y <- vertices']
   -- putStrLn "vertices:"
 --  pPrint $ verticesCoordinates h
 --  let polygons = map (map fst . facetToPolygon') facets
