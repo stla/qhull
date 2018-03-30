@@ -42,11 +42,17 @@ import           Voronoi3D
 main :: IO ()
 main = do
 
-  tess <- delaunay ([0,0,0] : projectedHexagonalDuoprims) False True Nothing
-  let v = voronoi3 tess
-  summaryVoronoi3 v
-  code <- voronoi3ForRgl' v Nothing Nothing
-  writeFile "rgl/voronoi_hexagonalDuoprism.R" code
+  tess <- delaunay waves2D False False Nothing
+  let v = voronoi2 tess
+      v' = restrictVoronoi2 v
+      code = voronoi2ForR v' Nothing
+  writeFile "Rplots/voronoi_waves2D.R" code
+
+--  tess <- delaunay ([0,0,0] : projectedHexagonalDuoprims) False True Nothing
+--  let v = voronoi3 tess
+--  summaryVoronoi3 v
+--  code <- voronoi3ForRgl' v Nothing Nothing
+--  writeFile "rgl/voronoi_hexagonalDuoprism.R" code
 
   -- let x1 = let b=0 in
   --           [[sin (a*2*pi/100) * cos b, sin (a*2*pi/100) * sin b, cos (a*2*pi/100)] | a <- [0 .. 99]]

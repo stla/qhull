@@ -6,6 +6,7 @@ import           ConvexHull.CantiTrunc600Cell.Data
 import           ConvexHull.Examples                          hiding
                                                                (regularSphere,
                                                                regularTetrahedron)
+import           ConvexHull.OmniTruncated120Cell
 import           ConvexHull.R
 import           ConvexHull.SnubDodecahedron.SnubDodecahedron
 import           ConvexHull.Truncated120Cell3
@@ -87,10 +88,29 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
---  let "facet normal  " ++ sub3
+  h <- convexHull vs120omnitrunc False False Nothing
+  pPrint $ hullSummary h
+  putStrLn "vertices:"
+  pPrint $ verticesCoordinates h
+  putStrLn "facets:"
+  let facets = IM.elems (_hfacets h)
+  let polygons = map (map fst . facetToPolygon') facets
+  pPrint polygons
+  putStrLn "edges:"
+  pPrint $ edgesIds' h
+  putStrLn "ridges:"
+  let ridges = map (IM.elems . facetRidges h) facets
+  pPrint $ map (map (map fst . ridgeToPolygon)) ridges
 
-  h <- convexHull snubDodecahedron True False Nothing
-  hullToSTL h "MYTEST.stl"
+--  let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
+--                         ,  sin (pi*x) * sin (2*pi*x)
+--                          ,  cos (pi*x)]) [i/200 | i <- [0 .. 200]]
+-- h <- convexHull curve3D True False Nothing
+--  hullToSTL h "strangeHull.stl"
+
+
+--  h <- convexHull snubDodecahedron True False Nothing
+--  hullToSTL h "MYTEST.stl"
 --  pPrint $ hullSummary h
 --  putStrLn "facets:"
 --  let facets = IM.elems (_hfacets h)

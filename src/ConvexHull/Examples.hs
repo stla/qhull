@@ -57,10 +57,26 @@ faceCenteredCubic = [[-1,-1,-1],[-1,-1,1],[-1,1,-1],[-1,1,1]
                     ,[0,1,0],[0,-1,0]
                     ,[0,0,1],[0,0,-1]]
 
+waves :: [[Double]]
+waves = [f u v | u <- seq_u, v <- seq_v]
+  where
+    f u v = [u, 0.05*(sin(v*4*pi)+sin(u*4*pi)), v]
+    frac p q = realToFrac p/ realToFrac q
+    n = 10
+    seq_u = [8 * frac i n - 4 | i <- [0 .. n]]
+    seq_v = [4 * frac i n - 2 | i <- [0 .. n]]
+
+waves2D :: [[Double]]
+waves2D = concatMap (\y' -> map (\[x,y] -> [x, y+y']) sinusoid) seq_y
+  where
+    seq_x = [realToFrac i * pi/2 | i <- [0 .. 20]]
+    sinusoid = map (\(x,y) -> [x,y]) (zip seq_x (map sin seq_x))
+    seq_y = [realToFrac 2*i | i <- [0 .. 20]]
+
+
 type Vertex = [Double]
 ncube :: Int -> [Vertex]
 ncube n = concatMap (mapM (\x -> nub [x,-x])) [replicate n 1]
-
 
 cube3 :: [[Double]]
 cube3 = [[i,j,k] | i <- [-1,1], j <- [-1,1], k <- [-1,1]]

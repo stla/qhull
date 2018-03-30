@@ -58,6 +58,7 @@ library
                      , ConvexHull.CantiTrunc600Cell.Data
                      , ConvexHull.BiTruncatedTesseract
                      , ConvexHull.SnubDodecahedron.SnubDodecahedron
+                     , ConvexHull.OmniTruncated120Cell
   build-depends:       base >= 4.7 && < 5
                      , split
                      , containers
