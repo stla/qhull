@@ -88,19 +88,24 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull vs120omnitrunc False False Nothing
+  h <- convexHull twocircles False False Nothing
   pPrint $ hullSummary h
-  putStrLn "vertices:"
-  pPrint $ verticesCoordinates h
-  putStrLn "facets:"
-  let facets = IM.elems (_hfacets h)
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
-  putStrLn "edges:"
-  pPrint $ edgesIds' h
-  putStrLn "ridges:"
-  let ridges = map (IM.elems . facetRidges h) facets
-  pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+  code <- convexHull3DrglCode twocircles False (Just "rgl/oloid.R")
+  putStrLn "done"
+
+  -- h <- convexHull vs120omnitrunc False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "ridges:"
+  -- let ridges = map (IM.elems . facetRidges h) facets
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
 
 --  let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
 --                         ,  sin (pi*x) * sin (2*pi*x)
@@ -596,4 +601,3 @@ main = do
   -- let square = [[0,0],[0,1],[1,0],[1,1]]
   -- chull <- convexHull square False
   -- pPrint chull
-
