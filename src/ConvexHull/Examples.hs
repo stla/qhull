@@ -5,9 +5,13 @@ import           Data.List.Split            (chunksOf)
 import           Math.Combinat.Permutations
 import           System.Random
 
+-- Cuboctohadron4D - does not work
+cuboctahedron4d :: [[Double]]
+cuboctahedron4d = nub [ permuteList p [0,1,1,2] | p <- permutations 4]
+
 -- OLOID --
 twocircles :: [[Double]]
-twocircles = union circle1 circle2
+twocircles = circle1 `union` circle2
   where
     circle1 = [[cos (realToFrac i * 2*pi/30), sin (realToFrac i * 2*pi/30), 0] | i <- [0 .. 29]]
     circle2 = [[0, cos (realToFrac i * 2*pi/30) - 1, sin (realToFrac i * 2*pi/30)] | i <- [0 .. 29]]

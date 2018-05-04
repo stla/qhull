@@ -88,10 +88,24 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull twocircles False False Nothing
+  h <- convexHull cuboctahedron4d False False Nothing
   pPrint $ hullSummary h
-  code <- convexHull3DrglCode twocircles False (Just "rgl/oloid.R")
-  putStrLn "done"
+  putStrLn "vertices:"
+  pPrint $ verticesCoordinates h
+  putStrLn "facets:"
+  let facets = IM.elems (_hfacets h)
+  let polygons = map (map fst . facetToPolygon') facets
+  pPrint polygons
+  putStrLn "edges:"
+  pPrint $ edgesIds' h
+  putStrLn "ridges:"
+  let ridges = map (IM.elems . facetRidges h) facets
+  pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull twocircles False False Nothing
+  -- pPrint $ hullSummary h
+  -- code <- convexHull3DrglCode twocircles False (Just "rgl/oloid.R")
+  -- putStrLn "done"
 
   -- h <- convexHull vs120omnitrunc False False Nothing
   -- pPrint $ hullSummary h

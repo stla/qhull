@@ -34,3 +34,4 @@ Temp.hs
 *.dll
 rgl/
 *.stl
+ztemp*
