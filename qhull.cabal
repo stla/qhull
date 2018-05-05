@@ -24,6 +24,8 @@ flag exe-hull
   default: False
 flag exe-hs
   default: False
+flag exe-am
+  default: False
 
 library
   hs-source-dirs:      src
@@ -162,6 +164,20 @@ executable test_halfspaces
   build-depends:       base >= 4.7 && < 5
                      , qhull
                      , pretty-show
+
+executable adjacencymatrix
+  if flag(exe) || flag(exe-am)
+    buildable:         True
+  else
+    buildable:         False
+  hs-source-dirs:      src-exe/Adjacency
+  main-is:             AdjacencyMatrix.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , qhull
+                     , optparse-applicative
+                     , containers
+  ghc-options:         -main-is Adjacency.AdjacencyMatrix
 
 source-repository head
   type:     git

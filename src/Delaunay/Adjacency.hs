@@ -1,29 +1,15 @@
 module Delaunay.Adjacecny
   where
-import           Data.IntMap.Strict    (IntMap)
-import qualified Data.IntMap.Strict    as IM
-import qualified Data.IntSet           as IS
-import           Data.List.Unique      (allUnique)
-import qualified Data.Map.Strict as M
+import           Data.IntMap.Strict (IntMap)
+import qualified Data.IntMap.Strict as IM
+import qualified Data.IntSet        as IS
+import           Data.List
+import           Data.List.Unique   (allUnique)
+import qualified Data.Map.Strict    as M
 import           Data.Maybe
+import           Delaunay.Delaunay
 import           Delaunay.Types
-import Delaunay
 
--- ad :: IntMap Site -> Int -> Bool
--- ad site i = i `IM.member` site
--- -- adjacency :: IntMap Site -> Int -> Bool
--- -- adjacency site i = map (`elem` IM.keys site) (_neighsitesIds (site IM.! i))
--- add :: IntMap Site -> Int -> Bool
--- add site i = ad site (IM.keys site !! i)
---
--- adj :: IntMap Site -> [Bool]
--- adj site = map (add site) (IM.keys site)
---
--- adj' :: IntMap Site -> Int -> [Bool]
--- adj' site i = map (add site) (IS.toList (_neighsitesIds (site IM.! i)))
---
--- adja :: [IntMap Site] -> [[Bool]]
--- adja = map adj
 
 vertices :: [[Double]]
 vertices = [
@@ -40,8 +26,22 @@ vertices = [
 del :: IO Tesselation
 del = delaunay vertices False False Nothing
 
-adjac :: Tesselation -> Int -> [Bool]
-adjac tess i = map (((i `IS.member`) . _neighsitesIds) . snd) $ IM.toList $ _sites tess
+adjac :: Tesselation -> Int -> [Int]
+adjac tess i = map (fromEnum) $ map (((i `IS.member`) . _neighsitesIds) . snd) $ IM.toList $ _sites tess
 
-adjace :: Tesselation -> [[Bool]]
+adjace :: Tesselation -> [[Int]]
 adjace tess = map (adjac tess) (IM.keys ( _sites tess ))
+-- writeAdj :: Tesselation ->  IO FilePath
+-- writeAdj = do
+--   tabl <- adjace tess
+
+writeMatrix :: [[Int]] -> IO ()
+writeMatrix matrix = appendFile "matrix.txt" (intercalate "\n" (map show matrix))
+
+vv :: IO String
+vv = readFile "v.txt"
+
+vvv :: IO [String]
+vvv = do
+  vv' <- vv
+  return $ lines vv'
