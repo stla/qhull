@@ -22,29 +22,32 @@ adjac tess i = map (fromEnum) $ map (((i `IS.member`) . _neighsitesIds) . snd) $
 adjace :: Tesselation -> [[Int]]
 adjace tess = map (adjac tess) (IM.keys ( _sites tess ))
 
-data Arguments = Arguments { file :: FilePath }
+data Arguments = Arguments { infile :: FilePath, outfile :: FilePath }
 
 run :: Parser Arguments
 run = Arguments
      <$> argument str
-          ( metavar "FILE"
-         <> help "File of vertices" )
+           ( metavar "INFILE"
+          <> help "File of vertices" )
+      <*> argument str
+           ( metavar "OUTFILE"
+          <> help "adjacency matrix" )
 
-writeMatrix :: [[Int]] -> IO ()
-writeMatrix matrix = appendFile "matrix.txt" (intercalate "\n" (map show matrix))
+writeMatrix :: [[Int]] -> FilePath -> IO ()
+writeMatrix matrix outfile = appendFile outfile (intercalate "\n" (map show matrix))
 
 doMatrix :: Arguments -> IO ()
-doMatrix (Arguments file) =
+doMatrix (Arguments infile outfile) =
   do
-    v <- delaunayVertices file
+    v <- delaunayVertices infile
     tess <- delaunayTess v
     let mat = adjace tess
-    writeMatrix mat
+    writeMatrix mat outfile
 
 main :: IO ()
 main = execParser opts >>= doMatrix
   where
     opts = info (helper <*> run)
       ( fullDesc
-     <> progDesc "Adjacecncy matrix of a Delaunay tesselation"
-     <> header "dadjacecny -- based on qhull" )
+     <> progDesc "Adjacency matrix of a Delaunay tesselation"
+     <> header "adjacencymatrix -- based on qhull" )
