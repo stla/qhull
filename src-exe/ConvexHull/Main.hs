@@ -26,6 +26,8 @@ import           Text.Show.Pretty
 approx :: RealFrac a => Int -> a -> a
 approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 
+roundedVertices :: Int -> [[Double]] -> [[Double]]
+roundedVertices n = map (map (approx n))
 
 
 -- fixIndices :: [[Double]] -> [[Int]] -> ([[Double]], [[Int]])
@@ -88,19 +90,24 @@ approx n x = fromInteger (round $ x * (10^n)) / (10.0^^n)
 main :: IO ()
 main = do
 
-  h <- convexHull cuboctahedron4d False False Nothing
-  pPrint $ hullSummary h
-  putStrLn "vertices:"
-  pPrint $ verticesCoordinates h
-  putStrLn "facets:"
-  let facets = IM.elems (_hfacets h)
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
-  putStrLn "edges:"
-  pPrint $ edgesIds' h
-  putStrLn "ridges:"
-  let ridges = map (IM.elems . facetRidges h) facets
-  pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+--  h <- convexHull cuboctahedron4d False False Nothing
+--  pPrint $ hullSummary h
+--  putStrLn "vertices:"
+---  pPrint $ verticesCoordinates h
+--  putStrLn "facets:"
+--  let facets = IM.elems (_hfacets h)
+--  let polygons = map (map fst . facetToPolygon') facets
+--  pPrint polygons
+--  putStrLn "edges:"
+--  pPrint $ edgesIds' h
+---  putStrLn "ridges:"
+--  let ridges = map (IM.elems . facetRidges h) facets
+--  pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull daVinci False False Nothing
+  -- pPrint $ hullSummary h
+  -- code <- convexHull3DrglCode daVinci False (Just "rgl/daVinci.R")
+  -- putStrLn "done"
 
   -- h <- convexHull twocircles False False Nothing
   -- pPrint $ hullSummary h
@@ -416,16 +423,16 @@ main = do
   -- let polygons = map (map fst . facetToPolygon') facets
   -- pPrint polygons
 
-  -- h <- convexHull duocylinder False False Nothing
-  -- putStrLn $ hullSummary h
-  -- putStrLn "edges:"
-  -- pPrint $ edgesIds' h
-  -- putStrLn "all vertices:"
-  -- pPrint $ verticesCoordinates h
-  -- putStrLn "ridges:"
-  -- let facets = IM.elems (_hfacets h)
-  -- let ridges = map (IM.elems . facetRidges h) facets
-  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+--  h <- convexHull duocylinder False False Nothing
+--  putStrLn $ hullSummary h
+--  putStrLn "edges:"
+--  pPrint $ edgesIds' h
+--  putStrLn "all vertices:"
+--  pPrint $ verticesCoordinates h
+--  putStrLn "ridges:"
+--  let facets = IM.elems (_hfacets h)
+--  let ridges = map (IM.elems . facetRidges h) facets
+--  pPrint $ map (map (map fst . ridgeToPolygon)) ridges
 
   -- h <- convexHull hexaSquare False False Nothing
   -- putStrLn $ hullSummary h
@@ -475,21 +482,26 @@ main = do
   --     ridges = facetRidges h facet
   -- pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
 
-  -- h <- convexHull truncatedTesseract False False Nothing
-  -- putStrLn $ hullSummary h
-  -- putStrLn "edges:"
-  -- pPrint $ edgesIds' h
+  h <- convexHull truncatedTesseract False False Nothing
+  putStrLn "HULL SUMMARY:"
+  putStrLn $ hullSummary h
+  putStrLn "\nEDGES:"
+  pPrint $ edgesIds' h
   -- putStrLn "original vertices:"
   -- pPrint $ take 2 truncatedTesseract
   -- putStrLn "vertices:"
   -- pPrint $ take 2 $ verticesCoordinates h
-  -- putStrLn "all vertices:"
-  -- pPrint $ verticesCoordinates h
+  putStrLn "\nALL VERTICES:"
+  pPrint $ verticesCoordinates h
+  putStrLn "\nALL ROUNDED VERTICES:"
+  pPrint $ roundedVertices 2 $ verticesCoordinates h
+  putStrLn "\nALL ROUNDED ORIGINAL VERTICES:"
+  pPrint $ roundedVertices 2 truncatedTesseract
   -- putStrLn "facets:"
   -- pPrint $ IM.map verticesIds (_hfacets h)
-  -- putStrLn "tetrahedral facets:"
-  -- pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
-  -- putStrLn "ridges of facet 9:"
+  putStrLn "\nTETRAHEDRAL FACETS:"
+  pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- putStrLn "ridges of facet 9:" -- pkoi ? parce que je voulais illuster une facette je pense...
   -- let facet = _hfacets h IM.! 9
   --     ridges = facetRidges h facet
   -- pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)

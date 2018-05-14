@@ -16,11 +16,11 @@ delaunayVertices verts = do
   v <- readFile verts
   return $ read v :: IO [[Double]]
 
-adjac :: Tesselation -> Int -> [Int]
-adjac tess i = map (fromEnum) $ map (((i `IS.member`) . _neighsitesIds) . snd) $ IM.toList $ _sites tess
+adjacency :: Tesselation -> Int -> [Int]
+adjacency tess i =  map (fromEnum . ((i `IS.member`) . _neighsitesIds) . snd) $ IM.toList $ _sites tess
 
-adjace :: Tesselation -> [[Int]]
-adjace tess = map (adjac tess) (IM.keys ( _sites tess ))
+adjacency' :: Tesselation -> [[Int]]
+adjacency' tess = map (adjacency tess) (IM.keys ( _sites tess ))
 
 data Arguments = Arguments { infile :: FilePath, outfile :: FilePath }
 
@@ -34,14 +34,14 @@ run = Arguments
           <> help "adjacency matrix" )
 
 writeMatrix :: [[Int]] -> FilePath -> IO ()
-writeMatrix matrix outfile = appendFile outfile (intercalate "\n" (map show matrix))
+writeMatrix matrix outfile = writeFile outfile (intercalate "\n" (map show matrix))
 
 doMatrix :: Arguments -> IO ()
 doMatrix (Arguments infile outfile) =
   do
     v <- delaunayVertices infile
     tess <- delaunayTess v
-    let mat = adjace tess
+    let mat = adjacency' tess
     writeMatrix mat outfile
 
 main :: IO ()

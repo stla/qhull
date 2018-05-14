@@ -61,6 +61,7 @@ library
                      , ConvexHull.BiTruncatedTesseract
                      , ConvexHull.SnubDodecahedron.SnubDodecahedron
                      , ConvexHull.OmniTruncated120Cell
+                     , Delaunay.Adjacency
   build-depends:       base >= 4.7 && < 5
                      , split
                      , containers
@@ -116,6 +117,7 @@ executable test_delaunay
                      , qhull
                      , pretty-show
                      , containers
+                     , insert-ordered-containers
 
 executable test_voronoi
   if flag(exe) || flag(exe-voronoi)
