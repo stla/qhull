@@ -364,6 +364,13 @@ dodecahedron = let phi = (1 + sqrt 5)/2 in
 icosahedron :: [[Double]]
 icosahedron = dodecahedron
 
+triangularDuoprism :: [[Double]]
+triangularDuoprism = [a ++ b | a <- triangle, b <- triangle]
+  where
+    triangle = [ [sqrt 3 / 2 ,  0.5]
+               , [-sqrt 3 / 2,  0.5]
+               , [0          , -1  ] ]
+
 hexagonalDuoprism :: [[Double]]
 hexagonalDuoprism = [a ++ b | a <- hexagon, b <- hexagon]
   where
@@ -471,6 +478,14 @@ hexacosichoron =
   [ permuteList p [-phi/2, 1/2, -1/2/phi, 0] |  p <- permutations4, isEvenPermutation p] ++
   [ permuteList p [-phi/2, -1/2, 1/2/phi, 0]  |  p <- permutations4, isEvenPermutation p] ++
   [ permuteList p [-phi/2, -1/2, -1/2/phi, 0]   |  p <- permutations4, isEvenPermutation p]
+  where
+    permutations4 = permutations 4
+    phi = (1 + sqrt 5) / 2
+    pm = [-1,1]
+
+snub24cell :: [[Double]]
+snub24cell =
+  [ permuteList p [0, i, i'*phi, i''*phi*phi] | i <- pm, i' <- pm, i'' <- pm, p <- permutations4, isEvenPermutation p]
   where
     permutations4 = permutations 4
     phi = (1 + sqrt 5) / 2

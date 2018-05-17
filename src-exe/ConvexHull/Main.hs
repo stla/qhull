@@ -423,16 +423,16 @@ main = do
   -- let polygons = map (map fst . facetToPolygon') facets
   -- pPrint polygons
 
---  h <- convexHull duocylinder False False Nothing
---  putStrLn $ hullSummary h
---  putStrLn "edges:"
---  pPrint $ edgesIds' h
---  putStrLn "all vertices:"
---  pPrint $ verticesCoordinates h
---  putStrLn "ridges:"
---  let facets = IM.elems (_hfacets h)
---  let ridges = map (IM.elems . facetRidges h) facets
---  pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+    -- h <- convexHull duocylinder False False Nothing
+    -- putStrLn $ hullSummary h
+    -- putStrLn "\nedges:"
+    -- pPrint $ edgesIds' h
+    -- putStrLn "\nall vertices:"
+    -- pPrint $ verticesCoordinates h
+    -- putStrLn "\nridges:"
+    -- let facets = IM.elems (_hfacets h)
+    -- let ridges = map (IM.elems . facetRidges h) facets
+    -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
 
   -- h <- convexHull hexaSquare False False Nothing
   -- putStrLn $ hullSummary h
@@ -440,6 +440,32 @@ main = do
   -- pPrint $ edgesIds' h
   -- putStrLn "all vertices:"
   -- pPrint $ verticesCoordinates h
+
+  h <- convexHull snub24cell False False Nothing
+  putStrLn $ hullSummary h
+  putStrLn "edges:"
+  pPrint $ edgesIds' h
+  putStrLn "same vertices:"
+  print $ verticesCoordinates h == snub24cell
+  putStrLn "\nALL ROUNDED VERTICES:"
+  pPrint $ roundedVertices 2 $ verticesCoordinates h
+  putStrLn "\nTETRAHEDRAL FACETS:"
+  pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+
+  -- h <- convexHull triangularDuoprism False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "all vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "same vertices:"
+  -- print $ verticesCoordinates h == triangularDuoprism
+  -- putStrLn "one prism:"
+  -- let facet = head $ IM.elems (_hfacets h)
+  -- let ridges = IM.elems $ facetRidges h facet
+  -- pPrint $ map (map fst . ridgeToPolygon) ridges
+  -- putStrLn "edges of this facet:"
+  -- pPrint $ edgesIds' facet
 
   -- h <- convexHull hexagonalDuoprism False False Nothing
   -- putStrLn $ hullSummary h
@@ -482,31 +508,31 @@ main = do
   --     ridges = facetRidges h facet
   -- pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
 
-  h <- convexHull truncatedTesseract False False Nothing
-  putStrLn "HULL SUMMARY:"
-  putStrLn $ hullSummary h
-  putStrLn "\nEDGES:"
-  pPrint $ edgesIds' h
-  -- putStrLn "original vertices:"
-  -- pPrint $ take 2 truncatedTesseract
-  -- putStrLn "vertices:"
-  -- pPrint $ take 2 $ verticesCoordinates h
-  putStrLn "\nALL VERTICES:"
-  pPrint $ verticesCoordinates h
-  putStrLn "\nALL ROUNDED VERTICES:"
-  pPrint $ roundedVertices 2 $ verticesCoordinates h
-  putStrLn "\nALL ROUNDED ORIGINAL VERTICES:"
-  pPrint $ roundedVertices 2 truncatedTesseract
-  -- putStrLn "facets:"
-  -- pPrint $ IM.map verticesIds (_hfacets h)
-  putStrLn "\nTETRAHEDRAL FACETS:"
-  pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
-  -- putStrLn "ridges of facet 9:" -- pkoi ? parce que je voulais illuster une facette je pense...
-  -- let facet = _hfacets h IM.! 9
-  --     ridges = facetRidges h facet
-  -- pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
-  -- putStrLn "vertices of facet 9:"
-  -- pPrint $ _vertices facet
+  -- h <- convexHull truncatedTesseract False False Nothing
+  -- putStrLn "HULL SUMMARY:"
+  -- putStrLn $ hullSummary h
+  -- putStrLn "\nEDGES:"
+  -- pPrint $ edgesIds' h
+  -- -- putStrLn "original vertices:"
+  -- -- pPrint $ take 2 truncatedTesseract
+  -- -- putStrLn "vertices:"
+  -- -- pPrint $ take 2 $ verticesCoordinates h
+  -- putStrLn "\nALL VERTICES:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "\nALL ROUNDED VERTICES:"
+  -- pPrint $ roundedVertices 2 $ verticesCoordinates h
+  -- putStrLn "\nALL ROUNDED ORIGINAL VERTICES:"
+  -- pPrint $ roundedVertices 2 truncatedTesseract
+  -- -- putStrLn "facets:"
+  -- -- pPrint $ IM.map verticesIds (_hfacets h)
+  -- putStrLn "\nTETRAHEDRAL FACETS:"
+  -- pPrint $ IM.elems $ IM.map verticesIds $ IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- -- putStrLn "ridges of facet 9:" -- pkoi ? parce que je voulais illuster une facette je pense...
+  -- -- let facet = _hfacets h IM.! 9
+  -- --     ridges = facetRidges h facet
+  -- -- pPrint $ map (map fst . ridgeToPolygon) (IM.elems ridges)
+  -- -- putStrLn "vertices of facet 9:"
+  -- -- pPrint $ _vertices facet
 
   -- h <- convexHull icosahedron False False Nothing
   -- pPrint $ IM.map facetToPolygon (_hfacets h)
