@@ -151,7 +151,7 @@ vertex belongs to;
 -   `_neightilesIds`, the set of the identifiers of the tiles the vertex belongs
 to.
 
-[![rgg.gif](https://s13.postimg.org/6h1r72k3r/rgg.gif)](https://postimg.org/image/ojutyafyb/)
+[![gfycat](https://thumbs.gfycat.com/FreeFaithfulArgali-size_restricted.gif)](https://gfycat.com/FreeFaithfulArgali)
 
 
 ## Voronoi diagrams
@@ -234,7 +234,7 @@ bounded, they have infinite edges:
 )
 ```
 
-[![voronoi_cuboctahedron.gif](https://s13.postimg.org/6e0vngu1j/voronoi_cuboctahedron.gif)](https://postimg.org/image/ceykkjgnn/)
+[![gfycat](https://thumbs.gfycat.com/HarmoniousHighlevelBushbaby-size_restricted.gif)](https://gfycat.com/HarmoniousHighlevelBushbaby)
 
 
 ## Convex hull
@@ -427,7 +427,7 @@ fromList
   ......
 ```
 
-[![convexhull02.gif](https://s17.postimg.org/zbl78b1bz/convexhull02.gif)](https://postimg.org/image/80zw0dyez/)
+[![gfycat](https://thumbs.gfycat.com/QuaintUnrulyBlackpanther-size_restricted.gif)](https://gfycat.com/QuaintUnrulyBlackpanther)
 
 
 ## Halfspaces intersections

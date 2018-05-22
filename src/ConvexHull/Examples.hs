@@ -5,6 +5,20 @@ import           Data.List.Split            (chunksOf)
 import           Math.Combinat.Permutations
 import           System.Random
 
+truncatedTetrahedron :: [[Double]]
+truncatedTetrahedron = [ [1/sqrt 6, -2/sqrt 3, 2]
+                       , [1/sqrt 6, -2/sqrt 3, -2]
+                       , [1/sqrt 6, 4/ sqrt 3, 0]
+                       , [-3/sqrt 6, 0, 2]
+                       , [-3/sqrt 6, 0, -2]
+                       , [-3/sqrt 6, sqrt 3, 1]
+                       , [-3/sqrt 6, -sqrt 3, 1]
+                       , [-3/sqrt 6, sqrt 3, -1]
+                       , [-3/sqrt 6, -sqrt 3, -1]
+                       , [5/sqrt 6, -1/sqrt 3, 1]
+                       , [5/sqrt 6, -1/sqrt 3, -1]
+                       , [5/sqrt 6, 2/sqrt 3, 0] ]
+
 
 daVinci :: [[Double]]
 daVinci =   [ [1.61352, -0.43234, 1.1862],
@@ -363,6 +377,26 @@ dodecahedron = let phi = (1 + sqrt 5)/2 in
 
 icosahedron :: [[Double]]
 icosahedron = dodecahedron
+
+duoprism35 :: [[Double]]
+duoprism35 = [a ++ b | a <- triangle, b <- pentagon]
+  where
+    triangle = [ [sqrt 3 / 2 ,  0.5]
+               , [-sqrt 3 / 2,  0.5]
+               , [0          , -1  ] ]
+    pentagon = [ [1          , 0          ]
+               , [cos(2*pi/5), sin(2*pi/5)]
+               , [cos(4*pi/5), sin(4*pi/5)]
+               , [cos(6*pi/5), sin(6*pi/5)]
+               , [cos(8*pi/5), sin(8*pi/5)] ]
+
+duoprism34 :: [[Double]]
+duoprism34 = [a ++ b | a <- triangle, b <- square]
+  where
+    triangle = [ [sqrt 3 / 2 ,  0.5]
+               , [-sqrt 3 / 2,  0.5]
+               , [0          , -1  ] ]
+    square = [[i * sqrt 2 / 2, j * sqrt 2 / 2] | i <- [-1,1], j <- [-1,1]]
 
 triangularDuoprism :: [[Double]]
 triangularDuoprism = [a ++ b | a <- triangle, b <- triangle]
