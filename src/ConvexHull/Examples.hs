@@ -5,6 +5,38 @@ import           Data.List.Split            (chunksOf)
 import           Math.Combinat.Permutations
 import           System.Random
 
+truncated5cells :: [[Double]]
+truncated5cells = [ [3/sqrt 10, -1/sqrt 6, 2/sqrt 3, 2]
+                   ,[3/sqrt 10, -1/sqrt 6, 2/sqrt 3, -2]
+                   ,[3/sqrt 10, -1/sqrt 6, -4/sqrt 3, 0]
+                   ,[3/sqrt 10, 3/sqrt 6, 0, 2]
+                   ,[3/sqrt 10, 3/sqrt 6, 0, -2]
+                   ,[3/sqrt 10, 3/sqrt 6, sqrt 3, 1]
+                   ,[3/sqrt 10, 3/sqrt 6, sqrt 3, -1]
+                   ,[3/sqrt 10, 3/sqrt 6, -sqrt 3, 1]
+                   ,[3/sqrt 10, 3/sqrt 6, -sqrt 3, -1]
+                   ,[3/sqrt 10, -5/sqrt 6, 1/sqrt 3, 1]
+                   ,[3/sqrt 10, -5/sqrt 6, 1/sqrt 3, -1]
+                   ,[3/sqrt 10, -5/sqrt 6, -2/sqrt 3, 0]
+                   ,[-2/sqrt 10, 2/sqrt 6, 2/sqrt 3, 2]
+                   ,[-2/sqrt 10, 2/sqrt 6, 2/sqrt 3, -2]
+                   ,[-2/sqrt 10, 2/sqrt 6, -4/sqrt 3, 0]
+                   ,[-2/sqrt 10, -sqrt 6, 0, 0]
+                   ,[-7/sqrt 10, 1/sqrt 6, 1/sqrt 3, 1]
+                   ,[-7/sqrt 10, 1/sqrt 6, 1/sqrt 3, -1]
+                   ,[-7/sqrt 10, 1/sqrt 6, -2/sqrt 3, 0]
+                   ,[-7/sqrt 10, -3/sqrt 6, 0, 0] ]
+
+truncated24cells :: [[Double]]
+truncated24cells = [permuteList p [0,i,j*2,k*3] | p <- permutations 4, i <- pm, j <- pm , k <- pm]
+  where
+    pm = [-1,1]
+
+thex :: [[Double]]
+thex = nub [ permuteList p [0,0,i,j*2] | p <- permutations 4, i <- pm, j <- pm]
+  where
+    pm = [-1,1]
+
 truncatedTetrahedron :: [[Double]]
 truncatedTetrahedron = [ [1/sqrt 6, -2/sqrt 3, 2]
                        , [1/sqrt 6, -2/sqrt 3, -2]
@@ -378,6 +410,13 @@ dodecahedron = let phi = (1 + sqrt 5)/2 in
 icosahedron :: [[Double]]
 icosahedron = dodecahedron
 
+duoprism330 :: [[Double]]
+duoprism330 = [a ++ b | a <- triangle, b <- p30]
+  where
+    triangle = [[cos (realToFrac i * 2*pi/3), sin (realToFrac i * 2*pi/3)] | i <- [0 .. 2]]
+    p30 = [[cos (realToFrac i * 2*pi/30), sin (realToFrac i * 2*pi/30)] | i <- [0 .. 29]]
+
+
 duoprism35 :: [[Double]]
 duoprism35 = [a ++ b | a <- triangle, b <- pentagon]
   where
@@ -483,6 +522,11 @@ cubinder = [a ++ b | a <- circle, b <- square]
   where
     circle = [[cos (realToFrac i * 2*pi/30), sin (realToFrac i * 2*pi/30)] | i <- [0 .. 29]]
     square = [[i * sqrt 2 / 2, j * sqrt 2 / 2] | i <- [-1,1], j <- [-1,1]]
+
+duoprism1616 :: [[Double]]
+duoprism1616 = [a ++ b | a <- p16, b <- p16]
+  where
+    p16 = [[cos (realToFrac i * 2*pi/16), sin (realToFrac i * 2*pi/16)] | i <- [0 .. 15]]
 
 duocylinder :: [[Double]]
 duocylinder = [a ++ b | a <- circle, b <- circle]

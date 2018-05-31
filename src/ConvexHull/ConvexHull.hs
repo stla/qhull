@@ -59,9 +59,6 @@ convexHull points triangulate stdout file = do
       return result
 
 
-xxx :: ConvexHull -> [[Int]]
-xxx chull = map (IM.keys . _rvertices) (IM.elems (_hridges chull))
-
 -- | convex hull summary
 hullSummary :: ConvexHull -> String
 hullSummary hull =
@@ -102,6 +99,14 @@ edgeOf hull (v1,v2) = IM.keys $ IM.filter (elem (Pair v1 v2)) facetsEdges
 -- | ridges of a facet
 facetRidges :: ConvexHull -> Facet -> IntMap Ridge
 facetRidges hull facet = IM.restrictKeys (_hridges hull) (_fridges facet)
+
+-- | vertices ids of all facets
+facetsVerticesIds :: ConvexHull -> [[Index]]
+facetsVerticesIds hull = map verticesIds (IM.elems $ _hfacets hull)
+
+-- | vertices ids of all ridges
+ridgesVerticesIds :: ConvexHull -> [[Index]]
+ridgesVerticesIds hull = map verticesIds (IM.elems (_hridges hull))
 
 -- | group facets of the same family
 groupedFacets :: ConvexHull -> [(Family, [IndexMap [Double]], [EdgeMap])]

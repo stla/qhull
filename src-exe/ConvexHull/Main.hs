@@ -90,15 +90,93 @@ roundedVertices n = map (map (approx n))
 main :: IO ()
 main = do
 
-  h <- convexHull truncatedTetrahedron False False Nothing
-  putStrLn "same vertices:"
-  pPrint $ roundedVertices 3 truncatedTetrahedron == roundedVertices 3 (verticesCoordinates h)
+  h <- convexHull duoprism330 False False Nothing
+  putStrLn $ hullSummary h
   putStrLn "edges:"
   pPrint $ edgesIds' h
-  putStrLn "facets:"
-  let facets = IM.elems (_hfacets h)
-  let polygons = map (map fst . facetToPolygon') facets
-  pPrint polygons
+  putStrLn "same vertices:"
+  print $ verticesCoordinates h == duoprism330
+  putStrLn "\nALL ROUNDED VERTICES:"
+  pPrint $ roundedVertices 3 $ verticesCoordinates h
+
+  -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
+  --                          , sin (pi*x) * sin (2*pi*x)
+  --                          , cos (pi*x)]) [i/100 | i <- [0 .. 100]]
+  -- h <- convexHull curve3D True False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices:"
+  -- pPrint $ roundedVertices 10 $ verticesCoordinates h
+  -- putStrLn "facets:"
+  -- pPrint $ map (IM.keys . _vertices) (IM.elems $ _hfacets h) -- TODO FAIRE UNE FONCTION FACETIDS
+  -- c'est fait : verticesIds = IM.keys . _vertices
+  -- direct : facetsVerticesIds h
+
+  -- h <- convexHull truncated5cells False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices:"
+  -- pPrint $ roundedVertices 10 $ verticesCoordinates h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTETRAHEDRAL FACETS:"
+  -- let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- putStrLn "ridges:"
+  -- let ridges = map (IM.elems . facetRidges h) (IM.elems tetras)
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull truncated24cells False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices:"
+  -- pPrint $ verticesCoordinates h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nCUBICAL FACETS:"
+  -- let cubes = IM.filter (\f -> length (verticesIds f) == 8) (_hfacets h)
+  -- putStrLn "ridges:"
+  -- let ridges = map (IM.elems . facetRidges h) (IM.elems cubes)
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull biTruncatedTesseract False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices:"
+  -- pPrint $ roundedVertices 3 $ verticesCoordinates h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTRUNCATED OCTAHEDRAL FACETS:"
+  -- let octahedra = IM.filter (\f -> length (verticesIds f) == 24) (_hfacets h)
+  -- putStrLn "\nTRUNCATED TETRAHEDRAL FACETS:"
+  -- let tetrahedra = IM.filter (\f -> length (verticesIds f) == 12) (_hfacets h)
+  -- putStrLn "ridges:"
+  -- let ridges = map (IM.elems . facetRidges h) (IM.elems tetrahedra)
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull truncatedTetrahedron False False Nothing
+  -- putStrLn "same vertices:"
+  -- pPrint $ roundedVertices 3 truncatedTetrahedron == roundedVertices 3 (verticesCoordinates h)
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "facets:"
+  -- let facets = IM.elems (_hfacets h)
+  -- let polygons = map (map fst . facetToPolygon') facets
+  -- pPrint polygons
+
+  -- h <- convexHull duoprism1616 False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+
+  -- h <- convexHull thex False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "vertices:"
+  -- pPrint $ roundedVertices 3 $ verticesCoordinates h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nOCTAHEDRAL FACETS:"
+  -- let octahedra = IM.filter (\f -> length (verticesIds f) == 6) (_hfacets h)
+  -- pPrint $ IM.elems $ IM.map verticesIds octahedra
+  -- pPrint octahedra
+  -- putStrLn "ridges:"
+  -- let ridges = map (IM.elems . facetRidges h) (IM.elems octahedra)
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
 
 --  h <- convexHull cuboctahedron4d False False Nothing
 --  pPrint $ hullSummary h
