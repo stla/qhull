@@ -5,6 +5,132 @@ import           Data.List.Split            (chunksOf)
 import           Math.Combinat.Permutations
 import           System.Random
 
+rectified5cell :: [[Double]]
+rectified5cell =
+  [ [-3/sqrt 10, -3/sqrt 6, 0, 0]
+  , [-3/sqrt 10, 1/sqrt 6, -2/sqrt 3, 0]
+  , [-3/sqrt 10, 1/sqrt 6, 1/sqrt 3, 1]
+  , [-3/sqrt 10, 1/sqrt 6, 1/sqrt 3, -1]
+  , [2/sqrt 10, 2/sqrt 6, 2/sqrt 3, 0]
+  , [2/sqrt 10, -2/sqrt 6, -2/sqrt 3, 0]
+  , [2/sqrt 10, 2/sqrt 6, -1/sqrt 3, 1]
+  , [2/sqrt 10, 2/sqrt 6, -1/sqrt 3, -1]
+  , [2/sqrt 10, -2/sqrt 6, 1/sqrt 3, 1]
+  , [2/sqrt 10, -2/sqrt 6, 1/sqrt 3, -1] ]
+
+sircope :: [[Double]]
+sircope =
+  let a = (1+ sqrt 2)/2 in
+  [
+   [-a, -0.5, -0.5, -0.5],
+   [a, -0.5, -0.5, -0.5],
+   [-a, 0.5, -0.5, -0.5],
+   [a, 0.5, -0.5, -0.5],
+   [-a, -0.5, 0.5, -0.5],
+   [a, -0.5, 0.5, -0.5],
+   [-a, 0.5, 0.5, -0.5],
+   [a, 0.5, 0.5, -0.5],
+   [-a, -0.5, -0.5, 0.5],
+   [a, -0.5, -0.5, 0.5],
+   [-a, 0.5, -0.5, 0.5],
+   [a, 0.5, -0.5, 0.5],
+   [-a, -0.5, 0.5, 0.5],
+   [a, -0.5, 0.5, 0.5],
+   [-a, 0.5, 0.5, 0.5],
+   [a, 0.5, 0.5, 0.5],
+   [-0.5, -a, -0.5, -0.5],
+   [0.5, -a, -0.5, -0.5],
+   [-0.5, a, -0.5, -0.5],
+   [0.5, a, -0.5, -0.5],
+   [-0.5, -a, 0.5, -0.5],
+   [0.5, -a, 0.5, -0.5],
+   [-0.5, a, 0.5, -0.5],
+   [0.5, a, 0.5, -0.5],
+   [-0.5, -a, -0.5, 0.5],
+   [0.5, -a, -0.5, 0.5],
+   [-0.5, a, -0.5, 0.5],
+   [0.5, a, -0.5, 0.5],
+   [-0.5, -a, 0.5, 0.5],
+   [0.5, -a, 0.5, 0.5],
+   [-0.5, a, 0.5, 0.5],
+   [0.5, a, 0.5, 0.5],
+   [-0.5, -0.5, -a, -0.5],
+   [0.5, -0.5, -a, -0.5],
+   [-0.5, 0.5, -a, -0.5],
+   [0.5, 0.5, -a, -0.5],
+   [-0.5, -0.5, a, -0.5],
+   [0.5, -0.5, a, -0.5],
+   [-0.5, 0.5, a, -0.5],
+   [0.5, 0.5, a, -0.5],
+   [-0.5, -0.5, -a, 0.5],
+   [0.5, -0.5, -a, 0.5],
+   [-0.5, 0.5, -a, 0.5],
+   [0.5, 0.5, -a, 0.5],
+   [-0.5, -0.5, a, 0.5],
+   [0.5, -0.5, a, 0.5],
+   [-0.5, 0.5, a, 0.5],
+   [0.5, 0.5, a, 0.5]
+  ]
+
+tutcup :: [[Double]]
+tutcup =
+  [ [1, -1/sqrt 3, 5/sqrt 6, 1/sqrt 2]
+  , [-1, -1/sqrt 3, 5/sqrt 6, 1/sqrt 2]
+  , [0, 2/sqrt 3, 5/sqrt 6, 1/sqrt 2]
+  , [2, -2/sqrt 3, 1/sqrt 6, 1/sqrt 2]
+  , [-2, -2/sqrt 3, 1/sqrt 6, 1/sqrt 2]
+  , [0, 4/sqrt 3, 1/sqrt 6, 1/sqrt 2]
+  , [1, 3/sqrt 3, -3/sqrt 6, 1/sqrt 2]
+  , [1, -3/sqrt 3, -3/sqrt 6, 1/sqrt 2]
+  , [-1, 3/sqrt 3, -3/sqrt 6, 1/sqrt 2]
+  , [-1, -3/sqrt 3, -3/sqrt 6, 1/sqrt 2]
+  , [2, 0, -3/sqrt 6, 1/sqrt 2]
+  , [-2, 0, -3/sqrt 6, 1/sqrt 2]
+  , [1, 3/sqrt 3, 3/sqrt 6, -1/sqrt 2]
+  , [1, -3/sqrt 3, 3/sqrt 6, -1/sqrt 2]
+  , [-1, 3/sqrt 3, 3/sqrt 6, -1/sqrt 2]
+  , [-1, -3/sqrt 3, 3/sqrt 6, -1/sqrt 2]
+  , [2, 0, 3/sqrt 6, -1/sqrt 2]
+  , [-2, 0, 3/sqrt 6, -1/sqrt 2]
+  , [2, 2/sqrt 3, -1/sqrt 6, -1/sqrt 2]
+  , [-2, 2/sqrt 3, -1/sqrt 6, -1/sqrt 2]
+  , [0, -4/sqrt 3, -1/sqrt 6, -1/sqrt 2]
+  , [1, 1/sqrt 3, -5/sqrt 6, -1/sqrt 2]
+  , [-1, 1/sqrt 3, -5/sqrt 6, -1/sqrt 2]
+  , [0, -2/sqrt 3, -5/sqrt 6, -1/sqrt 2] ]
+
+
+
+runcinatedTesseract :: [[Double]]
+runcinatedTesseract =
+  [[i*a, j*b, k*c, l*d] | i <- pm, j <- pm, k <- pm, l <- pm, (a,b,c,d) <- s]
+  where
+  pm = [-1,1]
+  x = 1 + sqrt 2
+  s = [(1,1,1,x),(1,1,x,1),(1,x,1,1),(x,1,1,1)]
+
+runcinated5cells :: [[Double]]
+runcinated5cells = [ [sqrt(5/2), 1/sqrt 6, 1/sqrt 3, 1]
+                    ,[sqrt(5/2), 1/sqrt 6, 1/sqrt 3, -1]
+                    ,[-sqrt(5/2), -1/sqrt 6, -1/sqrt 3, -1]
+                    ,[-sqrt(5/2), -1/sqrt 6, -1/sqrt 3, 1]
+                    ,[sqrt(5/2), 1/sqrt 6, -2/sqrt 3, 0]
+                    ,[-sqrt(5/2), -1/sqrt 6, 2/sqrt 3, 0]
+                    ,[sqrt(5/2), -sqrt(3/2), 0, 0]
+                    ,[-sqrt(5/2), sqrt(3/2), 0, 0]
+                    ,[0, 2*sqrt(2/3), 1/sqrt 3, 1]
+                    ,[0, 2*sqrt(2/3), 1/sqrt 3, -1]
+                    ,[0, -2*sqrt(2/3), -1/sqrt 3, -1]
+                    ,[0, -2*sqrt(2/3), -1/sqrt 3, 1]
+                    ,[0, 2*sqrt(2/3), -2/sqrt 3, 0]
+                    ,[0, -2*sqrt(2/3), 2/sqrt 3, 0]
+                    ,[0, 0, sqrt 3, 1]
+                    ,[0, 0, sqrt 3, -1]
+                    ,[0, 0, -sqrt 3, 1]
+                    ,[0, 0, -sqrt 3, -1]
+                    ,[0, 0, 0, 2]
+                    ,[0, 0, 0, -2] ]
+
 truncated5cells :: [[Double]]
 truncated5cells = [ [3/sqrt 10, -1/sqrt 6, 2/sqrt 3, 2]
                    ,[3/sqrt 10, -1/sqrt 6, 2/sqrt 3, -2]

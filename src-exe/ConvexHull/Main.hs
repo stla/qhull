@@ -90,14 +90,59 @@ roundedVertices n = map (map (approx n))
 main :: IO ()
 main = do
 
-  h <- convexHull duoprism330 False False Nothing
-  putStrLn $ hullSummary h
+  h <- convexHull rectified5cell False False Nothing
+  pPrint $ hullSummary h
   putStrLn "edges:"
   pPrint $ edgesIds' h
-  putStrLn "same vertices:"
-  print $ verticesCoordinates h == duoprism330
-  putStrLn "\nALL ROUNDED VERTICES:"
-  pPrint $ roundedVertices 3 $ verticesCoordinates h
+  putStrLn "\nTETRAHEDRAL FACETS:"
+  let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  pPrint $ IM.map verticesIds tetras
+
+  -- h <- convexHull sircope False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTRIANGLE PRISM FACETS:"
+  -- let tprisms = IM.filter (\f -> length (verticesIds f) == 6) (_hfacets h)
+  -- pPrint $ IM.elems (IM.map verticesIds tprisms)
+  -- putStrLn "ridges:"
+  -- let ridges = map (IM.elems . facetRidges h) (IM.elems tprisms)
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull tutcup False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTETRAHEDRAL FACETS:"
+  -- let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- pPrint $ IM.toList (IM.map verticesIds tetras)
+
+  -- h <- convexHull runcinatedTesseract False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTETRAHEDRAL FACETS:"
+  -- let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- pPrint $ IM.map verticesIds tetras
+
+  -- h <- convexHull runcinated5cells False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTETRAHEDRAL FACETS:"
+  -- let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- putStrLn "ridges:"
+  -- let ridges = map (IM.elems . facetRidges h) (IM.elems tetras)
+  -- pPrint $ map (map (map fst . ridgeToPolygon)) ridges
+
+  -- h <- convexHull duoprism330 False False Nothing
+  -- putStrLn $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "same vertices:"
+  -- print $ verticesCoordinates h == duoprism330
+  -- putStrLn "\nALL ROUNDED VERTICES:"
+  -- pPrint $ roundedVertices 3 $ verticesCoordinates h
 
   -- let curve3D = map (\x -> [ sin (pi*x) * cos (2*pi*x)
   --                          , sin (pi*x) * sin (2*pi*x)
