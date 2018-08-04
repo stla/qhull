@@ -133,7 +133,7 @@ RidgeT* mergeRidges(RidgeT* ridges, unsigned nridges, unsigned* newlength){
                  ridges[i].nvertices, ridges[j].nvertices, &l);
         ridges[i].nvertices = l;
         (*newlength)--;
-        for(k = j; k < nridges; k++){
+        for(k = j; k+1 < nridges; k++){
           ridges[k] = ridges[k+1];
         }
         nridges--;

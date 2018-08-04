@@ -90,13 +90,36 @@ roundedVertices n = map (map (approx n))
 main :: IO ()
 main = do
 
-  h <- convexHull rectified5cell False False Nothing
+  h <- convexHull sixhundredCell False False Nothing
   pPrint $ hullSummary h
+  putStrLn "vertices:"
+  pPrint $ roundedVertices 4 $ verticesCoordinates h
   putStrLn "edges:"
   pPrint $ edgesIds' h
   putStrLn "\nTETRAHEDRAL FACETS:"
   let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
-  pPrint $ IM.map verticesIds tetras
+  pPrint $ IM.toList (IM.map verticesIds tetras)
+
+  -- h <- convexHull hexadecachoron False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTETRAHEDRAL FACETS:"
+  -- let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- pPrint $ IM.toList (IM.map verticesIds tetras)
+
+  -- h <- convexHull runcitruncated5cell False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+
+  -- h <- convexHull rectified5cell False False Nothing
+  -- pPrint $ hullSummary h
+  -- putStrLn "edges:"
+  -- pPrint $ edgesIds' h
+  -- putStrLn "\nTETRAHEDRAL FACETS:"
+  -- let tetras = IM.filter (\f -> length (verticesIds f) == 4) (_hfacets h)
+  -- pPrint $ IM.map verticesIds tetras
 
   -- h <- convexHull sircope False False Nothing
   -- pPrint $ hullSummary h
