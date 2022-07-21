@@ -1,4 +1,6 @@
-resolver: nightly-2017-12-13
+# resolver: lts-19.16 # problem with toysolver, ambiguous occurence "singleton"
+resolver: lts-18.28
+# nightly-2017-12-13
 
 packages:
 - .
@@ -6,13 +8,28 @@ packages:
 allow-newer: true
 
 extra-deps:
-- toysolver-0.5.0
-- OptDir-0.0.3
-- data-interval-1.3.0
-- extended-reals-0.2.2.0
-- finite-field-0.9.0
-- pseudo-boolean-0.1.6.0
-- queue-0.1.2
-- sign-0.4.3
-- combinat-0.2.8.2
-- permutation-0.5.0.5
+# - toysolver-0.7.0
+# 0.5.0
+# - OptDir-0.0.3
+# - data-interval-1.3.0
+# - extended-reals-0.2.2.0
+# - finite-field-0.9.0
+# - pseudo-boolean-0.1.10.0
+# # 0.1.6.0
+# - queue-0.1.2
+# - sign-0.4.3
+- combinat-0.2.10.0
+# # -0.2.8.2
+# # - permutation-0.5.0.5
+# # additions af 
+-  Unique-0.4.7
+- compact-word-vectors-0.2.0.2
+- toysolver-0.7.0@sha256:1db00f7d2d4c9904343269ce1418aeb51fdc28c46777684c710f52ba8812d881,27335
+
+- MIP-0.1.1.0@sha256:01bbc71cbeabb76c8e23a68e351ff1f73cfb841ba105114d34666849de79a24a,4442
+- OptDir-0.0.4@sha256:7a59a4e225a1ea402b82377c9057cf258e45d9d7913b2edd010f7ae8b9e4f8af,861
+- bytestring-encoding-0.1.2.0@sha256:e5678542336945984b129039647e4438da8fcf8784d75630a2f8fcb8c4bc91da,1921
+- finite-field-0.10.0@sha256:f676a7abf829f27fee189036219c0326dce68a435bcdddc26319afff4008d8f4,2164
+- pseudo-boolean-0.1.10.0@sha256:c6a8b6c23c84cce8cecb37683755bde54db80b1ca817ce72de772c98d31dae44,2552
+- queue-0.1.2@sha256:4efac395db09637ec7b667dc09b74ff80e0b83452088540e1d1b2ec262f4defa,1312
+- sign-0.4.4@sha256:7f7aa78b78f30b05155ec3709e1549b2f74fb5cec12522e44f10537223e922ea,2088

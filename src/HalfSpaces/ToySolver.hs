@@ -6,7 +6,7 @@ import           Data.Default.Class
 import           Data.IntMap.Strict           (IntMap, mapKeys, mergeWithKey)
 import qualified Data.IntMap.Strict           as IM
 import           Data.List                    (nub)
-import           Data.Ratio                   (Rational)
+-- import           Data.Ratio                   (Rational)
 import           Data.VectorSpace
 import           HalfSpaces.Constraint        (Constraint (..), Sense (..))
 import           HalfSpaces.Internal          (varsOfConstraint)

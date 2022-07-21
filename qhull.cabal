@@ -1,11 +1,13 @@
 name:                qhull
-version:             0.1.0.0
--- synopsis:
--- description:
+version:             0.1.0.1
+synopsis:       Delaunay triangulation, Voronoi diagrams and convex hulls. Based on the qhull C library.
+description:    version to bring it up to current (2022) ghc version. 
+                Works with 8.10.7 
+                by AUF
 homepage:            https://github.com/stla/qhull#readme
 license:             GPL-3
 author:              Stéphane Laurent
-maintainer:          laurent_step@yahoo.fr
+maintainer:          
 copyright:           2018 Stéphane Laurent
 category:            Math
 build-type:          Simple
@@ -15,9 +17,9 @@ cabal-version:       >=1.10
 flag exe
   description:
     Build the executables.
-  default: False
+  default: True
 flag exe-delaunay
-  default: False
+  default: True
 flag exe-voronoi
   default: False
 flag exe-hull
@@ -76,7 +78,7 @@ library
                      , toysolver
                      , data-default-class
                      , combinat
-                     , permutation
+                    --  , permutation
                      , regex-compat
                      , regex-base
                      , regex-posix
@@ -147,7 +149,7 @@ executable test_convexhull
                      , containers
                      , insert-ordered-containers
                      , combinat
-                     , permutation
+                    --  , permutation
                      , ilist
                      , extra
                      , regex-compat
