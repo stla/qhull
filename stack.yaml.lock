@@ -81,6 +81,13 @@ packages:
       sha256: bfcf5672794d720ffcf6b04d12a9c6fcbb23cefde17f9be9d3f0f72e8de6af45
   original:
     hackage: sign-0.4.4@sha256:7f7aa78b78f30b05155ec3709e1549b2f74fb5cec12522e44f10537223e922ea,2088
+- completed:
+    hackage: vector-algorithms-0.8.0.3@sha256:477ef5ac82fdd28a39536ed0a767faec3425802827abee485be31db5bc6f5e90,3488
+    pantry-tree:
+      size: 1439
+      sha256: 9f04ef44c2459a122f2d5c093b4a9ebc47aaa00284a7bff9793fee7c6783f979
+  original:
+    hackage: vector-algorithms-0.8.0.3@sha256:477ef5ac82fdd28a39536ed0a767faec3425802827abee485be31db5bc6f5e90,3488
 snapshots:
 - completed:
     size: 590100

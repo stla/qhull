@@ -1,12 +1,14 @@
 name:                qhull
 version:             0.1.0.1
-synopsis:       Delaunay triangulation, Voronoi diagrams and convex hulls. Based on the qhull C library.
-description:    maintenance version to bring it up to current (2022) ghc version. 
-                Works with 8.10.7 
+synopsis:       Delaunay triangulation, Voronoi diagrams and convex hulls. 
+description:    Based on the qhull C library. 
+
+                Maintenance version to bring it up to current ghc-version (ghc-8.10.7, lts-18.28).  
 homepage:            https://github.com/stla/qhull#readme
 license:             GPL-3
+license-file:        GPL_3
 author:              Stéphane Laurent
-maintainer:          
+maintainer:          Andrew U. Frank
 copyright:           2018 Stéphane Laurent
 category:            Math
 build-type:          Simple
@@ -86,25 +88,25 @@ library
                      , TypeFamilies
   default-language:    Haskell2010
   include-dirs:        C
-  C-sources:           C/libqhull_r.c
-                     , C/geom_r.c
-                     , C/geom2_r.c
-                     , C/global_r.c
-                     , C/io_r.c
-                     , C/mem_r.c
-                     , C/merge_r.c
-                     , C/poly_r.c
-                     , C/poly2_r.c
-                     , C/qset_r.c
-                     , C/random_r.c
-                     , C/usermem_r.c
-                     , C/userprintf_r.c
-                     , C/user_r.c
-                     , C/stat_r.c
-                     , C/delaunay.c
-                     , C/convexhull.c
-                     , C/utils.c
-                     , C/halfspaces.c
+  C-sources:           ./C/libqhull_r.c
+                     , ./C/geom_r.c
+                     , ./C/geom2_r.c
+                     , ./C/global_r.c
+                     , ./C/io_r.c
+                     , ./C/mem_r.c
+                     , ./C/merge_r.c
+                     , ./C/poly_r.c
+                     , ./C/poly2_r.c
+                     , ./C/qset_r.c
+                     , ./C/random_r.c
+                     , ./C/usermem_r.c
+                     , ./C/userprintf_r.c
+                     , ./C/user_r.c
+                     , ./C/stat_r.c
+                     , ./C/delaunay.c
+                     , ./C/convexhull.c
+                     , ./C/utils.c
+                     , ./C/halfspaces.c
   ghc-options:         -O0 -Wall
 
 executable test_delaunay
