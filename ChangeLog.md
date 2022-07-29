@@ -9,4 +9,6 @@
 0.1.0.3     maintenance 
 -    issue with not finding include 
     trying <> instead of ""
+    change both include-dir and C-dir to ./C
+    there was a hint on stackoverflow that single char dirs do not work well in cabal
 -     cannot go to hpack, trying stack init - not working either
