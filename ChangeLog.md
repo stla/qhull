@@ -9,6 +9,7 @@
 0.1.0.3     maintenance 
 -    issue with not finding include 
     trying <> instead of ""
-    change both include-dir and C-dir to ./C
+    change both include-dir and C-dir to ./Cdir
     there was a hint on stackoverflow that single char dirs do not work well in cabal
+    works with stack once, after stack install uniform-geometry can use it.
 -     cannot go to hpack, trying stack init - not working either

@@ -1,6 +1,6 @@
 #define qh_QHimport
-#include <qhull_ra.h>
-#include <convexhull.h>
+#include "qhull_ra.h"
+#include "convexhull.h"
 #include "utils.h"
 
 // to use the qsort function - sort vertices according to their ids
