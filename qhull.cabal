@@ -12,8 +12,12 @@ maintainer:          Andrew U. Frank
 copyright:           2018 Stéphane Laurent
 category:            Math
 build-type:          Simple
-extra-source-files:  README.md
+extra-source-files:  README.md ChangeLog.md
 cabal-version:       >=1.10
+
+source-repository head
+  type:     git
+  location: https://github.com/stla/qhull
 
 flag exe
   description:
@@ -87,7 +91,7 @@ library
   other-extensions:    ForeignFunctionInterface
                      , TypeFamilies
   default-language:    Haskell2010
-  
+
   include-dirs:        ./Cdir
   C-sources:           ./Cdir/libqhull_r.c
                      , ./Cdir/geom_r.c
@@ -187,6 +191,4 @@ executable adjacencymatrix
                      , containers
   ghc-options:         -main-is Adjacency.AdjacencyMatrix
 
-source-repository head
-  type:     git
-  location: https://github.com/stla/qhull
+
