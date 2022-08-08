@@ -1,15 +1,4 @@
 packages: 
     *.cabal
---    ../uBase/uniform-algebras/*.cabal
---    ../uniform-error/*.cabal
---    ../uniform-fileio/*.cabal
---    ../uniform-json/*.cabal
---    ../uniform-strings/*.cabal
---    ../uniform-time/*.cabal
-
---       ../../fromOthersExperiments/qhull/*.cabal
--- Disregard all upper bounds when dependency solving
-
--- allow-newer: all must not be set
 
  
