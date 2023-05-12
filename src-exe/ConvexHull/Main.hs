@@ -15,7 +15,7 @@ import qualified Data.HashMap.Strict.InsOrd                   as H
 import qualified Data.IntMap.Strict                           as IM
 import           Data.List
 import           Data.List.Index
-import           Data.Permute                                 (elems, rank)
+-- import           Data.Permute                                 (elems, rank)
 import qualified Data.Set                                     as S
 import           Data.Tuple.Extra
 import           System.IO

@@ -1,5 +1,5 @@
 name:                qhull
-version:             0.1.0.5 
+version:             0.1.0.3
 synopsis:       Delaunay triangulation, Voronoi diagrams and convex hulls. 
 description:    Based on the qhull C library. 
 
@@ -12,12 +12,8 @@ maintainer:          Andrew U. Frank
 copyright:           2018 Stéphane Laurent
 category:            Math
 build-type:          Simple
-extra-source-files:  README.md ChangeLog.md
+extra-source-files:  README.md
 cabal-version:       >=1.10
-
-source-repository head
-  type:     git
-  location: https://github.com/stla/qhull
 
 flag exe
   description:
@@ -91,44 +87,26 @@ library
   other-extensions:    ForeignFunctionInterface
                      , TypeFamilies
   default-language:    Haskell2010
-
-  include-dirs:        ./Cdir
-  C-sources:           ./Cdir/libqhull_r.c
-                     , ./Cdir/geom_r.c
-                     , ./Cdir/geom2_r.c
-                     , ./Cdir/global_r.c
-                     , ./Cdir/io_r.c
-                     , ./Cdir/mem_r.c
-                     , ./Cdir/merge_r.c
-                     , ./Cdir/poly_r.c
-                     , ./Cdir/poly2_r.c
-                     , ./Cdir/qset_r.c
-                     , ./Cdir/random_r.c
-                     , ./Cdir/usermem_r.c
-                     , ./Cdir/userprintf_r.c
-                     , ./Cdir/user_r.c
-                     , ./Cdir/stat_r.c
-                     , ./Cdir/delaunay.c
-                     , ./Cdir/convexhull.c
-                     , ./Cdir/utils.c
-                     , ./Cdir/halfspaces.c
--- additions for 0.1.0.4
-  install-includes:   ./Cdir/qhull_ra.h
-                    , ./Cdir/libqhull_r.h
-                    , ./Cdir/user_r.h
-                    , ./Cdir/convexhull.h
-                    , ./Cdir/delaunay.h
-                    , ./Cdir/geom_r.h
-                    , ./Cdir/io_r.h
-                    , ./Cdir/mem_r.h
-                    , ./Cdir/merge_r.h
-                    , ./Cdir/poly_r.h
-                    , ./Cdir/qset_r.h
-                    , ./Cdir/random_r.h
-                    , ./Cdir/stat_r.h
-                    , ./Cdir/user_r.h
-                    , ./Cdir/utils.h
-
+  include-dirs:        C
+  C-sources:           ./C/libqhull_r.c
+                     , ./C/geom_r.c
+                     , ./C/geom2_r.c
+                     , ./C/global_r.c
+                     , ./C/io_r.c
+                     , ./C/mem_r.c
+                     , ./C/merge_r.c
+                     , ./C/poly_r.c
+                     , ./C/poly2_r.c
+                     , ./C/qset_r.c
+                     , ./C/random_r.c
+                     , ./C/usermem_r.c
+                     , ./C/userprintf_r.c
+                     , ./C/user_r.c
+                     , ./C/stat_r.c
+                     , ./C/delaunay.c
+                     , ./C/convexhull.c
+                     , ./C/utils.c
+                     , ./C/halfspaces.c
   ghc-options:         -O0 -Wall
 
 executable test_delaunay
@@ -159,39 +137,39 @@ executable test_voronoi
                      , containers
                      , ilist
 
--- executable test_convexhull
---   if flag(exe) || flag(exe-hull)
---     buildable:         True
---   else
---     buildable:         False
---   hs-source-dirs:      src-exe/ConvexHull
---   main-is:             Main.hs
---   default-language:    Haskell2010
---   build-depends:       base >= 4.7 && < 5
---                      , qhull
---                      , pretty-show
---                      , containers
---                      , insert-ordered-containers
---                      , combinat
---                     --  , permutation
---                      , ilist
---                      , extra
---                      , regex-compat
---                      , regex-base
---                      , regex-posix
---   ghc-options:         -O0
+executable test_convexhull
+  if flag(exe) || flag(exe-hull)
+    buildable:         True
+  else
+    buildable:         False
+  hs-source-dirs:      src-exe/ConvexHull
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , qhull
+                     , pretty-show
+                     , containers
+                     , insert-ordered-containers
+                     , combinat
+                    --  , permutation
+                     , ilist
+                     , extra
+                     , regex-compat
+                     , regex-base
+                     , regex-posix
+  ghc-options:         -O0
 
--- executable test_halfspaces
---   if flag(exe) || flag(exe-hs)
---     buildable:         True
---   else
---     buildable:         False
---   hs-source-dirs:      src-exe/HalfSpaces
---   main-is:             Main.hs
---   default-language:    Haskell2010
---   build-depends:       base >= 4.7 && < 5
---                      , qhull
---                      , pretty-show
+executable test_halfspaces
+  if flag(exe) || flag(exe-hs)
+    buildable:         True
+  else
+    buildable:         False
+  hs-source-dirs:      src-exe/HalfSpaces
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , qhull
+                     , pretty-show
 
 executable adjacencymatrix
   if flag(exe) || flag(exe-am)
@@ -207,4 +185,6 @@ executable adjacencymatrix
                      , containers
   ghc-options:         -main-is Adjacency.AdjacencyMatrix
 
-
+source-repository head
+  type:     git
+  location: https://github.com/stla/qhull

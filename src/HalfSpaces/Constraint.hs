@@ -1,6 +1,6 @@
 module HalfSpaces.Constraint
   where
-import           Data.Ratio                   (Rational)
+-- import           Data.Ratio                   (Rational)#
 import           HalfSpaces.LinearCombination (LinearCombination, constant)
 
 data Sense = Gt | Lt

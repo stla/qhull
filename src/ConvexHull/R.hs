@@ -7,7 +7,7 @@ import qualified Data.IntMap.Strict         as IM
 import           Data.List.Index            (iconcatMap)
 import           Data.Maybe
 import           Data.Tuple.Extra           (snd3)
-import           System.IO                  (writeFile)
+-- import           System.IO                  (writeFile)
 
 convexHull3DrglCode :: [[Double]] -> Bool -> Maybe FilePath -> IO String
 convexHull3DrglCode points rainbow file = do
